@@ -10,7 +10,7 @@ public class DriveTrain {
 
 	Encoder lEncoder;
 	Encoder rEncoder;
-
+//hi this is Emma
 	public DriveTrain() {
 		lmTalon = new Talon(0);
 		rmTalon = new Talon(1);
