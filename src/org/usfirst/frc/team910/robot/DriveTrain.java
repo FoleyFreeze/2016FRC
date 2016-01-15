@@ -10,6 +10,7 @@ public class DriveTrain {
 
 	Encoder lEncoder;
 	Encoder rEncoder;
+
 	public DriveTrain() {
 		lmTalon = new Talon(0);
 		rmTalon = new Talon(1);
@@ -17,9 +18,29 @@ public class DriveTrain {
 		rEncoder = new Encoder(4, 5, false);
 	}
 
-	public void tankDrive(double YAxisLeft, double YAxisRight) {
-		lmTalon.set(YAxisLeft);
-		rmTalon.set(YAxisRight);
+	public void tankDrive(double yAxisLeft, double yAxisRight) {
+		lmTalon.set(yAxisLeft);
+		rmTalon.set(yAxisRight);
 
+	}
+
+	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake){
+		
+		if (dBrake) {
+			//Dynamic Braking Function//
+		}
+		
+		else if  (sDrive) {
+			//Straight Drive Function//
+		}
+		
+		else {
+			tankDrive(yAxisLeft, yAxisRight);
+		}
+		
+		
+		
+		
+		
 	}
 }
