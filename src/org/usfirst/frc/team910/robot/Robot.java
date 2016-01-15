@@ -40,10 +40,10 @@ public class Robot extends IterativeRobot {
 	 */
 	public void teleopPeriodic() {
 		
-		double YAxisLeft = lJoy.getY();
-		double YAxisRight = rJoy.getY();
+		double yAxisLeft = lJoy.getY();
+		double yAxisRight = rJoy.getY();
 		
-		drive.tankDrive(YAxisLeft, YAxisRight);
+		drive.tankDrive(yAxisLeft, yAxisRight);
 		
 		
 	}
