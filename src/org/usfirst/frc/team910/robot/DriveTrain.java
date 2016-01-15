@@ -21,6 +21,26 @@ public class DriveTrain {
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
 		lmTalon.set(YAxisLeft);
 		rmTalon.set(YAxisRight);
+	}
+
+	// when ljoystick trigger is pressed get the intial encoder value
+	// while held, contiually wheel position to intial value initiate
+	// dynamicBreaking
+	// if encoders change value, engage motor power to move back to held value
+	// when reach held value stop
+	// smart way, pid gain value to get to 0
+	double startEncL, startEncR;
+
+	public void dynamicBreaking(boolean firstTime) {
+
+		if (firstTime) {
+			startEncL = lEncoder.getDistance();
+			startEncR = rEncoder.getDistance();
+
+		} else {
+			// actually do the thing
+		}
 
 	}
+
 }
