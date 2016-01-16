@@ -46,12 +46,16 @@ public class Robot extends IterativeRobot {
 	 */
 	public void teleopPeriodic() {
 
-		double yAxisLeft = lJoy.getY();
-		double yAxisRight = rJoy.getY();
-
-		drive.tankDrive(yAxisLeft, yAxisRight);
-
+		double YAxisLeft = lJoy.getY();
+		double YAxisRight = rJoy.getY();
+		if (test == false) {
+			drive.tankDrive(YAxisLeft, YAxisRight);
+		} else {
+			testdrive.tankDrive(YAxisLeft, YAxisRight);
+		}
 	}
+
+	
 
 	/**
 	 * This function is called periodically during test mode
