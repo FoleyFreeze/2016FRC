@@ -24,8 +24,8 @@ public class Robot extends IterativeRobot {
 
 	public void robotInit() {
 		drive = new DriveTrain();
-		rJoy = new Joystick(0);
-		lJoy = new Joystick (1);
+		rJoy = new Joystick(IO.LEFT_JOYSTICK);
+		lJoy = new Joystick (IO.RIGHT_JOYSTICK);
 	}
 
 	/**

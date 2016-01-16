@@ -13,10 +13,10 @@ public class DriveTrain {
 	Encoder rEncoder;
 
 	public DriveTrain() {
-		lmTalon = new Talon(0);
-		rmTalon = new Talon(1);
-		lEncoder = new Encoder(2, 3, false);
-		rEncoder = new Encoder(4, 5, false);
+		lmTalon = new Talon(IO.LEFT_DRIVE_MOTOR);
+		rmTalon = new Talon(IO.RIGHT_DRIVE_MOTOR);
+		lEncoder = new Encoder(IO.LEFT_DRIVE_A_ENCODER, IO.LEFT_DRIVE_B_ENCODER, false);
+		rEncoder = new Encoder(IO.RIGHT_DRIVE_A_ENCODER, IO.RIGHT_DRIVE_B_ENCODER, false);
 	}
 
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
