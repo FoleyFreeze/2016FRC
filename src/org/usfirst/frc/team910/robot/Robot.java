@@ -1,8 +1,12 @@
 
 package org.usfirst.frc.team910.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -24,6 +28,8 @@ public class Robot extends IterativeRobot {
 	Joystick rJoy;
 	Joystick lJoy;
 
+	AHRS navX;
+
 	public void robotInit() {
 		if (test == true) {
 			testdrive = new DriveTrainTest();
@@ -32,6 +38,8 @@ public class Robot extends IterativeRobot {
 		}
 		rJoy = new Joystick(IO.LEFT_JOYSTICK);
 		lJoy = new Joystick(IO.RIGHT_JOYSTICK);
+
+		navX = new AHRS(SPI.Port.kMXP);
 	}
 
 	/**
@@ -55,6 +63,10 @@ public class Robot extends IterativeRobot {
 		} else {
 			testdrive.run(lJoy.getY(), rJoy.getY(), rJoy.getTrigger(), lJoy.getTrigger());
 		}
+
+		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
+		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
+		SmartDashboard.putNumber("navX Roll", navX.getRoll());
 	}
 
 	/**
