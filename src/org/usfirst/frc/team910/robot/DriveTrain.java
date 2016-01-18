@@ -31,18 +31,15 @@ public class DriveTrain {
 	// smart way, pid gain value to get to 0
 	double startEncL, startEncR;
 
-	public void dynamicBreaking(boolean firstTime) {
+	public void dynamicBraking(boolean firstTime) {
 
 		if (firstTime) {
 			startEncL = lEncoder.getDistance();
 			startEncR = rEncoder.getDistance();
 
 		} else {
-			//set encoder
-			tankDrive(lEncoder.getDistance()-startEncL,rEncoder.getDistance()-startEncR);
-		
-			
-			
+			// set encoder
+			tankDrive(lEncoder.getDistance() - startEncL, rEncoder.getDistance() - startEncR);
 		}
 
 	}
@@ -67,20 +64,27 @@ public class DriveTrain {
 
 	}
 
-	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake){
-		
+	boolean previousDbrake = false;
+
+	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake) {
+
 		if (dBrake) {
-			//Dynamic Braking Function//
+			// Dynamic Braking Function//
+			dynamicBraking(!previousDbrake);
+			previousDbrake = true;
 		}
-		
-		else if  (sDrive) {
-			//Straight Drive Function//
+
+		else if (sDrive) {
+			// Straight Drive Function//
+			driveStraight(yAxisRight);
+			previousDbrake = false;
 		}
-		
+
 		else {
 			tankDrive(yAxisLeft, yAxisRight);
+			previousDbrake = false;
 		}
-		
+
 	}
 
 }

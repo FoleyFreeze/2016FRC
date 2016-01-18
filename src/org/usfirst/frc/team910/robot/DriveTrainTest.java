@@ -3,9 +3,8 @@ package org.usfirst.frc.team910.robot;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Encoder;
 
-
 public class DriveTrainTest {
-	
+
 	CANTalon LFmCANTalon; // LF
 	CANTalon LBmCANTalon;
 	CANTalon RFmCANTalon; // RF
@@ -38,14 +37,15 @@ public class DriveTrainTest {
 	// smart way, pid gain value to get to 0
 	double startEncL, startEncR;
 
-	public void dynamicBreaking(boolean firstTime) {
+	public void dynamicBraking(boolean firstTime) {
 
 		if (firstTime) {
 			startEncL = lEncoder.getDistance();
 			startEncR = rEncoder.getDistance();
 
 		} else {
-			// actually do the thing
+			// set encoder
+			tankDrive(lEncoder.getDistance() - startEncL, rEncoder.getDistance() - startEncR);
 		}
 
 	}
@@ -70,20 +70,27 @@ public class DriveTrainTest {
 
 	}
 
-	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake){
-		
+	boolean previousDbrake = false;
+
+	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake) {
+
 		if (dBrake) {
-			//Dynamic Braking Function//
+			// Dynamic Braking Function//
+			dynamicBraking(!previousDbrake);
+			previousDbrake = true;
 		}
-		
-		else if  (sDrive) {
-			//Straight Drive Function//
+
+		else if (sDrive) {
+			// Straight Drive Function//
+			driveStraight(yAxisRight);
+			previousDbrake = false;
 		}
-		
+
 		else {
 			tankDrive(yAxisLeft, yAxisRight);
+			previousDbrake = false;
 		}
-		
+
 	}
 
 }

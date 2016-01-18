@@ -16,7 +16,7 @@ public class Robot extends IterativeRobot {
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
-	boolean test = false;
+	boolean test = true;
 
 	DriveTrainTest testdrive;
 	DriveTrain drive;
@@ -48,14 +48,14 @@ public class Robot extends IterativeRobot {
 
 		double YAxisLeft = lJoy.getY();
 		double YAxisRight = rJoy.getY();
+
 		if (test == false) {
-			drive.tankDrive(YAxisLeft, YAxisRight);
+
+			drive.run(lJoy.getY(), rJoy.getY(), rJoy.getTrigger(), lJoy.getTrigger());
 		} else {
-			testdrive.tankDrive(YAxisLeft, YAxisRight);
+			testdrive.run(lJoy.getY(), rJoy.getY(), rJoy.getTrigger(), lJoy.getTrigger());
 		}
 	}
-
-	
 
 	/**
 	 * This function is called periodically during test mode
