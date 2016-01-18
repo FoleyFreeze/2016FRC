@@ -7,7 +7,6 @@ public class DriveTrain {
 	
 	Talon lmTalon;
 	Talon rmTalon;
-	//Garrett
 
 	Encoder lEncoder;
 	Encoder rEncoder;
