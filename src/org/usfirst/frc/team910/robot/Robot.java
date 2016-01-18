@@ -36,10 +36,12 @@ public class Robot extends IterativeRobot {
 		} else {
 			drive = new DriveTrain();
 		}
-		rJoy = new Joystick(IO.LEFT_JOYSTICK);
-		lJoy = new Joystick(IO.RIGHT_JOYSTICK);
 
 		navX = new AHRS(SPI.Port.kMXP);
+
+		lJoy = new Joystick(IO.LEFT_JOYSTICK);
+		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
+
 	}
 
 	/**
@@ -54,14 +56,14 @@ public class Robot extends IterativeRobot {
 	 */
 	public void teleopPeriodic() {
 
-		double YAxisLeft = lJoy.getY();
-		double YAxisRight = rJoy.getY();
+		double YAxisLeft = -lJoy.getY();
+		double YAxisRight = -rJoy.getY();
 
 		if (test == false) {
 
-			drive.run(lJoy.getY(), rJoy.getY(), rJoy.getTrigger(), lJoy.getTrigger());
+			drive.run(YAxisLeft, YAxisRight, rJoy.getTrigger(), lJoy.getTrigger());
 		} else {
-			testdrive.run(lJoy.getY(), rJoy.getY(), rJoy.getTrigger(), lJoy.getTrigger());
+			testdrive.run(YAxisLeft, YAxisRight, rJoy.getTrigger(), lJoy.getTrigger());
 		}
 
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
