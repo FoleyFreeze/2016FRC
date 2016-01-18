@@ -23,8 +23,8 @@ public class DriveTrainTest {
 	}
 
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
-		LFmCANTalon.set(YAxisLeft);
-		LBmCANTalon.set(YAxisLeft);
+		LFmCANTalon.set(-YAxisLeft);
+		LBmCANTalon.set(-YAxisLeft);
 		RFmCANTalon.set(YAxisRight);
 		RBmCANTalon.set(YAxisRight);
 	}

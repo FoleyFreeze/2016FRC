@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Talon;
 
 public class DriveTrain {
-	
+
 	Talon lmTalon;
 	Talon rmTalon;
 
@@ -19,7 +19,7 @@ public class DriveTrain {
 	}
 
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
-		lmTalon.set(YAxisLeft);
+		lmTalon.set(-YAxisLeft);
 		rmTalon.set(YAxisRight);
 	}
 
