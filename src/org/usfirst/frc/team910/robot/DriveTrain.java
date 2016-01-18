@@ -38,7 +38,11 @@ public class DriveTrain {
 			startEncR = rEncoder.getDistance();
 
 		} else {
-			// actually do the thing
+			//set encoder
+			tankDrive(lEncoder.getDistance()-startEncL,rEncoder.getDistance()-startEncR);
+		
+			
+			
 		}
 
 	}
