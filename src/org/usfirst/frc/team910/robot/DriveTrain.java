@@ -2,6 +2,7 @@ package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrain {
 
@@ -49,8 +50,8 @@ public class DriveTrain {
 		double levalue;
 		double revalue;
 
-		levalue = lEncoder.get();
-		revalue = rEncoder.get();
+		levalue = lEncoder.getDistance();
+		revalue = rEncoder.getDistance();
 
 		double diff;
 
@@ -84,6 +85,9 @@ public class DriveTrain {
 			tankDrive(yAxisLeft, yAxisRight);
 			previousDbrake = false;
 		}
+
+		SmartDashboard.putNumber("L Encoder", lEncoder.getDistance());
+		SmartDashboard.putNumber("R Encoder", rEncoder.getDistance());
 
 	}
 
