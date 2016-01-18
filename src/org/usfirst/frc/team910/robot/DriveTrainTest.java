@@ -14,10 +14,10 @@ public class DriveTrainTest {
 	Encoder rEncoder;
 
 	public DriveTrainTest() {
-		LFmCANTalon = new CANTalon(0);
-		LBmCANTalon = new CANTalon(1);
-		RFmCANTalon = new CANTalon(2);
-		RBmCANTalon = new CANTalon(3);
+		LFmCANTalon = new CANTalon(2);
+		LBmCANTalon = new CANTalon(3);
+		RFmCANTalon = new CANTalon(0);
+		RBmCANTalon = new CANTalon(1);
 		lEncoder = new Encoder(IO.LEFT_DRIVE_A_ENCODER, IO.LEFT_DRIVE_B_ENCODER, false);
 		rEncoder = new Encoder(IO.RIGHT_DRIVE_A_ENCODER, IO.RIGHT_DRIVE_B_ENCODER, false);
 	}
