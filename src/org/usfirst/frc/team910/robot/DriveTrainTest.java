@@ -49,7 +49,9 @@ public class DriveTrainTest {
 
 		} else {
 			// set encoder
-			tankDrive(lEncoder.getDistance() - startEncL, rEncoder.getDistance() - startEncR);
+			double lPwr = startEncL - lEncoder.getDistance();
+			double rPwr = startEncR - rEncoder.getDistance();
+			tankDrive(lPwr, rPwr);
 		}
 
 	}
@@ -74,13 +76,16 @@ public class DriveTrainTest {
 		} else {
 
 			intdiff = intlevalue - intrevalue;
+			SmartDashboard.putNumber("init diff", intdiff);
 
 			levalue = lEncoder.getDistance();
 			revalue = rEncoder.getDistance();
 
 			currentdiff = levalue - revalue;
+			SmartDashboard.putNumber("curr diff", currentdiff);
 
 			gooddiff = currentdiff - intdiff;
+			SmartDashboard.putNumber("good diff", gooddiff);
 
 			adj = gooddiff * 1;
 
@@ -104,7 +109,7 @@ public class DriveTrainTest {
 
 		else if (sDrive) {
 			// Straight Drive Function//
-			driveStraight(yAxisRight, previousSdrive);
+			driveStraight(yAxisRight, !previousSdrive);
 			previousDbrake = false;
 			previousSdrive = true;
 		}

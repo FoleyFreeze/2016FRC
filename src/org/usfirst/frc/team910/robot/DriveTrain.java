@@ -45,27 +45,43 @@ public class DriveTrain {
 
 	}
 
-	public void driveStraight(double lpower) {
+	double intlevalue;
+	double intrevalue;
 
+	public void driveStraight(double lpower, boolean firstTime) {
 		double levalue;
 		double revalue;
 
-		levalue = lEncoder.getDistance();
-		revalue = rEncoder.getDistance();
+		double currentdiff;
+		double intdiff;
+		double gooddiff;
+		double adj;
 
-		double diff;
+		if (firstTime) {
+			intlevalue = lEncoder.getDistance();
+			intrevalue = rEncoder.getDistance();
 
-		diff = levalue - revalue;
+		} else {
 
-		double adj = diff * 1;
+			intdiff = intlevalue - intrevalue;
 
-		double lnew = lpower - adj;
-		double rnew = lpower + adj;
-		tankDrive(lnew, rnew);
+			levalue = lEncoder.getDistance();
+			revalue = rEncoder.getDistance();
 
+			currentdiff = levalue - revalue;
+
+			gooddiff = currentdiff - intdiff;
+
+			adj = gooddiff * 1;
+
+			double lnew = lpower - adj;
+			double rnew = lpower + adj;
+			tankDrive(lnew, rnew);
+		}
 	}
 
 	boolean previousDbrake = false;
+	boolean previousSdrive = false;
 
 	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake) {
 
@@ -73,17 +89,20 @@ public class DriveTrain {
 			// Dynamic Braking Function//
 			dynamicBraking(!previousDbrake);
 			previousDbrake = true;
+			previousSdrive = false;
 		}
 
 		else if (sDrive) {
 			// Straight Drive Function//
-			driveStraight(yAxisRight);
+			driveStraight(yAxisRight, !previousSdrive);
 			previousDbrake = false;
+			previousSdrive = true;
 		}
 
 		else {
 			tankDrive(yAxisLeft, yAxisRight);
 			previousDbrake = false;
+			previousSdrive = false;
 		}
 
 		SmartDashboard.putNumber("L Encoder", lEncoder.getDistance());
