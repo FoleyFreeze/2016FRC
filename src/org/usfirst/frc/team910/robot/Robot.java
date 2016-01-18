@@ -16,16 +16,22 @@ public class Robot extends IterativeRobot {
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
+	boolean test = false;
 
+	DriveTrainTest testdrive;
 	DriveTrain drive;
-	
+
 	Joystick rJoy;
 	Joystick lJoy;
 
 	public void robotInit() {
-		drive = new DriveTrain();
-		rJoy = new Joystick(0);
-		lJoy = new Joystick (1);
+		if (test == true) {
+			testdrive = new DriveTrainTest();
+		} else {
+			drive = new DriveTrain();
+		}
+		rJoy = new Joystick(IO.LEFT_JOYSTICK);
+		lJoy = new Joystick(IO.RIGHT_JOYSTICK);
 	}
 
 	/**
@@ -39,14 +45,17 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during operator control
 	 */
 	public void teleopPeriodic() {
-		
-		double yAxisLeft = lJoy.getY();
-		double yAxisRight = rJoy.getY();
-		
-		drive.tankDrive(yAxisLeft, yAxisRight);
-		
-		
+
+		double YAxisLeft = lJoy.getY();
+		double YAxisRight = rJoy.getY();
+		if (test == false) {
+			drive.tankDrive(YAxisLeft, YAxisRight);
+		} else {
+			testdrive.tankDrive(YAxisLeft, YAxisRight);
+		}
 	}
+
+	
 
 	/**
 	 * This function is called periodically during test mode

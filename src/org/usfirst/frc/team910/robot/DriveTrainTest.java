@@ -1,27 +1,33 @@
 package org.usfirst.frc.team910.robot;
 
+import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Talon;
 
-public class DriveTrain {
+
+public class DriveTrainTest {
 	
-	Talon lmTalon;
-	Talon rmTalon;
-	//Garrett
+	CANTalon LFmCANTalon; // LF
+	CANTalon LBmCANTalon;
+	CANTalon RFmCANTalon; // RF
+	CANTalon RBmCANTalon; //
 
 	Encoder lEncoder;
 	Encoder rEncoder;
 
-	public DriveTrain() {
-		lmTalon = new Talon(IO.LEFT_DRIVE_MOTOR);
-		rmTalon = new Talon(IO.RIGHT_DRIVE_MOTOR);
+	public DriveTrainTest() {
+		LFmCANTalon = new CANTalon(0);
+		LBmCANTalon = new CANTalon(1);
+		RFmCANTalon = new CANTalon(2);
+		RBmCANTalon = new CANTalon(3);
 		lEncoder = new Encoder(IO.LEFT_DRIVE_A_ENCODER, IO.LEFT_DRIVE_B_ENCODER, false);
 		rEncoder = new Encoder(IO.RIGHT_DRIVE_A_ENCODER, IO.RIGHT_DRIVE_B_ENCODER, false);
 	}
 
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
-		lmTalon.set(YAxisLeft);
-		rmTalon.set(YAxisRight);
+		LFmCANTalon.set(YAxisLeft);
+		LBmCANTalon.set(YAxisLeft);
+		RFmCANTalon.set(YAxisRight);
+		RBmCANTalon.set(YAxisRight);
 	}
 
 	// when ljoystick trigger is pressed get the intial encoder value
@@ -39,11 +45,7 @@ public class DriveTrain {
 			startEncR = rEncoder.getDistance();
 
 		} else {
-			//set encoder
-			tankDrive(lEncoder.getDistance()-startEncL,rEncoder.getDistance()-startEncR);
-		
-			
-			
+			// actually do the thing
 		}
 
 	}
