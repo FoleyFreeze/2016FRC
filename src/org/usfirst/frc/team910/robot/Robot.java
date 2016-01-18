@@ -2,6 +2,7 @@
 package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -15,8 +16,22 @@ public class Robot extends IterativeRobot {
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
-	public void robotInit() {
+	boolean test = false;
 
+	DriveTrainTest testdrive;
+	DriveTrain drive;
+
+	Joystick rJoy;
+	Joystick lJoy;
+
+	public void robotInit() {
+		if (test == true) {
+			testdrive = new DriveTrainTest();
+		} else {
+			drive = new DriveTrain();
+		}
+		rJoy = new Joystick(IO.LEFT_JOYSTICK);
+		lJoy = new Joystick(IO.RIGHT_JOYSTICK);
 	}
 
 	/**
@@ -31,7 +46,16 @@ public class Robot extends IterativeRobot {
 	 */
 	public void teleopPeriodic() {
 
+		double YAxisLeft = lJoy.getY();
+		double YAxisRight = rJoy.getY();
+		if (test == false) {
+			drive.tankDrive(YAxisLeft, YAxisRight);
+		} else {
+			testdrive.tankDrive(YAxisLeft, YAxisRight);
+		}
 	}
+
+	
 
 	/**
 	 * This function is called periodically during test mode
