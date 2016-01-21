@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.SerialPort;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -37,7 +38,7 @@ public class Robot extends IterativeRobot {
 			drive = new DriveTrain();
 		}
 
-		navX = new AHRS(SPI.Port.kMXP);
+		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
@@ -69,6 +70,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
 		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
 		SmartDashboard.putNumber("navX Roll", navX.getRoll());
+		SmartDashboard.putNumber("navX X", navX.getRawGyroX());
+		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
+		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
 	}
 
 	/**
