@@ -1,13 +1,13 @@
 
 package org.usfirst.frc.team910.robot;
 
-import com.kauailabs.navx.frc.AHRS; 
+import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.SerialPort;
 
 /**
  * The VM is configured to automatically run this class, and to call the
@@ -30,6 +30,8 @@ public class Robot extends IterativeRobot {
 	Joystick lJoy;
 
 	AHRS navX;
+	
+	AnalogInput dSensor; 
 
 	public void robotInit() {
 		if (test == true) {
@@ -42,6 +44,8 @@ public class Robot extends IterativeRobot {
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
+		
+		dSensor = new AnalogInput(2);
 
 	}
 
@@ -73,6 +77,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
+		SmartDashboard.putNumber("Distance", dSensor.getVoltage());
 	}
 
 	/**
