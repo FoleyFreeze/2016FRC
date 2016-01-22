@@ -45,7 +45,7 @@ public class Robot extends IterativeRobot {
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
 		
-		dSensor = new AnalogInput(2);
+		dSensor = new AnalogInput(1);
 
 	}
 
