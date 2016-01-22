@@ -30,21 +30,21 @@ public class Robot extends IterativeRobot {
 	Joystick lJoy;
 
 	AHRS navX;
-	
-	AnalogInput dSensor; 
+
+	AnalogInput dSensor;
 
 	public void robotInit() {
-		if (test == true) {
-			testdrive = new DriveTrainTest();
-		} else {
-			drive = new DriveTrain();
-		}
-
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
+
+		if (test == true) {
+			testdrive = new DriveTrainTest(navX);
+		} else {
+			drive = new DriveTrain(navX);
+		}
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
-		
+
 		dSensor = new AnalogInput(1);
 
 	}
@@ -66,9 +66,9 @@ public class Robot extends IterativeRobot {
 
 		if (test == false) {
 
-			drive.run(YAxisLeft, YAxisRight, rJoy.getTrigger(), lJoy.getTrigger());
+			drive.run(YAxisLeft, YAxisRight, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2));
 		} else {
-			testdrive.run(YAxisLeft, YAxisRight, rJoy.getTrigger(), lJoy.getTrigger());
+			testdrive.run(YAxisLeft, YAxisRight, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2));
 		}
 
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());

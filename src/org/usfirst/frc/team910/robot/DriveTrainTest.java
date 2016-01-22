@@ -1,10 +1,14 @@
 package org.usfirst.frc.team910.robot;
 
+import com.kauailabs.navx.frc.AHRS;
+
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrainTest {
+
+	AHRS navX;
 
 	CANTalon LFmCANTalon; // LF
 	CANTalon LBmCANTalon;
@@ -14,7 +18,8 @@ public class DriveTrainTest {
 	Encoder lEncoder;
 	Encoder rEncoder;
 
-	public DriveTrainTest() {
+	public DriveTrainTest(AHRS x) {
+		navX = x;
 		LFmCANTalon = new CANTalon(2);
 		LBmCANTalon = new CANTalon(3);
 		RFmCANTalon = new CANTalon(0);
@@ -97,14 +102,16 @@ public class DriveTrainTest {
 
 	boolean previousDbrake = false;
 	boolean previousSdrive = false;
+	boolean previousCdrive = false;
 
-	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake) {
+	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake, boolean compassDrive) {
 
 		if (dBrake) {
 			// Dynamic Braking Function//
 			dynamicBraking(!previousDbrake);
 			previousDbrake = true;
 			previousSdrive = false;
+			previousCdrive = false;
 		}
 
 		else if (sDrive) {
@@ -112,17 +119,48 @@ public class DriveTrainTest {
 			driveStraight(yAxisRight, !previousSdrive);
 			previousDbrake = false;
 			previousSdrive = true;
+			previousCdrive = false;
+
+		} else if (compassDrive && navX.isConnected()) {
+			// Compass Drive Function//
+			compassDrive(yAxisRight, navX.getYaw(), !previousCdrive);
+			previousCdrive = true;
+			previousDbrake = false;
+			previousSdrive = false;
 		}
 
 		else {
 			tankDrive(yAxisLeft, yAxisRight);
 			previousDbrake = false;
 			previousSdrive = false;
+			previousCdrive = false;
 		}
 
 		SmartDashboard.putNumber("L Encoder", lEncoder.getDistance());
 		SmartDashboard.putNumber("R Encoder", rEncoder.getDistance());
 
+	}
+
+	double intYAW;
+
+	public void compassDrive(double power, double currentYAW, boolean firstYAW) {
+
+		double gooddiff;
+		double adj;
+
+		if (firstYAW) {
+			intYAW = currentYAW;
+
+		} else {
+
+			gooddiff = currentYAW - intYAW;
+
+			adj = gooddiff * .25;
+
+			double lnew = power - adj;
+			double rnew = power + adj;
+			tankDrive(lnew, rnew);
+		}
 	}
 
 }

@@ -8,9 +8,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class DriveTrain {
 
 	AHRS navX;
-	double setyaaaw = 0;
-	double currentYAW;
-	double finalyaw;
 
 	Talon lmTalon;
 	Talon rmTalon;
@@ -18,7 +15,8 @@ public class DriveTrain {
 	Encoder lEncoder;
 	Encoder rEncoder;
 
-	public DriveTrain() {
+	public DriveTrain(AHRS x) {
+		navX = x;
 		lmTalon = new Talon(IO.LEFT_DRIVE_MOTOR);
 		rmTalon = new Talon(IO.RIGHT_DRIVE_MOTOR);
 		lEncoder = new Encoder(IO.LEFT_DRIVE_A_ENCODER, IO.LEFT_DRIVE_B_ENCODER, false);
@@ -88,14 +86,16 @@ public class DriveTrain {
 
 	boolean previousDbrake = false;
 	boolean previousSdrive = false;
+	boolean previousCdrive = false;
 
-	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake) {
+	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake, boolean compassDrive) {
 
 		if (dBrake) {
 			// Dynamic Braking Function//
 			dynamicBraking(!previousDbrake);
 			previousDbrake = true;
 			previousSdrive = false;
+			previousCdrive = false;
 		}
 
 		else if (sDrive) {
@@ -103,12 +103,21 @@ public class DriveTrain {
 			driveStraight(yAxisRight, !previousSdrive);
 			previousDbrake = false;
 			previousSdrive = true;
+			previousCdrive = false;
+
+		} else if (compassDrive && navX.isConnected()) {
+			// Compass Drive Function//
+			compassDrive(yAxisRight, navX.getYaw(), !previousCdrive);
+			previousCdrive = true;
+			previousDbrake = false;
+			previousSdrive = false;
 		}
 
 		else {
 			tankDrive(yAxisLeft, yAxisRight);
 			previousDbrake = false;
 			previousSdrive = false;
+			previousCdrive = false;
 		}
 
 		SmartDashboard.putNumber("L Encoder", lEncoder.getDistance());
@@ -135,22 +144,6 @@ public class DriveTrain {
 			double lnew = power - adj;
 			double rnew = power + adj;
 			tankDrive(lnew, rnew);
-		}
-	}
-
-	public void CompassDrive(double currentYAW, double rjoystick) {
-
-		if (currentYAW > 0) {
-			double finalyaw;
-
-			finalyaw = setyaaaw - currentYAW;
-
-			double lnew = rjoystick - finalyaw;
-			double rnew = rjoystick + finalyaw;
-			tankDrive(lnew, rnew);
-
-		} else {
-
 		}
 	}
 }
