@@ -1,17 +1,17 @@
 package org.usfirst.frc.team910.robot;
 
-import com.kauailabs.navx.frc.AHRS; 
+import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrain {
-	
+
 	AHRS navX;
 	double setyaaaw = 0;
 	double currentYAW;
 	double finalyaw;
-	
+
 	Talon lmTalon;
 	Talon rmTalon;
 
@@ -115,20 +115,42 @@ public class DriveTrain {
 		SmartDashboard.putNumber("R Encoder", rEncoder.getDistance());
 
 	}
+
+	double intYAW;
+
+	public void compassDrive(double power, double currentYAW, boolean firstYAW) {
+
+		double gooddiff;
+		double adj;
+
+		if (firstYAW) {
+			intYAW = currentYAW;
+
+		} else {
+
+			gooddiff = currentYAW - intYAW;
+
+			adj = gooddiff * .25;
+
+			double lnew = power - adj;
+			double rnew = power + adj;
+			tankDrive(lnew, rnew);
+		}
+	}
+
 	public void CompassDrive(double currentYAW, double rjoystick) {
-	
+
 		if (currentYAW > 0) {
 			double finalyaw;
- 
+
 			finalyaw = setyaaaw - currentYAW;
 
 			double lnew = rjoystick - finalyaw;
 			double rnew = rjoystick + finalyaw;
 			tankDrive(lnew, rnew);
-			
-		}	
-		else {
-			
-		} 
+
+		} else {
+
 		}
 	}
+}
