@@ -2,6 +2,7 @@ package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -138,7 +139,7 @@ public class DriveTrain {
 		} else if (diff < -30) {
 			tankDrive(-power, power);
 		} else {
-			adj = diff * .25;
+			adj = diff * .05;
 
 			double lnew = power - adj;
 			double rnew = power + adj;
@@ -151,5 +152,18 @@ if(diff > 180){
 else if(diff < -180){
 	diff = -360 - diff;
 }
+	}
+	public double getAngle(double y, double x) {
+	return Math.atan2(y, x);
+	
+	}
+	public double getR(double y, double x) {
+		 double c;
+		c=(x*x)+(y*y);
+		
+		return Math.sqrt(c);
+
+ 
+				 
 	}
 }
