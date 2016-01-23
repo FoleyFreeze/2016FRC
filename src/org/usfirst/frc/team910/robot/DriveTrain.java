@@ -146,4 +146,17 @@ public class DriveTrain {
 			tankDrive(lnew, rnew);
 		}
 	}
+	public double getAngle(double y, double x) {
+	return Math.atan2(y, x);
+	
+	}
+	public double getR(double y, double x) {
+		 double c;
+		c=(x*x)+(y*y);
+		
+		return Math.sqrt(c);
+
+ 
+				 
+	}
 }
