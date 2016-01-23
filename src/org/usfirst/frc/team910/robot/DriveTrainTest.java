@@ -155,7 +155,7 @@ public class DriveTrainTest {
 
 			gooddiff = currentYAW - intYAW;
 
-			adj = gooddiff * .25;
+			adj = gooddiff * .05;
 
 			double lnew = power - adj;
 			double rnew = power + adj;
