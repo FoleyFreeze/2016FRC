@@ -125,25 +125,31 @@ public class DriveTrain {
 
 	}
 
-	double intYAW;
+	public void compassDrive(double power, double currentYAW, boolean firstYAW, double targetAngle) {
 
-	public void compassDrive(double power, double currentYAW, boolean firstYAW) {
-
-		double gooddiff;
+		double diff;
 		double adj;
 
-		if (firstYAW) {
-			intYAW = currentYAW;
+		diff = currentYAW - targetAngle;
 
+		if (diff > 30) {
+			tankDrive(power, -power);
+
+		} else if (diff < -30) {
+			tankDrive(-power, power);
 		} else {
-
-			gooddiff = currentYAW - intYAW;
-
-			adj = gooddiff * .25;
+			adj = diff * .25;
 
 			double lnew = power - adj;
 			double rnew = power + adj;
 			tankDrive(lnew, rnew);
+
 		}
+if(diff > 180){
+	diff = 360 - diff;
+}
+else if(diff < -180){
+	diff = -360 - diff;
+}
 	}
 }
