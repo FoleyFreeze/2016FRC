@@ -2,6 +2,7 @@ package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -139,7 +140,7 @@ public class DriveTrain {
 
 			gooddiff = currentYAW - intYAW;
 
-			adj = gooddiff * .25;
+			adj = gooddiff * .05;
 
 			double lnew = power - adj;
 			double rnew = power + adj;
