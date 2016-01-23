@@ -66,9 +66,14 @@ public class Robot extends IterativeRobot {
 
 		if (test == false) {
 
-			drive.run(YAxisLeft, YAxisRight, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2));
+			drive.run(YAxisLeft, YAxisRight, rJoy.getX(), rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2));
 		} else {
-			testdrive.run(YAxisLeft, YAxisRight, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2));
+			testdrive.run(YAxisLeft, YAxisRight, rJoy.getX(), rJoy.getTrigger(), lJoy.getTrigger(),
+					rJoy.getRawButton(2));
+		}
+
+		if (rJoy.getRawButton(3)) {
+			navX.zeroYaw();
 		}
 
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
@@ -78,6 +83,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
 		SmartDashboard.putNumber("Distance", dSensor.getVoltage());
+
 	}
 
 	/**

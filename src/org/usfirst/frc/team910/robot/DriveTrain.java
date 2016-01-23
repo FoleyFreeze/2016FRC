@@ -2,7 +2,6 @@ package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -89,7 +88,8 @@ public class DriveTrain {
 	boolean previousSdrive = false;
 	boolean previousCdrive = false;
 
-	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake, boolean compassDrive) {
+	public void run(double yAxisLeft, double yAxisRight, double xAxisRight, boolean sDrive, boolean dBrake,
+			boolean compassDrive) {
 
 		if (dBrake) {
 			// Dynamic Braking Function//
@@ -108,7 +108,8 @@ public class DriveTrain {
 
 		} else if (compassDrive && navX.isConnected()) {
 			// Compass Drive Function//
-			compassDrive(yAxisRight, navX.getYaw(), !previousCdrive);
+			compassDrive(getR(xAxisRight, yAxisRight), navX.getYaw(), !previousCdrive,
+					getAngle(xAxisRight, yAxisRight));
 			previousCdrive = true;
 			previousDbrake = false;
 			previousSdrive = false;
@@ -132,7 +133,11 @@ public class DriveTrain {
 		double adj;
 
 		diff = currentYAW - targetAngle;
-
+		if (diff > 180) {
+			diff = 360 - diff;
+		} else if (diff < -180) {
+			diff = -360 - diff;
+		}
 		if (diff > 30) {
 			tankDrive(power, -power);
 
@@ -145,25 +150,22 @@ public class DriveTrain {
 			double rnew = power + adj;
 			tankDrive(lnew, rnew);
 
-		}
-if(diff > 180){
-	diff = 360 - diff;
-}
-else if(diff < -180){
-	diff = -360 - diff;
-}
-	}
-	public double getAngle(double y, double x) {
-	return Math.atan2(y, x);
-	
-	}
-	public double getR(double y, double x) {
-		 double c;
-		c=(x*x)+(y*y);
 		
-		return Math.sqrt(c);
+		
+		}
+	}
 
- 
-				 
+	public double getAngle(double y, double x) {
+		return Math.atan2(y, x);
+
+	}
+
+	public double getR(double y, double x) {
+		double c;
+		c = (x * x) + (y * y);
+
+		return Math.sqrt(c);
+		
+
 	}
 }

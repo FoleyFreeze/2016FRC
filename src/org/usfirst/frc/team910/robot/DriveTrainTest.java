@@ -32,6 +32,11 @@ public class DriveTrainTest {
 	}
 
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
+		if (Math.abs(YAxisLeft) > 1)
+			YAxisLeft = YAxisLeft / Math.abs(YAxisLeft);
+		if (Math.abs(YAxisRight) > 1)
+			YAxisRight = YAxisRight / Math.abs(YAxisRight);
+
 		LFmCANTalon.set(-YAxisLeft * 0.25);
 		LBmCANTalon.set(-YAxisLeft * 0.25);
 		RFmCANTalon.set(YAxisRight * 0.25);
@@ -104,7 +109,8 @@ public class DriveTrainTest {
 	boolean previousSdrive = false;
 	boolean previousCdrive = false;
 
-	public void run(double yAxisLeft, double yAxisRight, boolean sDrive, boolean dBrake, boolean compassDrive) {
+	public void run(double yAxisLeft, double yAxisRight, double xAxisRight, boolean sDrive, boolean dBrake,
+			boolean compassDrive) {
 
 		if (dBrake) {
 			// Dynamic Braking Function//
@@ -123,7 +129,8 @@ public class DriveTrainTest {
 
 		} else if (compassDrive && navX.isConnected()) {
 			// Compass Drive Function//
-			compassDrive(yAxisRight, navX.getYaw(), !previousCdrive);
+			compassDrive(getR(xAxisRight, yAxisRight), navX.getYaw(), !previousCdrive,
+					getAngle(xAxisRight, yAxisRight));
 			previousCdrive = true;
 			previousDbrake = false;
 			previousSdrive = false;
@@ -141,26 +148,54 @@ public class DriveTrainTest {
 
 	}
 
-	double intYAW;
+	public void compassDrive(double power, double currentYAW, boolean firstYAW, double targetAngle) {
 
-	public void compassDrive(double power, double currentYAW, boolean firstYAW) {
-
-		double gooddiff;
+		double diff;
 		double adj;
 
-		if (firstYAW) {
-			intYAW = currentYAW;
+		if (Math.abs(power) > 1)
+			power = power / Math.abs(power);
 
+		diff = currentYAW - targetAngle;
+
+		SmartDashboard.putNumber("preAdjDiff", diff);
+
+		if (diff > 180) {
+			diff = -360 + diff;
+		} else if (diff < -180) {
+			diff = 360 + diff;
+		}
+
+		SmartDashboard.putNumber("targetAngle", targetAngle);
+		SmartDashboard.putNumber("angleDiff", diff);
+
+		if (diff > 30) {
+			tankDrive(-power, power);
+
+		} else if (diff < -30) {
+			tankDrive(power, -power);
 		} else {
-
-			gooddiff = currentYAW - intYAW;
-
-			adj = gooddiff * .05;
+			adj = diff * .05;
 
 			double lnew = power - adj;
 			double rnew = power + adj;
 			tankDrive(lnew, rnew);
+
 		}
+
+	}
+
+	public double getAngle(double y, double x) {
+		return Math.atan2(y, x) * 180 / Math.PI;
+
+	}
+
+	public double getR(double y, double x) {
+		double c;
+		c = (x * x) + (y * y);
+
+		return Math.sqrt(c);
+
 	}
 
 }
