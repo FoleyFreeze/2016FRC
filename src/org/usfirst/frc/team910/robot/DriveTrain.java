@@ -1,6 +1,8 @@
 package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,20 +14,54 @@ public class DriveTrain {
 	Talon lmTalon;
 	Talon rmTalon;
 
+	CANTalon LFmCANTalon; // LF
+	CANTalon LBmCANTalon;
+	CANTalon RFmCANTalon; // RF
+	CANTalon RBmCANTalon; //
+
 	Encoder lEncoder;
 	Encoder rEncoder;
 
 	public DriveTrain(AHRS x) {
+
+		if (Robot.TEST) {
+			LFmCANTalon = new CANTalon(2);
+			LBmCANTalon = new CANTalon(3);
+			RFmCANTalon = new CANTalon(0);
+			RBmCANTalon = new CANTalon(1);
+
+			lEncoder = new Encoder(IO.LEFT_DRIVE_A_ENCODER, IO.LEFT_DRIVE_B_ENCODER, false);
+			rEncoder = new Encoder(IO.RIGHT_DRIVE_A_ENCODER, IO.RIGHT_DRIVE_B_ENCODER, false);
+			lEncoder.setDistancePerPulse(120.0 / 2244.0);
+			rEncoder.setDistancePerPulse(-120.0 / 1571.0);
+
+		} else {
+			lmTalon = new Talon(IO.LEFT_DRIVE_MOTOR);
+			rmTalon = new Talon(IO.RIGHT_DRIVE_MOTOR);
+			lEncoder = new Encoder(IO.LEFT_DRIVE_A_ENCODER, IO.LEFT_DRIVE_B_ENCODER, false);
+			rEncoder = new Encoder(IO.RIGHT_DRIVE_A_ENCODER, IO.RIGHT_DRIVE_B_ENCODER, false);
+		}
+
 		navX = x;
-		lmTalon = new Talon(IO.LEFT_DRIVE_MOTOR);
-		rmTalon = new Talon(IO.RIGHT_DRIVE_MOTOR);
-		lEncoder = new Encoder(IO.LEFT_DRIVE_A_ENCODER, IO.LEFT_DRIVE_B_ENCODER, false);
-		rEncoder = new Encoder(IO.RIGHT_DRIVE_A_ENCODER, IO.RIGHT_DRIVE_B_ENCODER, false);
+
 	}
 
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
-		lmTalon.set(-YAxisLeft);
-		rmTalon.set(YAxisRight);
+		if (Math.abs(YAxisLeft) > 1)
+			YAxisLeft = YAxisLeft / Math.abs(YAxisLeft);
+		if (Math.abs(YAxisRight) > 1)
+			YAxisRight = YAxisRight / Math.abs(YAxisRight);
+
+		if (Robot.TEST) {
+			LFmCANTalon.set(-YAxisLeft * 0.25);
+			LBmCANTalon.set(-YAxisLeft * 0.25);
+			RFmCANTalon.set(YAxisRight * 0.25);
+			RBmCANTalon.set(YAxisRight * 0.25);
+		} else {
+			lmTalon.set(-YAxisLeft);
+			rmTalon.set(YAxisRight);
+		}
+
 	}
 
 	// when ljoystick trigger is pressed get the intial encoder value
@@ -44,7 +80,9 @@ public class DriveTrain {
 
 		} else {
 			// set encoder
-			tankDrive(lEncoder.getDistance() - startEncL, rEncoder.getDistance() - startEncR);
+			double lPwr = startEncL - lEncoder.getDistance();
+			double rPwr = startEncR - rEncoder.getDistance();
+			tankDrive(lPwr, rPwr);
 		}
 
 	}
@@ -53,6 +91,7 @@ public class DriveTrain {
 	double intrevalue;
 
 	public void driveStraight(double lpower, boolean firstTime) {
+
 		double levalue;
 		double revalue;
 
@@ -68,13 +107,16 @@ public class DriveTrain {
 		} else {
 
 			intdiff = intlevalue - intrevalue;
+			SmartDashboard.putNumber("init diff", intdiff);
 
 			levalue = lEncoder.getDistance();
 			revalue = rEncoder.getDistance();
 
 			currentdiff = levalue - revalue;
+			SmartDashboard.putNumber("curr diff", currentdiff);
 
 			gooddiff = currentdiff - intdiff;
+			SmartDashboard.putNumber("good diff", gooddiff);
 
 			adj = gooddiff * 1;
 
@@ -88,7 +130,7 @@ public class DriveTrain {
 	boolean previousSdrive = false;
 	boolean previousCdrive = false;
 
-	public void run(double yAxisLeft, double yAxisRight, double xAxisRight, boolean sDrive, boolean dBrake,
+	public void run(double yAxisLeft, double yAxisRight, double pov, boolean sDrive, boolean dBrake,
 			boolean compassDrive) {
 
 		if (dBrake) {
@@ -108,8 +150,7 @@ public class DriveTrain {
 
 		} else if (compassDrive && navX.isConnected()) {
 			// Compass Drive Function//
-			compassDrive(getR(xAxisRight, yAxisRight), navX.getYaw(), !previousCdrive,
-					getAngle(xAxisRight, yAxisRight));
+			compassDrive(yAxisRight, navX.getYaw(), !previousCdrive, pov);
 			previousCdrive = true;
 			previousDbrake = false;
 			previousSdrive = false;
@@ -132,17 +173,27 @@ public class DriveTrain {
 		double diff;
 		double adj;
 
+		if (Math.abs(power) > 1)
+			power = power / Math.abs(power);
+
 		diff = currentYAW - targetAngle;
+
+		SmartDashboard.putNumber("preAdjDiff", diff);
+
 		if (diff > 180) {
-			diff = 360 - diff;
+			diff = -360 + diff;
 		} else if (diff < -180) {
-			diff = -360 - diff;
+			diff = 360 + diff;
 		}
+
+		SmartDashboard.putNumber("targetAngle", targetAngle);
+		SmartDashboard.putNumber("angleDiff", diff);
+
 		if (diff > 30) {
-			tankDrive(power, -power);
+			tankDrive(-power, power);
 
 		} else if (diff < -30) {
-			tankDrive(-power, power);
+			tankDrive(power, -power);
 		} else {
 			adj = diff * .05;
 
@@ -150,13 +201,12 @@ public class DriveTrain {
 			double rnew = power + adj;
 			tankDrive(lnew, rnew);
 
-		
-		
 		}
+
 	}
 
 	public double getAngle(double y, double x) {
-		return Math.atan2(y, x);
+		return Math.atan2(y, x) * 180 / Math.PI;
 
 	}
 
@@ -165,7 +215,6 @@ public class DriveTrain {
 		c = (x * x) + (y * y);
 
 		return Math.sqrt(c);
-		
 
 	}
 }
