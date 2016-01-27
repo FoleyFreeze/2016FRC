@@ -53,10 +53,10 @@ public class DriveTrain {
 			YAxisRight = YAxisRight / Math.abs(YAxisRight);
 
 		if (Robot.TEST) {
-			LFmCANTalon.set(-YAxisLeft * 0.25);
-			LBmCANTalon.set(-YAxisLeft * 0.25);
-			RFmCANTalon.set(YAxisRight * 0.25);
-			RBmCANTalon.set(YAxisRight * 0.25);
+			LFmCANTalon.set(-YAxisLeft * 0.5);
+			LBmCANTalon.set(-YAxisLeft * 0.5);
+			RFmCANTalon.set(YAxisRight * 0.5);
+			RBmCANTalon.set(YAxisRight * 0.5);
 		} else {
 			lmTalon.set(-YAxisLeft);
 			rmTalon.set(YAxisRight);
@@ -131,7 +131,7 @@ public class DriveTrain {
 	boolean previousCdrive = false;
 
 	public void run(double yAxisLeft, double yAxisRight, double pov, boolean sDrive, boolean dBrake,
-			boolean compassDrive) {
+			boolean compassDrive, double rThrottle) {
 
 		if (dBrake) {
 			// Dynamic Braking Function//
@@ -148,9 +148,9 @@ public class DriveTrain {
 			previousSdrive = true;
 			previousCdrive = false;
 
-		} else if (compassDrive && navX.isConnected()) {
+		} else if (pov != -1 && navX.isConnected()) {
 			// Compass Drive Function//
-			compassDrive(yAxisRight, navX.getYaw(), !previousCdrive, pov);
+			compassDrive((-rThrottle + 1) / 2, navX.getYaw(), !previousCdrive, pov);
 			previousCdrive = true;
 			previousDbrake = false;
 			previousSdrive = false;

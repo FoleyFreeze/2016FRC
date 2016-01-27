@@ -65,7 +65,8 @@ public class Robot extends IterativeRobot {
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
 
-		drive.run(YAxisLeft, YAxisRight, rJoy.getPOV(0), rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2));
+		drive.run(YAxisLeft, YAxisRight, (double) rJoy.getPOV(0), rJoy.getTrigger(), lJoy.getTrigger(),
+				rJoy.getRawButton(2), rJoy.getThrottle());
 
 		if (rJoy.getRawButton(3)) {
 			navX.zeroYaw();
