@@ -22,8 +22,9 @@ public class Robot extends IterativeRobot {
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
-	static final boolean TEST = true;
+	boolean test = true;
 
+	DriveTrainTest testdrive;
 	DriveTrain drive;
 
 	Joystick rJoy;
@@ -38,7 +39,11 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 
-		drive = new DriveTrain(navX);
+		if (test == true) {
+			testdrive = new DriveTrainTest(navX);
+		} else {
+			drive = new DriveTrain(navX);
+		}
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
@@ -65,8 +70,13 @@ public class Robot extends IterativeRobot {
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
 
-		drive.run(YAxisLeft, YAxisRight, (double) rJoy.getPOV(0), rJoy.getTrigger(), lJoy.getTrigger(),
-				rJoy.getRawButton(2), rJoy.getThrottle());
+		if (test == false) {
+
+			drive.run(YAxisLeft, YAxisRight, rJoy.getX(), rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2));
+		} else {
+			testdrive.run(YAxisLeft, YAxisRight, rJoy.getX(), rJoy.getTrigger(), lJoy.getTrigger(),
+					rJoy.getRawButton(2));
+		}
 
 		if (rJoy.getRawButton(3)) {
 			navX.zeroYaw();
