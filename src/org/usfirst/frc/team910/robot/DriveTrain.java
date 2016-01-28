@@ -118,7 +118,7 @@ public class DriveTrain {
 			gooddiff = currentdiff - intdiff;
 			SmartDashboard.putNumber("good diff", gooddiff);
 
-			adj = gooddiff * 1;
+			adj = gooddiff * .25;
 
 			double lnew = lpower - adj;
 			double rnew = lpower + adj;
