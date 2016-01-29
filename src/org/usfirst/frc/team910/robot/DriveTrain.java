@@ -79,7 +79,7 @@ public class DriveTrain {
 
 			gooddiff = currentdiff - intdiff;
 
-			adj = gooddiff * .25;
+			adj = gooddiff * 1;
 
 			double lnew = lpower - adj;
 			double rnew = lpower + adj;
