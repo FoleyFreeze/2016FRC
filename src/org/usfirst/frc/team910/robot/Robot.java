@@ -4,7 +4,6 @@ package org.usfirst.frc.team910.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
@@ -34,8 +33,6 @@ public class Robot extends IterativeRobot {
 
 	AnalogInput dSensor;
 
-	CameraServer cam;
-
 	public void robotInit() {
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 
@@ -49,9 +46,6 @@ public class Robot extends IterativeRobot {
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
 
 		dSensor = new AnalogInput(1);
-
-		cam = CameraServer.getInstance();
-		cam.startAutomaticCapture("cam0");
 
 	}
 
