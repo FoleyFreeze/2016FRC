@@ -24,7 +24,7 @@ public class Robot extends IterativeRobot {
 	 */
 	boolean test = true;
 
-	DriveTrainTest testdrive;
+	//DriveTrainTest testdrive;
 	DriveTrain drive;
 
 	Joystick rJoy;
