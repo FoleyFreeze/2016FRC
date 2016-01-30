@@ -172,7 +172,15 @@ public class DriveTrain {
 
 		double diff;
 		double adj;
-
+		double inverse;
+		
+		if (targetAngle)>134){ 
+			targetAngle = targetAngle + 180;
+			inverse= -1;	
+		} else {
+			inverse = 1;	
+		}
+			
 		if (Math.abs(power) > 1)
 			power = power / Math.abs(power);
 
@@ -189,18 +197,19 @@ public class DriveTrain {
 		SmartDashboard.putNumber("targetAngle", targetAngle);
 		SmartDashboard.putNumber("angleDiff", diff);
 
+		power = power * inverse;
+		
 		if (diff > 30) {
 			tankDrive(-power, power);
-
 		} else if (diff < -30) {
 			tankDrive(power, -power);
 		} else {
-			adj = diff * .05;
+			adj = diff * .05 * inverse;
 
 			double lnew = power - adj;
 			double rnew = power + adj;
-			tankDrive(lnew, rnew);
-
+			return tankDrive(lnew, rnew);
+			
 		}
 
 	}
@@ -213,8 +222,6 @@ public class DriveTrain {
 	public double getR(double y, double x) {
 		double c;
 		c = (x * x) + (y * y);
-
-		return Math.sqrt(c);
 
 	}
 }
