@@ -2,11 +2,9 @@ package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Ultrasonic;
 
 public class Gatherer {
-	/*
+	
 	boolean dungoofed;
 	boolean nextposition;
 	DigitalInput gatherdistance;
@@ -42,23 +40,21 @@ public class Gatherer {
 				state = 2;
 				}
 				break;
-			} else {
+			} /*else*/ {
 				gatherer.set(.07);
 
-				break;
+				
 			}
-		case 3: 
+		assert true; 
 			if (gatherarm.equals(1339)) {
 				state = 3;
-				break;
+			
 			} else {
 				gatherer.set(.07);
-				break;
-
+				
 			}
 
 		}
-	}
 	
 
 	
@@ -77,6 +73,5 @@ public class Gatherer {
 		public void gatherstate3(){
 			gatherarm.set(3);
 		}
-	}*/
+	}
 		
-}
