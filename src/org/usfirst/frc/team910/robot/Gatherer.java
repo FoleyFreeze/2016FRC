@@ -1,4 +1,4 @@
-package org.usfirst.frc.team910.robot;
+/*package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -41,7 +41,7 @@ public class Gatherer {
 				state = 2;
 				}
 				break;
-			} else {
+			}  {
 				gatherer.set(.07);
 
 				break;
@@ -57,6 +57,10 @@ public class Gatherer {
 			}
 
 		}
+<<<<<<< HEAD
 	}
 	*/
 }
+=======
+}*/
+>>>>>>> origin/Week3
