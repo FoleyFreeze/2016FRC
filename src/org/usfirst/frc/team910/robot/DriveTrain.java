@@ -176,7 +176,7 @@ public class DriveTrain {
 
 		SmartDashboard.putNumber("targetAngle", targetAngle);
 
-		if (targetAngle > 134 && targetAngle < 260) {
+		if (targetAngle > 134 || targetAngle < -134) {
 			targetAngle = targetAngle + 180;
 			inverse = -1;
 		} else {

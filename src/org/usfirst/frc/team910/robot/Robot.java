@@ -97,25 +97,25 @@ public class Robot extends IterativeRobot {
 	public int WASDToAngle(boolean W, boolean A, boolean S, boolean D) {
 		if (W) {
 			if (A) {
-				return 45;
-			} else if (D) {
 				return -45;
+			} else if (D) {
+				return 45;
 			} else {
 				return 0;
 
 			}
 		} else if (S) {
 			if (A) {
-				return 135;
-			} else if (D) {
 				return -135;
+			} else if (D) {
+				return 135;
 			} else {
 				return 180;
 			}
 		} else if (A) {
-			return 90;
-		} else if (D) {
 			return -90;
+		} else if (D) {
+			return 90;
 		} else {
 			return -5000;
 		}
