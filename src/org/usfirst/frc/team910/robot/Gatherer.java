@@ -2,6 +2,7 @@ package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Ultrasonic;
 
 public class Gatherer {
@@ -45,7 +46,7 @@ public class Gatherer {
 
 				break;
 			}
-		case 3:
+		case 3: 
 			if (gatherarm.equals(1339)) {
 				state = 3;
 				break;
@@ -56,5 +57,22 @@ public class Gatherer {
 			}
 
 		}
-	}
-}
+	
+		public void gatherstate1() {
+	
+	
+
+		
+			gatherarm.set(1);
+			
+		}
+		public void gatherstate2(){
+
+			gatherarm.set(2);
+		}
+		public void gatherstate3(){
+			gatherarm.set(3);
+		}
+		}
+		
+		
