@@ -22,5 +22,5 @@ public class IO {
 	public static final int RIGHT_JOYSTICK = 1;
 
 	public static final int GAME_PAD = 2;
-
+	public static final int DRIVE_BOARD = 3;
 }

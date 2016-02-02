@@ -28,6 +28,7 @@ public class Robot extends IterativeRobot {
 
 	Joystick rJoy;
 	Joystick lJoy;
+	Joystick driveBoard;
 
 	AHRS navX;
 
@@ -42,6 +43,7 @@ public class Robot extends IterativeRobot {
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
+		driveBoard = new Joystick(IO.DRIVE_BOARD);
 
 		dSensor = new AnalogInput(1);
 
@@ -65,8 +67,11 @@ public class Robot extends IterativeRobot {
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
 
-		drive.run(YAxisLeft, YAxisRight, (double) rJoy.getPOV(0), rJoy.getTrigger(), lJoy.getTrigger(),
-				rJoy.getRawButton(2), rJoy.getThrottle());
+		int angle = WASDToAngle(driveBoard.getRawButton(11), driveBoard.getRawButton(1), driveBoard.getRawButton(2),
+				driveBoard.getRawButton(3));
+		// W is 11, A is 1, S is 2, D is 3//
+		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2),
+				rJoy.getThrottle());
 
 		if (rJoy.getRawButton(3)) {
 			navX.zeroYaw();

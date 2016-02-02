@@ -5,6 +5,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Ultrasonic;
 
 public class Gatherer {
+	/*
 	boolean dungoofed;
 	boolean nextposition;
 	DigitalInput gatherdistance;
@@ -57,4 +58,5 @@ public class Gatherer {
 
 		}
 	}
+	*/
 }

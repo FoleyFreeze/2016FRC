@@ -148,7 +148,7 @@ public class DriveTrain {
 			previousSdrive = true;
 			previousCdrive = false;
 
-		} else if (pov != -1 && navX.isConnected()) {
+		} else if (pov != -5000 && navX.isConnected()) {
 			// Compass Drive Function//
 			compassDrive((-rThrottle + 1) / 2, navX.getYaw(), !previousCdrive, pov);
 			previousCdrive = true;
@@ -172,15 +172,17 @@ public class DriveTrain {
 
 		double diff;
 		double adj;
-		double inverse;
-		
-		if (targetAngle)>134){ 
+		double inverse = 1;
+
+		SmartDashboard.putNumber("targetAngle", targetAngle);
+
+		if (targetAngle > 134 && targetAngle < 260) {
 			targetAngle = targetAngle + 180;
-			inverse= -1;	
+			inverse = -1;
 		} else {
-			inverse = 1;	
+			inverse = 1;
 		}
-			
+
 		if (Math.abs(power) > 1)
 			power = power / Math.abs(power);
 
@@ -188,40 +190,54 @@ public class DriveTrain {
 
 		SmartDashboard.putNumber("preAdjDiff", diff);
 
+		if (Math.abs(diff) > 360) {
+			if (diff > 0)
+				diff = diff - 360;
+			else
+				diff = diff + 360;
+		}
 		if (diff > 180) {
 			diff = -360 + diff;
 		} else if (diff < -180) {
 			diff = 360 + diff;
 		}
 
-		SmartDashboard.putNumber("targetAngle", targetAngle);
-		SmartDashboard.putNumber("angleDiff", diff);
+		SmartDashboard.putNumber("adjustedDiff", diff);
+		SmartDashboard.putNumber("power", power);
+		SmartDashboard.putNumber("inverse", inverse);
 
-		power = power * inverse;
-		
 		if (diff > 30) {
 			tankDrive(-power, power);
 		} else if (diff < -30) {
 			tankDrive(power, -power);
 		} else {
-			adj = diff * .05 * inverse;
+			adj = diff * .02;
+			SmartDashboard.putNumber("adjustment", adj);
 
-			double lnew = power - adj;
-			double rnew = power + adj;
-			return tankDrive(lnew, rnew);
-			
+			// power = power * inverse;
+			double lnew = power * inverse - adj;
+			double rnew = power * inverse + adj;
+
+			if (Math.abs(lnew) > power) {
+				lnew /= Math.abs(lnew);
+				rnew /= Math.abs(lnew);
+				lnew *= power;
+				rnew *= power;
+			}
+
+			tankDrive(lnew, rnew);
+
 		}
 
 	}
 
 	public double getAngle(double y, double x) {
 		return Math.atan2(y, x) * 180 / Math.PI;
-
 	}
 
 	public double getR(double y, double x) {
 		double c;
 		c = (x * x) + (y * y);
-
+		return c;
 	}
 }
