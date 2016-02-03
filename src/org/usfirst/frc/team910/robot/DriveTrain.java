@@ -176,7 +176,18 @@ public class DriveTrain {
 
 		SmartDashboard.putNumber("targetAngle", targetAngle);
 
-		if (targetAngle > 134 || targetAngle < -134) {
+		boolean closeInvert = false;
+
+		if (Math.abs(targetAngle) == 90) {
+			double targetDiff = Math.abs(currentYAW - targetAngle);
+			if (targetDiff > 180) {
+				targetDiff = -(targetDiff - 360);
+			}
+			double oppositeDiff = Math.abs(targetDiff - 180);
+			closeInvert = oppositeDiff < targetDiff;
+		}
+
+		if (targetAngle > 134 || targetAngle < -134 || closeInvert) {
 			targetAngle = targetAngle + 180;
 			inverse = -1;
 		} else {
@@ -196,6 +207,7 @@ public class DriveTrain {
 			else
 				diff = diff + 360;
 		}
+
 		if (diff > 180) {
 			diff = -360 + diff;
 		} else if (diff < -180) {
