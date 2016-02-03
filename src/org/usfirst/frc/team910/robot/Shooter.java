@@ -1,77 +1,56 @@
 package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class Shooter {
-	
-	boolean dungoofed;
-	boolean nextposition;
-	DigitalInput shooterdistance;
-	boolean release;
+	CANTalon shooterWheel;
+	CANTalon shooterArm;
 
-	CANTalon shooter;
-	CANTalon shooterarm;
-	int state;
+	double PRIMESPEED = 10000;
 
-	static final double ARM_DOWN = 446;
-	static final double ARM_UP = 893;
-	static final double ARM_CLOSE = 10;
+	double CLOSESHOT = 1000;
 
-	public void shooterStateMachine() {
-		state = 1;
-		// determines initial position//
-		switch (state) {
-		case 1:
-			shooter.set(0.7);
-			shooterarm.setPosition(ARM_DOWN);
-			// encoder count = setPosition()//
-			if (shooterarm.getPosition() > (ARM_DOWN - ARM_CLOSE) && shooterarm.getPosition() < (ARM_DOWN + ARM_CLOSE)
-					&& shooterdistance.get()) {
-				state = 2;
-			}
-			break;
+	double FARSHOT = 2000;
 
-		default:
-			break;
-		case 2:
-			shooterarm.setPosition(ARM_UP);
-			if (shooterarm.getPosition() > (ARM_UP - ARM_CLOSE) && shooterarm.getPosition() < (ARM_UP + ARM_CLOSE)) {
-				state = 2;
-				}
-				break;
-			} /*else*/ {
-				shooter.set(.07);
+	double LAUNCH = 3000;
 
-				
-			}
-		assert true; 
-			if (shooterarm.equals(1339)) {
-				state = 3;
-			
-			} else {
-				shooter.set(.07);
-				
-			}
+	double LOAD = 0;
+
+	public Shooter() {
+		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
+		shooterArm = new CANTalon(IO.SHOOTER_ARM);
+
+		shooterWheel.changeControlMode(TalonControlMode.Speed);
+		shooterArm.changeControlMode(TalonControlMode.Position);
+
+	}
+
+	public void Position(boolean close, boolean loading) {
+		if (loading) {
+			shooterArm.set(LOAD);
+		}
+
+		else if (close) {
+			shooterArm.set(CLOSESHOT);
 
 		}
-	
-
-	
-		public void gatherstate1() {
-	
-	
-
-		
-			shooterarm.set(1);
-			
-		}
-		public void gatherstate2(){
-
-			shooterarm.set(2);
-		}
-		public void gatherstate3(){
-			shooterarm.set(3);
+		else {
+			shooterArm.set(FARSHOT);
 		}
 	}
+
+
+	public void Launch(boolean prime) {
+
+		if (prime) {
+			shooterWheel.set(PRIMESPEED);
+		}
 		
+		else {
+			shooterWheel.set(0);
+		}
+		
+	}
+
+}
