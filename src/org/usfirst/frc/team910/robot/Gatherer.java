@@ -5,6 +5,9 @@ import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Gatherer {
 	
+	double PRIMESPEED = 10000;
+	double LOAD = 0;
+
 	boolean dungoofed;
 	boolean nextposition;
 	DigitalInput gatherdistance;
@@ -18,7 +21,7 @@ public class Gatherer {
 	static final double ARM_UP = 893;
 	static final double ARM_CLOSE = 10;
 
-	public void gatherStateMachine() {
+	public void gatherStateMachine() 
 		state = 1;
 		// determines initial position//
 		switch (state) {
@@ -73,5 +76,43 @@ public class Gatherer {
 		public void gatherstate3(){
 			gatherarm.set(3);
 		}
+		public void gatherwheel(boolean optimusprimewheels) {
+                         // controls priming function of gatherer wheels
+			if (prime) {
+				gatherWheel.set(PRIMESPEED);
+			}
+			
+			else {
+				gatherWheel.set(0);
 	}
+		
+				
+				public void GatherPosition() {
+					GatherWheel = new CANTalon(IO.GATHERER_WHEEL);
+					GatherArm = new CANTalon(IO.GATHERER_ARM);
+
+					GatherWheel.changeControlMode(TalonControlMode.Speed);
+					GatherArm.changeControlMode(TalonControlMode.Position);
+
+				}
+
+				public void Position(boolean close, boolean loading) {
+					if (loading) {
+						shooterArm.set(LOAD);
+					}
+				public Shooter() {
+					GatherWheel = new CANTalon(IO.GATHERER_WHEEL);
+					GatherArm = new CANTalon(IO.GATHERER_ARM);
+
+					GatherWheel.changeControlMode(TalonControlMode.Speed);
+					GatherArm.changeControlMode(TalonControlMode.Position);
+
+				}
+
+				public void GathererInUse(boolean loading) {
+					if (loading) {
+						GatherArm.set(LOAD);
+						shooterArm.set(2000);
+						
+					}
 		
