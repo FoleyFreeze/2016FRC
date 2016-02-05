@@ -45,7 +45,6 @@ public class Shooter {
 
 		if (prime) {
 			shooterWheel.set(PRIMESPEED);
-			GatherArm.set(0);
 		}
 		
 		else {
