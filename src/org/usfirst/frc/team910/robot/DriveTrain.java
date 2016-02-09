@@ -53,13 +53,13 @@ public class DriveTrain {
 			YAxisRight = YAxisRight / Math.abs(YAxisRight);
 
 		if (Robot.TEST) {
-			LFmCANTalon.set(-YAxisLeft * 0.5);
-			LBmCANTalon.set(-YAxisLeft * 0.5);
-			RFmCANTalon.set(YAxisRight * 0.5);
-			RBmCANTalon.set(YAxisRight * 0.5);
+			LFmCANTalon.set(-YAxisLeft * 1);
+			LBmCANTalon.set(-YAxisLeft * 1);
+			RFmCANTalon.set(YAxisRight * 1);
+			RBmCANTalon.set(YAxisRight * 1);
 		} else {
-			lmTalon.set(-YAxisLeft);
-			rmTalon.set(YAxisRight);
+			lmTalon.set(YAxisLeft * 1);
+			rmTalon.set(-YAxisRight * 1);
 		}
 
 	}
