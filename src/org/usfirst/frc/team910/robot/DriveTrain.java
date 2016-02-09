@@ -252,4 +252,33 @@ public class DriveTrain {
 		c = (x * x) + (y * y);
 		return c;
 	}
+
+	public void shooterAlign(double cameraAngle, double botAngle) {
+
+		double diff;
+
+		diff = botAngle - cameraAngle;
+
+		if (Math.abs(diff) > 360) {
+			if (diff > 0)
+				diff = diff - 360;
+			else
+				diff = diff + 360;
+		}
+
+		if (diff > 180) {
+			diff = -360 + diff;
+		} else if (diff < -180) {
+			diff = 360 + diff;
+		}
+		
+		double slowPower;
+		
+		slowPower = diff /45;
+		
+		tankDrive(slowPower, -slowPower);
+		
+		
+	}
+
 }
