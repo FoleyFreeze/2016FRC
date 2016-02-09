@@ -54,8 +54,39 @@ public class Robot extends IterativeRobot {
 
 	/**
 	 * This function is called periodically during autonomous
+	 * 
 	 */
+
+	int autonstate = 0;
+
 	public void autonomousPeriodic() {
+		// Auton
+
+		switch (autonstate) {
+
+		case 0:
+			autonstate = 1;
+			// prep robot for crossing defences
+			break;
+
+		case 1:
+			drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
+															// forward at Full
+															// Power
+			if (getAvgAccel() > 0.8)
+				autonstate = 2;
+			break;
+
+		case 2:
+			drive.compassDrive(1, navX.getYaw(), false, 0);
+			if (getAvgAccel() < 0.3)
+				autonstate = 3;
+			break;
+
+		case 3:
+			drive.tankDrive(0, 0);
+			break;
+		}
 
 	}
 
@@ -89,6 +120,8 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
 		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
+		SmartDashboard.putNumber("avgAccel", getAvgAccel());
+
 
 	}
 
@@ -124,5 +157,21 @@ public class Robot extends IterativeRobot {
 		} else {
 			return -5000;
 		}
+	}
+
+	double accelArray[] = { 0, 0, 0, 0, 0 };
+	int accelArrayIndex = 0;
+
+	public double getAvgAccel() {
+		accelArray[accelArrayIndex] = navX.getRawAccelX() + navX.getRawAccelY();
+		accelArrayIndex++;
+		if (accelArrayIndex > accelArray.length)
+			accelArrayIndex = 0;
+
+		double accel = 0;
+		for (int i = 0; i < accelArray.length; i++) {
+			accel += accelArray[i];
+		}
+		return accel / accelArray.length;
 	}
 }
