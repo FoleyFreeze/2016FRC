@@ -95,8 +95,21 @@ public class Robot extends IterativeRobot {
 	 */
 	public void teleopPeriodic() {
 
+		boolean negate = lJoy.getRawButton(5);
+		
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
+		
+		if (negate) {
+		
+			YAxisLeft = lJoy.getY();
+			YAxisRight = rJoy.getY();
+		} else{ 
+			YAxisLeft = -lJoy.getY();
+			YAxisRight = -rJoy.getY();
+		}
+ 
+		
 
 		int angle = WASDToAngle(driveBoard.getRawButton(11), driveBoard.getRawButton(1), driveBoard.getRawButton(2),
 				driveBoard.getRawButton(3));
