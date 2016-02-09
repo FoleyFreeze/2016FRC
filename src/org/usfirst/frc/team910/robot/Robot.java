@@ -48,7 +48,7 @@ public class Robot extends IterativeRobot {
 		dSensor = new AnalogInput(1);
 
 		cam = CameraServer.getInstance();
-		cam.startAutomaticCapture("cam1");
+		cam.startAutomaticCapture("cam0");
 
 	}
 
@@ -100,6 +100,7 @@ public class Robot extends IterativeRobot {
 
 		int angle = WASDToAngle(driveBoard.getRawButton(11), driveBoard.getRawButton(1), driveBoard.getRawButton(2),
 				driveBoard.getRawButton(3));
+
 		// W is 11, A is 1, S is 2, D is 3//
 		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2),
 				rJoy.getThrottle());
@@ -108,6 +109,7 @@ public class Robot extends IterativeRobot {
 			navX.zeroYaw();
 		}
 
+		SmartDashboard.putNumber("wasd angle",angle);
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
 		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
 		SmartDashboard.putNumber("navX Roll", navX.getRoll());
@@ -115,7 +117,11 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
 		SmartDashboard.putNumber("Distance", dSensor.getVoltage());
+		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
+		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
+		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
 		SmartDashboard.putNumber("avgAccel", getAvgAccel());
+
 
 	}
 
