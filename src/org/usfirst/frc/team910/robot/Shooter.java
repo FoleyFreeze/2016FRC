@@ -25,6 +25,10 @@ public class Shooter {
 		shooterArm.changeControlMode(TalonControlMode.Position);
 
 	}
+	
+	public void gotoPosition(double position){
+		
+	}
 
 	public void Position(boolean close, boolean loading) {
 		if (loading) {

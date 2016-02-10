@@ -4,20 +4,18 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Gatherer {
-	
+
 	double PRIMESPEED = 10000;
 	double LOAD = 0;
 	double unjamspeed = -100;
 	double restposition = 1;
 	double gatherposition = 2;
-	
-	
-	
+
 	boolean dungoofed;
 	boolean nextposition;
 	DigitalInput gatherdistance;
 	boolean release;
-	
+
 	CANTalon gatherer;
 	CANTalon gatherarm;
 	int state;
@@ -64,43 +62,41 @@ public class Gatherer {
 
 	}
 
-	public void position (boolean loadin, boolean ballin ) {
-		
-		if(loadin) {
-			
+	public void gotoPosition(double position) {
+
+	}
+
+	public void position(boolean loadin, boolean ballin) {
+
+		if (loadin) {
+
 			gatherarm.set(LOAD);
-		}
-		else if(ballin) {
+		} else if (ballin) {
 			gatherarm.set(gatherposition);
-		}
-		else {
+		} else {
 			gatherarm.set(0);
 		}
 	}
-	
-	public void gatherwheel (boolean prime, boolean jammed) {
-		
+
+	public void gatherwheel(boolean prime, boolean jammed) {
+
 		if (jammed) {
-			
-		gatherer.set(unjamspeed);
-		
-	}
-		else if (prime) {
-			
+
+			gatherer.set(unjamspeed);
+
+		} else if (prime) {
+
 			gatherer.set(PRIMESPEED);
 		}
 
 		else {
-			
+
 			gatherer.set(0);
 		}
 	}
-	
-	public boolean inTheWay(){
+
+	public boolean inTheWay() {
 		return false;
 	}
-	
-	
-	
-	
+
 }
