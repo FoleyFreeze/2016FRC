@@ -24,10 +24,6 @@ public class Gatherer {
 	static final double ARM_UP = 893;
 	static final double ARM_CLOSE = 10;
 
-	public void gotoPosition(double position) {
-
-	}
-
 	public void gatherStateMachine() {
 		state = 1;
 		// determines initial position//
@@ -63,6 +59,10 @@ public class Gatherer {
 			gatherer.set(.07);
 
 		}
+
+	}
+
+	public void gotoPosition(double position) {
 
 	}
 
