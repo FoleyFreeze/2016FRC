@@ -77,6 +77,7 @@ public class Gatherer {
 			gatherarm.set(0);
 		}
 	}
+	
 	public void gatherwheel (boolean prime, boolean jammed) {
 		
 		if (jammed) {
@@ -95,8 +96,9 @@ public class Gatherer {
 		}
 	}
 	
-	
-	
+	public boolean inTheWay(){
+		return false;
+	}
 	
 	
 	

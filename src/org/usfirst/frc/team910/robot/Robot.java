@@ -47,9 +47,10 @@ public class Robot extends IterativeRobot {
 
 		dSensor = new AnalogInput(1);
 
+		
 		cam = CameraServer.getInstance();
 		cam.startAutomaticCapture("cam0");
-
+		
 	}
 
 	/**

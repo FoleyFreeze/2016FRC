@@ -52,5 +52,13 @@ public class Shooter {
 		}
 		
 	}
+	
+	public void fire(){
+		
+	}
+	
+	public boolean inTheWay(){
+		return false;
+	}
 
 }
