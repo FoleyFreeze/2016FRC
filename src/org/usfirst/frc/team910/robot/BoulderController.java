@@ -9,11 +9,42 @@ public class BoulderController {
 
 	Shooter shooter;
 	Gatherer gatherer;
+
 	
-	public void runBC(boolean layup, boolean stow, boolean farShot, boolean gather, boolean prime, boolean fire){		
+	public void runBC(boolean layupBtn, boolean stowBtn, boolean farShotBtn, boolean gatherBtn, boolean primeBtn, boolean fireBtn, double button){		
 	
-	}
+		if (button == 0){ 
+			//set positions to layup on gatherer and shooter arms//
+			layup();
+		}
+		
+		else if (button == 1){
+			//set positions to stow on gatherer and shooter arms//
+			stow();
+		}
+		
+		else if (button == 2){
+			//set positions to farshot on gatherer and shooter arms//
+			farShot();
+		}
 	
+		else if (button == 3){
+			//set positions to gather on gatherer and shooter arms//
+			gather();
+		}
+		
+		else if (button == 4){
+			//set positions to prime on gatherer and shooter arms//
+			prime();
+		}
+		
+		else if (button == 5){
+			//set positions to fire on gatherer and shooter arms//
+			fire();
+		}
+		
+		
+	}	
 	public void layup(){
 		
 	}
