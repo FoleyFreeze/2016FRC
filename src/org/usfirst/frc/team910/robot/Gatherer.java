@@ -1,4 +1,4 @@
-/*package org.usfirst.frc.team910.robot;
+package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
