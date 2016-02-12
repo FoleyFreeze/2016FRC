@@ -27,8 +27,21 @@ public class DriveTrain {
 	}
 
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
-		lmTalon.set(-YAxisLeft);
-		rmTalon.set(YAxisRight);
+		if (Math.abs(YAxisLeft) > 1)
+			YAxisLeft = YAxisLeft / Math.abs(YAxisLeft);
+		if (Math.abs(YAxisRight) > 1)
+			YAxisRight = YAxisRight / Math.abs(YAxisRight);
+
+		if (Robot.TEST) {
+			LFmCANTalon.set(-YAxisLeft * 1);
+			LBmCANTalon.set(-YAxisLeft * 1);
+			RFmCANTalon.set(YAxisRight * 1);
+			RBmCANTalon.set(YAxisRight * 1);
+		} else {
+			lmTalon.set(YAxisLeft * 1);
+			rmTalon.set(-YAxisRight * 1);
+		}
+
 	}
 
 	// when ljoystick trigger is pressed get the intial encoder value
@@ -112,7 +125,7 @@ public class DriveTrain {
 			previousSdrive = true;
 			previousCdrive = false;
 
-		} else if (compassDrive && navX.isConnected()) {
+		} else if (pov != -5000 && navX.isConnected()) {
 			// Compass Drive Function//
 			compassDrive(getR(xAxisRight, yAxisRight), navX.getYaw(), !previousCdrive,
 					getAngle(xAxisRight, yAxisRight));
@@ -137,47 +150,109 @@ public class DriveTrain {
 
 		double diff;
 		double adj;
+		double inverse = 1;
+
+		SmartDashboard.putNumber("targetAngle", targetAngle);
+
+		boolean closeInvert = false;
+
+		if (Math.abs(targetAngle) == 90) {
+			double targetDiff = Math.abs(currentYAW - targetAngle);
+			if (targetDiff > 180) {
+				targetDiff = -(targetDiff - 360);
+			}
+			double oppositeDiff = Math.abs(targetDiff - 180);
+			closeInvert = oppositeDiff < targetDiff;
+		}
+
+		if (targetAngle > 134 || targetAngle < -134 || closeInvert) {
+			targetAngle = targetAngle + 180;
+			inverse = -1;
+		} else {
+			inverse = 1;
+		}
 
 		diff = currentYAW - targetAngle;
+
+		SmartDashboard.putNumber("preAdjDiff", diff);
+
+		if (Math.abs(diff) > 360) {
+			if (diff > 0)
+				diff = diff - 360;
+			else
+				diff = diff + 360;
+		}
+
 		if (diff > 180) {
 			diff = 360 - diff;
 		} else if (diff < -180) {
 			diff = -360 - diff;
 		}
-		if (diff > 30) {
-			tankDrive(power, -power);
 
+		SmartDashboard.putNumber("adjustedDiff", diff);
+		SmartDashboard.putNumber("power", power);
+		SmartDashboard.putNumber("inverse", inverse);
+
+		if (diff > 30) {
+			tankDrive(-power, power);
 		} else if (diff < -30) {
 			tankDrive(-power, power);
 		} else {
-			adj = diff * .05;
+			adj = diff * .02;
+			SmartDashboard.putNumber("adjustment", adj);
 
-			double lnew = power - adj;
-			double rnew = power + adj;
-			
-			if (getAngle(currentYAW, currentYAW) < 180) {
-				inverse = 1;
-			}else {
-				inverse= -1;
+			// power = power * inverse;
+			double lnew = power * inverse - adj;
+			double rnew = power * inverse + adj;
+
+			if (Math.abs(lnew) > power) {
+				lnew /= Math.abs(lnew);
+				rnew /= Math.abs(lnew);
+				lnew *= power;
+				rnew *= power;
 			}
-			tankDrive(lnew * inverse, rnew * inverse);
-			
-		
-		
+
+			tankDrive(lnew, rnew);
+
 		}
 	}
 
 	public double getAngle(double y, double x) {
-		return Math.atan2(y, x);
-
+		return Math.atan2(y, x) * 180 / Math.PI;
 	}
 
 	public double getR(double y, double x) {
 		double c;
 		c = (x * x) + (y * y);
-
-		return Math.sqrt(c);
-		
-
+		return c;
 	}
+
+	public void shooterAlign(double cameraAngle, double botAngle) {
+
+		double diff;
+
+		diff = botAngle - cameraAngle;
+
+		if (Math.abs(diff) > 360) {
+			if (diff > 0)
+				diff = diff - 360;
+			else
+				diff = diff + 360;
+		}
+
+		if (diff > 180) {
+			diff = -360 + diff;
+		} else if (diff < -180) {
+			diff = 360 + diff;
+		}
+		
+		double slowPower;
+		
+		slowPower = diff /45;
+		
+		tankDrive(slowPower, -slowPower);
+		
+		
+	}
+
 }

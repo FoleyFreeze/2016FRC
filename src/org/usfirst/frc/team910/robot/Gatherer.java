@@ -2,9 +2,15 @@
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Ultrasonic;
 
 public class Gatherer {
+
+	double PRIMESPEED = 10000;
+	double LOAD = 0;
+	double unjamspeed = -100;
+	double restposition = 1;
+	double gatherposition = 2;
+
 	boolean dungoofed;
 	boolean nextposition;
 	DigitalInput gatherdistance;
@@ -38,22 +44,59 @@ public class Gatherer {
 			gatherarm.setPosition(ARM_UP);
 			if (gatherarm.getPosition() > (ARM_UP - ARM_CLOSE) && gatherarm.getPosition() < (ARM_UP + ARM_CLOSE)) {
 				state = 2;
-				}
-				break;
-			}  {
-				gatherer.set(.07);
-
-				break;
 			}
-		case 3:
-			if (gatherarm.equals(1339)) {
-				state = 3;
-				break;
-			} else {
-				gatherer.set(.07);
-				break;
-
-			}
+			break;
+		}
+		/* else */ {
+			gatherer.set(.07);
 
 		}
-}*/
+		assert true;
+		if (gatherarm.equals(1339)) {
+			state = 3;
+
+		} else {
+			gatherer.set(.07);
+
+		}
+
+	}
+
+	public void gotoPosition(double position) {
+
+	}
+
+	public void position(boolean loadin, boolean ballin) {
+
+		if (loadin) {
+
+			gatherarm.set(LOAD);
+		} else if (ballin) {
+			gatherarm.set(gatherposition);
+		} else {
+			gatherarm.set(0);
+		}
+	}
+
+	public void gatherwheel(boolean prime, boolean jammed) {
+
+		if (jammed) {
+
+			gatherer.set(unjamspeed);
+
+		} else if (prime) {
+
+			gatherer.set(PRIMESPEED);
+		}
+
+		else {
+
+			gatherer.set(0);
+		}
+	}
+
+	public boolean inTheWay() {
+		return false;
+	}
+
+}

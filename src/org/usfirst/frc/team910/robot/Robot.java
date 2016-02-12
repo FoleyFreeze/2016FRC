@@ -21,13 +21,14 @@ public class Robot extends IterativeRobot {
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
-	boolean test = true;
+	static final boolean TEST = false;
 
 	//DriveTrainTest testdrive;
 	DriveTrain drive;
 
 	Joystick rJoy;
 	Joystick lJoy;
+	Joystick driveBoard;
 
 	AHRS navX;
 
@@ -44,15 +45,51 @@ public class Robot extends IterativeRobot {
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
+		driveBoard = new Joystick(IO.DRIVE_BOARD);
 
 		dSensor = new AnalogInput(1);
 
+		
+		cam = CameraServer.getInstance();
+		cam.startAutomaticCapture("cam0");
+		
 	}
 
 	/**
 	 * This function is called periodically during autonomous
+	 * 
 	 */
+
+	int autonstate = 0;
+
 	public void autonomousPeriodic() {
+		// Auton
+
+		switch (autonstate) {
+
+		case 0:
+			autonstate = 1;
+			// prep robot for crossing defences
+			break;
+
+		case 1:
+			drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
+															// forward at Full
+															// Power
+			if (getAvgAccel() > 0.8)
+				autonstate = 2;
+			break;
+
+		case 2:
+			drive.compassDrive(1, navX.getYaw(), false, 0);
+			if (getAvgAccel() < 0.3)
+				autonstate = 3;
+			break;
+
+		case 3:
+			drive.tankDrive(0, 0);
+			break;
+		}
 
 	}
 
@@ -61,21 +98,34 @@ public class Robot extends IterativeRobot {
 	 */
 	public void teleopPeriodic() {
 
+		boolean negate = lJoy.getRawButton(5);
+		
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
-
-		if (test == false) {
-
-			drive.run(YAxisLeft, YAxisRight, rJoy.getX(), rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2));
-		} else {
-			testdrive.run(YAxisLeft, YAxisRight, rJoy.getX(), rJoy.getTrigger(), lJoy.getTrigger(),
-					rJoy.getRawButton(2));
+		
+		if (negate) {
+		
+			YAxisLeft = lJoy.getY();
+			YAxisRight = rJoy.getY();
+		} else{ 
+			YAxisLeft = -lJoy.getY();
+			YAxisRight = -rJoy.getY();
 		}
+ 
+		
+
+		int angle = WASDToAngle(driveBoard.getRawButton(11), driveBoard.getRawButton(1), driveBoard.getRawButton(2),
+				driveBoard.getRawButton(3));
+
+		// W is 11, A is 1, S is 2, D is 3//
+		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2),
+				rJoy.getThrottle());
 
 		if (rJoy.getRawButton(3)) {
 			navX.zeroYaw();
 		}
 
+		SmartDashboard.putNumber("wasd angle",angle);
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
 		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
 		SmartDashboard.putNumber("navX Roll", navX.getRoll());
@@ -83,6 +133,11 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
 		SmartDashboard.putNumber("Distance", dSensor.getVoltage());
+		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
+		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
+		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
+		SmartDashboard.putNumber("avgAccel", getAvgAccel());
+
 
 	}
 
@@ -93,4 +148,46 @@ public class Robot extends IterativeRobot {
 
 	}
 
+	public int WASDToAngle(boolean W, boolean A, boolean S, boolean D) {
+		if (W) {
+			if (A) {
+				return -45;
+			} else if (D) {
+				return 45;
+			} else {
+				return 0;
+
+			}
+		} else if (S) {
+			if (A) {
+				return -135;
+			} else if (D) {
+				return 135;
+			} else {
+				return 180;
+			}
+		} else if (A) {
+			return -90;
+		} else if (D) {
+			return 90;
+		} else {
+			return -5000;
+		}
+	}
+
+	double accelArray[] = { 0, 0, 0, 0, 0 };
+	int accelArrayIndex = 0;
+
+	public double getAvgAccel() {
+		accelArray[accelArrayIndex] = navX.getRawAccelX() + navX.getRawAccelY();
+		accelArrayIndex++;
+		if (accelArrayIndex > accelArray.length)
+			accelArrayIndex = 0;
+
+		double accel = 0;
+		for (int i = 0; i < accelArray.length; i++) {
+			accel += accelArray[i];
+		}
+		return accel / accelArray.length;
+	}
 }
