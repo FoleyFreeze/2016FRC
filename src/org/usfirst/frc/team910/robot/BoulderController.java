@@ -1,6 +1,6 @@
 package org.usfirst.frc.team910.robot;
 
-import edu.wpi.first.wpilibj.CANTalon;
+//import edu.wpi.first.wpilibj.CANTalon;
 
 	
 public class BoulderController {
@@ -8,9 +8,9 @@ public class BoulderController {
 	double SHOOT_LAYUP_POS = 0;
 	double GATHER_LAYUP_POS = 0;
 	double SHOOT_STOW_POS = 0;
-	double GATHERER_STOW_POS = 0;
+	double GATHER_STOW_POS = 0;
 	double SHOOT_FARSHOT_POS = 0;
-	double GATHERER_FARSHOT_POS = 0;
+	double GATHER_FARSHOT_POS = 0;
 	Shooter shooter;
 	Gatherer gatherer;
 
@@ -76,7 +76,7 @@ public class BoulderController {
 		
 	  } else {
 		  shooter.gotoPosition(SHOOT_STOW_POS);
-		  gatherer.gotoPosition(GATHERER_STOW_POS);
+		  gatherer.gotoPosition(GATHER_STOW_POS);
 	  }
 	
 	
