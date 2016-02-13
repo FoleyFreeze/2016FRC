@@ -17,7 +17,9 @@ public class BoulderController {
 	int button;
 
 	public void runBC(boolean layupBtn, boolean stowBtn, boolean farShotBtn, boolean gatherBtn, boolean primeBtn, boolean fireBtn, double button){		
-	
+		gatherer.aquireShooterPosition(shooter.getPosition());
+		shooter.aquireGatherPosition(gatherer.getPosition());
+		
 		if (button == 0){ 
 			//set positions to layup on gatherer and shooter arms//
 			layup();
