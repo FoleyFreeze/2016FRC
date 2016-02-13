@@ -4,6 +4,7 @@ package org.usfirst.frc.team910.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
@@ -23,7 +24,6 @@ public class Robot extends IterativeRobot {
 	 */
 	static final boolean TEST = false;
 
-	//DriveTrainTest testdrive;
 	DriveTrain drive;
 
 	Joystick rJoy;
@@ -34,14 +34,12 @@ public class Robot extends IterativeRobot {
 
 	AnalogInput dSensor;
 
+	CameraServer cam;
+
 	public void robotInit() {
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 
-		if (test == true) {
-			testdrive = new DriveTrainTest(navX);
-		} else {
-			drive = new DriveTrain(navX);
-		}
+		drive = new DriveTrain(navX);
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
