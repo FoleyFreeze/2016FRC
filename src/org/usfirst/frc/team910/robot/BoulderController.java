@@ -9,8 +9,8 @@ public class BoulderController {
 	double GATHER_LAYUP_POS = 0;
 	double SHOOT_STOW_POS = 0;
 	double GATHERER_STOW_POS = 0;
-
-
+	double SHOOT_FARSHOT_POS = 0;
+	double GATHERER_FARSHOT_POS = 0;
 	Shooter shooter;
 	Gatherer gatherer;
 
@@ -83,7 +83,14 @@ public class BoulderController {
 	}
 
 	public void farShot() {
-
+		if (gatherer.inTheWay()) {
+			gatherer.gotoPosition(GATHER_FARSHOT_POS);
+		} else {
+			gatherer.gotoPosition(GATHER_FARSHOT_POS);
+			shooter.gotoPosition(SHOOT_FARSHOT_POS);
+		}
+		shooter.gotoPosition(SHOOT_FARSHOT_POS);
+		gatherer.gotoPosition(GATHER_FARSHOT_POS);
 	}
 
 	public void gather() {
