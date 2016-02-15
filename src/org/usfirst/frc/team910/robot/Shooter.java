@@ -64,5 +64,9 @@ public class Shooter {
 	public boolean inTheWay(){
 		return false;
 	}
+	
+	public void setLoadWheels(double speed){
+		
+	}
 
 }
