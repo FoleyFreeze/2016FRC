@@ -25,6 +25,7 @@ public class Robot extends IterativeRobot {
 	static final boolean TEST = false;
 
 	DriveTrain drive;
+	BoulderController BC;
 
 	Joystick rJoy;
 	Joystick lJoy;
@@ -40,7 +41,8 @@ public class Robot extends IterativeRobot {
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 
 		drive = new DriveTrain(navX);
-
+		BC = new BoulderController();
+		
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
 		driveBoard = new Joystick(IO.DRIVE_BOARD);
@@ -95,8 +97,11 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during operator control
 	 */
 	public void teleopPeriodic() {
-
-		boolean negate = lJoy.getRawButton(5);
+		
+		BC.runBC(driveBoard.getRawButton(4), driveBoard.getRawButton(5), driveBoard.getRawButton(6), 
+				driveBoard.getRawButton(7), driveBoard.getRawButton(8), driveBoard.getRawButton(9));
+	 
+		boolean negate = lJoy.getRawButton(12);
 		
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();

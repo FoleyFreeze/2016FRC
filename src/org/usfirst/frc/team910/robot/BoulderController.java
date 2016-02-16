@@ -21,13 +21,19 @@ public class BoulderController {
 	DigitalInput gatherBallSensor;
 	DigitalInput shooterBallSensor;
 
-	int button;
+	double button = -1;
 
 	public void runBC(boolean layupBtn, boolean stowBtn, boolean farShotBtn, boolean gatherBtn, boolean primeBtn,
-			boolean fireBtn, double button) {
-
+			boolean fireBtn) {
+	
+		if(layupBtn) button = 0;
+		else if (stowBtn) button = 1;
+		else if (farShotBtn) button = 2;
+		else if (gatherBtn) button = 3;
+		
+		
 		if (button == 0) {
-			// set positions to layup on gatherer and shooter arms//
+			// set positions to lay up on gatherer and shooter arms//
 			layup();
 			gatherState = 1;
 		}
@@ -39,7 +45,7 @@ public class BoulderController {
 		}
 
 		else if (button == 2) {
-			// set positions to farshot on gatherer and shooter arms//
+			// set positions to far shot on gatherer and shooter arms//
 			farShot();
 			gatherState = 1;
 		}
@@ -49,16 +55,12 @@ public class BoulderController {
 			gather();
 		}
 
-		else if (button == 4) {
-			// set positions to prime on gatherer and shooter arms//
+		if (primeBtn){
 			prime();
-			gatherState = 1;
 		}
-
-		else if (button == 5) {
-			// set positions to fire on gatherer and shooter arms//
+		
+		if (fireBtn){
 			fire();
-			gatherState = 1;
 		}
 
 	}
