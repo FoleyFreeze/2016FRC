@@ -49,7 +49,7 @@ public class Robot extends IterativeRobot {
 
 		
 		cam = CameraServer.getInstance();
-		cam.startAutomaticCapture("cam0");
+		cam.startAutomaticCapture("cam1");
 		
 	}
 

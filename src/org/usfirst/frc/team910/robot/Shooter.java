@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 public class Shooter {
 	CANTalon shooterWheel;
 	CANTalon shooterArm;
+	CANTalon loadWheels;
 
 	double PRIMESPEED = 10000;
 
@@ -17,6 +18,10 @@ public class Shooter {
 
 	double LOAD = 0;
 
+	double REVERSE = 50;
+
+	double FAST = 9001;
+
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
@@ -25,9 +30,9 @@ public class Shooter {
 		shooterArm.changeControlMode(TalonControlMode.Position);
 
 	}
-	
-	public void gotoPosition(double position){
-		
+
+	public void gotoPosition(double position) {
+
 	}
 
 	public void Position(boolean close, boolean loading) {
@@ -38,30 +43,48 @@ public class Shooter {
 		else if (close) {
 			shooterArm.set(CLOSESHOT);
 
-		}
-		else {
+		} else {
 			shooterArm.set(FARSHOT);
 		}
 	}
 
+	/*
+	 * public void Launch(boolean prime) {
+	 * 
+	 * if (prime) { shooterWheel.set(PRIMESPEED); }
+	 * 
+	 * else { shooterWheel.set(0); }
+	 * 
+	 * }
+	 */
 
-	public void Launch(boolean prime) {
+	int primeState;
 
-		if (prime) {
-			shooterWheel.set(PRIMESPEED);
+	public void prime() {
+		switch (primeState) {
+		case 1:
+			loadWheels.set(loadWheels.getPosition() - REVERSE);
+			primeState = 2;
+			break;
+
+		case 2:
+			if (loadWheels.getPosition() < loadWheels.getSetpoint()) {
+				primeState = 3;
+			}
+			break;
+
+		case 3:
+
+			shooterWheel.set(FAST);
+			break;
 		}
-		
-		else {
-			shooterWheel.set(0);
-		}
-		
 	}
-	
-	public void fire(){
-		
+
+	public void fire() {
+
 	}
-	
-	public boolean inTheWay(){
+
+	public boolean inTheWay() {
 		return false;
 	}
 
