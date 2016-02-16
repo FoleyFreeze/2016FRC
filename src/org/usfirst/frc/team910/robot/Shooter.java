@@ -21,6 +21,10 @@ public class Shooter {
 	double REVERSE = 50;
 
 	double FAST = 9001;
+	
+	double MARGIN = 50;
+	
+	double FIRE = 60;
 
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
@@ -81,6 +85,11 @@ public class Shooter {
 	}
 
 	public void fire() {
+		if (shooterWheel.getSpeed() > FAST - MARGIN);{
+		loadWheels.set(loadWheels.getPosition() + FIRE);
+		
+		}
+		
 
 	}
 
