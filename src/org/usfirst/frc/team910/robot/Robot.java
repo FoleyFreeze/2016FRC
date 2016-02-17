@@ -30,7 +30,8 @@ public class Robot extends IterativeRobot {
 	Joystick rJoy;
 	Joystick lJoy;
 	Joystick driveBoard;
-
+	Joystick GamePad;	
+	
 	AHRS navX;
 
 	AnalogInput dSensor;
@@ -44,7 +45,14 @@ public class Robot extends IterativeRobot {
 		BC = new BoulderController();
 		
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
+		
+		
+		
+		
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
+		GamePad = new Joystick(IO.GAME_PAD);
+		
+		
 		driveBoard = new Joystick(IO.DRIVE_BOARD);
 
 		dSensor = new AnalogInput(1);

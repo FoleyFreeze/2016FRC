@@ -16,7 +16,9 @@ public class Shooter {
 	double LAUNCH = 3000;
 
 	double LOAD = 0;
-
+	
+	boolean GamepadLBumper;
+	
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
@@ -59,14 +61,40 @@ public class Shooter {
 	
 	public void fire(){
 		
+		
+		
+		
+		
+		
 	}
 	
 	public boolean inTheWay(){
 		return false;
 	}
+<<<<<<< HEAD
 	
 	public void setLoadWheels(double speed){
 		
 	}
 
+=======
+	public void manualShooter(double YAxisGamepadRight){
+		
+		shooterArm.changeControlMode(TalonControlMode.PercentVbus);
+		
+		shooterArm.set(YAxisGamepadRight);
+		
+		if(GamepadLBumper == true) {
+			
+			 shooterWheel.set(PRIMESPEED);
+			 
+		}
+		
+			 else{
+				 
+				 shooterWheel.set(LOAD);
+			 }
+		}
+	}
+>>>>>>> 172b4524468d64a9fe0fec6b076288a38b0ed700
 }

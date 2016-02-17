@@ -1,6 +1,7 @@
 package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class Gatherer {
@@ -10,7 +11,9 @@ public class Gatherer {
 	double unjamspeed = -100;
 	double restposition = 1;
 	double gatherposition = 2;
-
+	
+	boolean GamepadRBumper;
+	boolean brokenz;
 	boolean dungoofed;
 	boolean nextposition;
 	DigitalInput gatherdistance;
@@ -48,6 +51,24 @@ public class Gatherer {
 
 	public boolean inTheWay() {
 		return false;
+	}
+
+	public void manualGather(double YAxisGamePadRight) {
+
+		gatherarm.changeControlMode(TalonControlMode.PercentVbus);
+
+		gatherarm.set(YAxisGamePadRight);
+		
+		if (GamepadRBumper == true) {
+			
+			gatherer.set(PRIMESPEED);
+			
+		}
+		else {
+			
+			gatherer.set(LOAD);
+		}
+
 	}
 
 }
