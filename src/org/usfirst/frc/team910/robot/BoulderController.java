@@ -15,6 +15,7 @@ public class BoulderController {
 	double GATHER_INTAKE_POS = 0;
 	double GATHER_OUTOFWAY_POS = 0;
 	double SHOOTER_LOAD_POS = 0;
+
 	Shooter shooter;
 	Gatherer gatherer;
 
@@ -22,7 +23,7 @@ public class BoulderController {
 		shooter = new Shooter();
 		gatherer = new Gatherer();
 	}
-	int button;
+
 	DigitalInput gatherBallSensor;
 	DigitalInput shooterBallSensor;
 
@@ -31,17 +32,19 @@ public class BoulderController {
 	public void runBC(boolean layupBtn, boolean stowBtn, boolean farShotBtn, boolean gatherBtn, boolean primeBtn,
 			boolean fireBtn) {
 		gatherer.aquireShooterPosition(shooter.getPosition());
-		shooter.aquireGatherPosition(gatherer.getPosition());	
+		shooter.aquireGatherPosition(gatherer.getPosition());
 
+		if (layupBtn)
+			button = 0;
+		else if (stowBtn)
+			button = 1;
+		else if (farShotBtn)
+			button = 2;
+		else if (gatherBtn)
+			button = 3;
 
-		if(layupBtn) button = 0;
-		else if (stowBtn) button = 1;
-		else if (farShotBtn) button = 2;
-		else if (gatherBtn) button = 3;
-		
-		
 		if (button == 0) {
-			// set positions to lay up on gatherer and shooter arms//				
+			// set positions to lay up on gatherer and shooter arms//
 			layup();
 			gatherState = 1;
 		}
@@ -63,26 +66,19 @@ public class BoulderController {
 			gather();
 		}
 
-		if (primeBtn){
+		if (primeBtn) {
 			prime();
 		}
-		
-		if (fireBtn){
+
+		if (fireBtn) {
 			fire();
 		}
 
 	}
 
 	public void layup() {
-		if (gatherer.inTheWay()) {
-			gatherer.gotoPosition(GATHER_LAYUP_POS);
-		} else {
-			gatherer.gotoPosition(GATHER_LAYUP_POS);
-			shooter.gotoPosition(SHOOT_LAYUP_POS);
-		}
 		shooter.gotoPosition(SHOOT_LAYUP_POS);
 		gatherer.gotoPosition(GATHER_LAYUP_POS);
-
 	}
 
 	public void stow() {
@@ -92,24 +88,12 @@ public class BoulderController {
 		// if not move both to stow positions
 		// gather retreats upwards to fit inside the bumper
 		// shooter arm rotates to fit inside the bumper
-
-		if (shooter.inTheWay()) {
-			shooter.gotoPosition(SHOOT_STOW_POS);
-
-		} else {
-			shooter.gotoPosition(SHOOT_STOW_POS);
-			gatherer.gotoPosition(GATHER_STOW_POS);
-		}
+		shooter.gotoPosition(SHOOT_STOW_POS);
+		gatherer.gotoPosition(GATHER_STOW_POS);
 
 	}
 
 	public void farShot() {
-		if (gatherer.inTheWay()) {
-			gatherer.gotoPosition(GATHER_FARSHOT_POS);
-		} else {
-			gatherer.gotoPosition(GATHER_FARSHOT_POS);
-			shooter.gotoPosition(SHOOT_FARSHOT_POS);
-		}
 		shooter.gotoPosition(SHOOT_FARSHOT_POS);
 		gatherer.gotoPosition(GATHER_FARSHOT_POS);
 	}
@@ -132,12 +116,13 @@ public class BoulderController {
 
 		case 2:
 			if (gatherBallSensor.get()) {
-			gatherer.gatherwheel(0);
-			gatherer.gotoPosition(GATHER_OUTOFWAY_POS);
-			shooter.gotoPosition(SHOOTER_LOAD_POS);
-			gatherState = 3;
-			}else{
-			gatherer.gatherwheel(.07);}
+				gatherer.gatherwheel(0);
+				gatherer.gotoPosition(GATHER_OUTOFWAY_POS);
+				shooter.gotoPosition(SHOOTER_LOAD_POS);
+				gatherState = 3;
+			} else {
+				gatherer.gatherwheel(.07);
+			}
 			break;
 		case 3:
 			shooter.gotoPosition(GATHER_FARSHOT_POS);
@@ -152,7 +137,7 @@ public class BoulderController {
 			}
 			break;
 		case 4:
-			
+
 			break;
 		}
 	}
