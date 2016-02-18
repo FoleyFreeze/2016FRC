@@ -17,14 +17,28 @@ public class Shooter {
 
 	double LOAD = 0;
 	
-	boolean GamepadLBumper;
+	
+	public void autoAndback(boolean manualControl){
+		
+		if(manualControl){
+	
+			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
+			shooterWheel.changeControlMode(TalonControlMode.Speed);
+		}
+			else {
+				
+				shooterArm.changeControlMode(TalonControlMode.Position);
+				shooterWheel.changeControlMode(TalonControlMode.Speed);
+				
+			}
+			
+		}
+	
 	
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
 
-		shooterWheel.changeControlMode(TalonControlMode.Speed);
-		shooterArm.changeControlMode(TalonControlMode.Position);
 
 	}
 	
@@ -71,14 +85,14 @@ public class Shooter {
 	public boolean inTheWay(){
 		return false;
 	}
-<<<<<<< HEAD
+
 	
 	public void setLoadWheels(double speed){
 		
 	}
 
-=======
-	public void manualShooter(double YAxisGamepadRight){
+
+	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper){
 		
 		shooterArm.changeControlMode(TalonControlMode.PercentVbus);
 		
@@ -96,5 +110,5 @@ public class Shooter {
 			 }
 		}
 	}
->>>>>>> 172b4524468d64a9fe0fec6b076288a38b0ed700
-}
+
+
