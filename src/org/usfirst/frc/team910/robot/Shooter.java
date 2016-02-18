@@ -45,6 +45,10 @@ public class Shooter {
 		}
 	
 	
+	double gatherPosition;
+
+	double SAFETYDISTANCE = 500;
+
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
@@ -55,6 +59,26 @@ public class Shooter {
 	
 	public void gotoPosition(double position) {
 
+	public void gotoPosition(double position) {
+
+		// if going down//
+		if (shooterArm.getPosition() > position) {
+			if (position > gatherPosition) {
+				shooterArm.set(position);
+			} else {
+				shooterArm.set(gatherPosition + SAFETYDISTANCE);
+			}
+		} else {
+			shooterArm.set(position);
+		}
+	}
+
+	public double getPosition() {
+		return shooterArm.getPosition();
+	}
+
+	public void aquireGatherPosition(double position) {
+		gatherPosition = position;
 	}
 
 	public void Position(boolean close, boolean loading) {
@@ -120,9 +144,23 @@ public class Shooter {
 		
 		
 		
+	public void Launch(boolean prime) {
+
+		if (prime) {
+			shooterWheel.set(PRIMESPEED);
+		}
+
+		else {
+			shooterWheel.set(0);
+		}
+
 	}
-	
-	public boolean inTheWay(){
+
+	public void fire() {
+
+	}
+
+	public boolean inTheWay() {
 		return false;
 	}
 

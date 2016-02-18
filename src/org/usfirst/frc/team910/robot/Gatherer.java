@@ -20,14 +20,50 @@ public class Gatherer {
 	boolean release;
 
 	CANTalon gatherer;
-	CANTalon gatherarm;
+	CANTalon gatherArm;
 	int state;
+	
+	double shooterPosition;
+	double 	SAFETYDISTANCE = 500;
 
 	static final double ARM_DOWN = 446;
 	static final double ARM_UP = 893;
 	static final double ARM_CLOSE = 10;
 
 	
+	public void gatherStateMachine() {
+		state = 1;
+		// determines initial position//
+		switch (state) {
+		case 1:
+			gatherer.set(0.7);
+			gatherArm.setPosition(ARM_DOWN);
+			// encoder count = setPosition()//
+			if (gatherArm.getPosition() > (ARM_DOWN - ARM_CLOSE) && gatherArm.getPosition() < (ARM_DOWN + ARM_CLOSE)
+					&& gatherdistance.get()) {
+				state = 2;
+			}
+			break;
+
+		default:
+			break;
+		case 2:
+			gatherArm.setPosition(ARM_UP);
+			if (gatherArm.getPosition() > (ARM_UP - ARM_CLOSE) && gatherArm.getPosition() < (ARM_UP + ARM_CLOSE)) {
+				state = 2;
+			}
+			break;
+		}
+		/* else */ {
+			gatherer.set(.07);
+
+		}
+		assert true;
+		if (gatherArm.equals(1339)) {
+			state = 3;
+
+		} else {
+			gatherer.set(.07);
 
 	public void gotoPosition(double position) {
 
@@ -36,23 +72,47 @@ public class Gatherer {
 	public Gatherer() {
 		gatherer = new CANTalon(IO.GATHERER);
 		gatherarm = new CANTalon(IO.GATHER_ARM);
+	public void gotoPosition(double position) {
+		
+		//if going up//
+		if (gatherArm.getPosition() < position){
+			if (position < shooterPosition){
+				gatherArm.set(position);
+			}
+			else {
+				gatherArm.set(shooterPosition - SAFETYDISTANCE);
+			}
+		}
+		else{
+			gatherArm.set(position);
+		}
+	}
+	
+	public void aquireShooterPosition(double position){
+		shooterPosition = position;
 	}
 
 	public void position(boolean loadin, boolean ballin) {
 
 		if (loadin) {
 
-			gatherarm.set(LOAD);
+			gatherArm.set(LOAD);
 		} else if (ballin) {
-			gatherarm.set(gatherposition);
+			gatherArm.set(gatherposition);
 		} else {
-			gatherarm.set(0);
+			gatherArm.set(0);
 		}
 	}
 
 	public void gatherwheel(double speed) {
 		gatherer.set(speed);
 	}
+	public double getPosition(){
+		return gatherArm.getPosition();
+	}
+	
+	
+	public void gatherwheel(boolean prime, boolean jammed) {
 
 	public boolean inTheWay() {
 		return false;
