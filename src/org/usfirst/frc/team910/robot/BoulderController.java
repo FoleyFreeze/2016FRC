@@ -14,6 +14,10 @@ public class BoulderController {
 	Shooter shooter;
 	Gatherer gatherer;
 
+	public BoulderController() {
+		shooter = new Shooter();
+		gatherer = new Gatherer();
+	}
 	int button;
 
 	public void runBC(boolean layupBtn, boolean stowBtn, boolean farShotBtn, boolean gatherBtn, boolean primeBtn, boolean fireBtn, double button){		

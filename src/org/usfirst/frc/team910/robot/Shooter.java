@@ -35,6 +35,7 @@ public class Shooter {
 
 	}
 
+	
 	public void gotoPosition(double position) {
 
 	}

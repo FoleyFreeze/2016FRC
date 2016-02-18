@@ -66,6 +66,11 @@ public class Gatherer {
 
 	}
 
+	public Gatherer() {
+		gatherer = new CANTalon(IO.GATHERER);
+		gatherarm = new CANTalon(IO.GATHER_ARM);
+	}
+
 	public void position(boolean loadin, boolean ballin) {
 
 		if (loadin) {
