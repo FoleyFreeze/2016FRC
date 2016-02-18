@@ -24,4 +24,6 @@ public class IO {
 
 	public static final int GAME_PAD = 2;
 	public static final int DRIVE_BOARD = 3;
+	
+	public static final int MAN_AUTO_SW = 12;
 }

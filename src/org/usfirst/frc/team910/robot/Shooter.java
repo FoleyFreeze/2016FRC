@@ -26,12 +26,29 @@ public class Shooter {
 	
 	double FIRE = 60;
 
+	
+	
+	public void autoAndback(boolean manualControl){
+		
+		if(manualControl){
+	
+			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
+			shooterWheel.changeControlMode(TalonControlMode.Speed);
+		}
+			else {
+				
+				shooterArm.changeControlMode(TalonControlMode.Position);
+				shooterWheel.changeControlMode(TalonControlMode.Speed);
+				
+			}
+			
+		}
+	
+	
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
 
-		shooterWheel.changeControlMode(TalonControlMode.Speed);
-		shooterArm.changeControlMode(TalonControlMode.Position);
 
 	}
 
@@ -95,7 +112,43 @@ public class Shooter {
 	}
 
 	public boolean inTheWay() {
+	
+	public void fire(){
+		
+		
+		
+		
+		
+		
+	}
+	
+	public boolean inTheWay(){
 		return false;
 	}
 
-}
+	
+	public void setLoadWheels(double speed){
+		
+	}
+
+
+	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper){
+		
+		shooterArm.changeControlMode(TalonControlMode.PercentVbus);
+		
+		shooterArm.set(YAxisGamepadRight);
+		
+		if(GamepadLBumper == true) {
+			
+			 shooterWheel.set(PRIMESPEED);
+			 
+		}
+		
+			 else{
+				 
+				 shooterWheel.set(LOAD);
+			 }
+		}
+	}
+
+

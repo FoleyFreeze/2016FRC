@@ -25,11 +25,13 @@ public class Robot extends IterativeRobot {
 	static final boolean TEST = false;
 
 	DriveTrain drive;
+	BoulderController BC;
 
 	Joystick rJoy;
 	Joystick lJoy;
 	Joystick driveBoard;
-
+	Joystick GamePad;	
+	
 	AHRS navX;
 
 	AnalogInput dSensor;
@@ -40,17 +42,26 @@ public class Robot extends IterativeRobot {
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 
 		drive = new DriveTrain(navX);
+		BC = new BoulderController();
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
+		
+		
+		
+		
 		rJoy = new Joystick(IO.RIGHT_JOYSTICK);
+		GamePad = new Joystick(IO.GAME_PAD);
+		
+		
 		driveBoard = new Joystick(IO.DRIVE_BOARD);
 
 		dSensor = new AnalogInput(1);
 
-		
 		cam = CameraServer.getInstance();
 		cam.startAutomaticCapture("cam1");
 		
+		cam.startAutomaticCapture("cam0");
+
 	}
 
 	/**
@@ -94,23 +105,40 @@ public class Robot extends IterativeRobot {
 	/**
 	 * This function is called periodically during operator control
 	 */
-	public void teleopPeriodic() {
+	boolean previousMode = false;
 
-		boolean negate = lJoy.getRawButton(5);
-		
+	public void teleopPeriodic() {
+		// this means on = auto, off = manual. Add ! before driveBoard to flip
+		if (driveBoard.getRawButton(IO.MAN_AUTO_SW)) {
+
+			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
+				// Call Mode Switch Function
+			}
+			BC.runBC(driveBoard.getRawButton(4), driveBoard.getRawButton(5), driveBoard.getRawButton(6),
+					driveBoard.getRawButton(7), driveBoard.getRawButton(8), driveBoard.getRawButton(9));
+		}
+
+		else {
+			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
+				// Call Mode Switch Function
+			}
+			// call manual position functions
+		}
+		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
+
+		boolean negate = lJoy.getRawButton(12);
+
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
-		
+
 		if (negate) {
-		
+
 			YAxisLeft = lJoy.getY();
 			YAxisRight = rJoy.getY();
-		} else{ 
+		} else {
 			YAxisLeft = -lJoy.getY();
 			YAxisRight = -rJoy.getY();
 		}
- 
-		
 
 		int angle = WASDToAngle(driveBoard.getRawButton(11), driveBoard.getRawButton(1), driveBoard.getRawButton(2),
 				driveBoard.getRawButton(3));
@@ -123,7 +151,7 @@ public class Robot extends IterativeRobot {
 			navX.zeroYaw();
 		}
 
-		SmartDashboard.putNumber("wasd angle",angle);
+		SmartDashboard.putNumber("wasd angle", angle);
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
 		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
 		SmartDashboard.putNumber("navX Roll", navX.getRoll());
@@ -135,7 +163,6 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
 		SmartDashboard.putNumber("avgAccel", getAvgAccel());
-
 
 	}
 
