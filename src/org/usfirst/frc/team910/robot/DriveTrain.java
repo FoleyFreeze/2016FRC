@@ -21,6 +21,8 @@ public class DriveTrain {
 
 	Encoder lEncoder;
 	Encoder rEncoder;
+	
+	double MAX_RAMP_RATE = 0.03; //one second 0 to 1 ramp
 
 	public DriveTrain(AHRS x) {
 
@@ -48,12 +50,20 @@ public class DriveTrain {
 
 	}
 
+	double prevL = 0;
+	double prevR = 0;
+	
+	
+	
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
 		if (Math.abs(YAxisLeft) > 1)
 			YAxisLeft = YAxisLeft / Math.abs(YAxisLeft);
 		if (Math.abs(YAxisRight) > 1)
 			YAxisRight = YAxisRight / Math.abs(YAxisRight);
 
+		prevL = YAxisLeft;
+		prevR = YAxisRight;
+		
 		if (Robot.TEST) {
 			LFmCANTalon.set(-YAxisLeft * 1);
 			LBmCANTalon.set(-YAxisLeft * 1);
@@ -158,8 +168,44 @@ public class DriveTrain {
 			previousSdrive = false;
 		}
 
-		else {
-			tankDrive(yAxisLeft, yAxisRight);
+		else {//just drive
+			//ramp rate limiting left side
+			double driveL;
+			double driveR;
+			if(yAxisLeft > 0){//for positive powers
+				if(yAxisLeft > prevL + MAX_RAMP_RATE){//if increasing power, slowly ramp
+					driveL = prevL + MAX_RAMP_RATE;
+				}
+				else{//if decreasing power, just do it
+					driveL = yAxisLeft;
+				}
+			}
+			else{//for negative powers
+				if(yAxisLeft < prevL - MAX_RAMP_RATE){//if increasing negative power, slowly ramp
+					driveL = prevL - MAX_RAMP_RATE;
+				}
+				else{//if decreasing power, just do it
+					driveL = yAxisLeft;
+				}
+			}
+			//ramp rate limiting left side
+			if(yAxisRight > 0){
+				if(yAxisRight > prevR + MAX_RAMP_RATE){
+					driveR = prevR + MAX_RAMP_RATE;
+				}
+				else{
+					driveR = yAxisRight;
+				}
+			}
+			else{
+				if(yAxisRight < prevR - MAX_RAMP_RATE){
+					driveR = prevR - MAX_RAMP_RATE;
+				}
+				else{
+					driveR = yAxisRight;
+				}
+			}
+			tankDrive(driveL, driveR);
 			previousDbrake = false;
 			previousSdrive = false;
 			previousCdrive = false;
