@@ -2,16 +2,16 @@ package org.usfirst.frc.team910.robot;
 
 public class IO {
 	// inputs
-	public static final int LEFT_DRIVE_MOTOR = 0;
-	public static final int RIGHT_DRIVE_MOTOR = 1;
+	public static final int LEFT_DRIVE_MOTOR = 1;
+	public static final int RIGHT_DRIVE_MOTOR = 0;
 
-	public static final int LEFT_DRIVE_A_ENCODER = 3;
-	public static final int LEFT_DRIVE_B_ENCODER = 4;
-	public static final int RIGHT_DRIVE_A_ENCODER = 5;
-	public static final int RIGHT_DRIVE_B_ENCODER = 6;
+	public static final int LEFT_DRIVE_A_ENCODER = 2;
+	public static final int LEFT_DRIVE_B_ENCODER = 3;
+	public static final int RIGHT_DRIVE_A_ENCODER = 0;
+	public static final int RIGHT_DRIVE_B_ENCODER = 1;
 
-	public static final int GATHERER = 3;
-	public static final int GATHER_ARM = 9;
+	public static final int GATHERER = 4;
+	public static final int GATHER_ARM = 3;
 
 	public static final int SHOOTER_WHEEL = 7;
 	public static final int SHOOTER_ARM = 8;
