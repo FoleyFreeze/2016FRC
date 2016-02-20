@@ -46,7 +46,7 @@ public class IO {
 	public static final int WASD_D = 3;
 	
 	//l-joy
-	public static final int NEGATE = 12;
+	public static final int FLIP_CONTROLS = 12;
 	//r-joy
 	public static final int COMPASS_POWER_THROTTLE = 2;
 	public static final int ZERO_YAW = 3;

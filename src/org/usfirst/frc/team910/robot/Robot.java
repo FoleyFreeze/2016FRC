@@ -2,6 +2,8 @@
 package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.ni.vision.NIVision;
+import com.ni.vision.NIVision.Image;
 
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.CameraServer;
@@ -27,7 +29,6 @@ public class Robot extends IterativeRobot {
 	DriveTrain drive;
 	BoulderController BC;
 
-	
 	Joystick rJoy;
 	Joystick lJoy;
 	Joystick driveBoard;
@@ -37,7 +38,9 @@ public class Robot extends IterativeRobot {
 
 	AnalogInput dSensor;
 
-	CameraServer cam;
+	int fwdCamSession;
+	int backCamSession;
+	Image cameraFrame;
 
 	public void robotInit() {
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
@@ -54,11 +57,12 @@ public class Robot extends IterativeRobot {
 
 		dSensor = new AnalogInput(1);
 
-		cam = CameraServer.getInstance();
-		cam.startAutomaticCapture("cam1");
-
-		cam.startAutomaticCapture("cam0");
-
+		// setup things for camera switching
+		fwdCamSession = NIVision.IMAQdxOpenCamera("cam0", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+		backCamSession = NIVision.IMAQdxOpenCamera("cam1",
+				NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+		NIVision.IMAQdxConfigureGrab(fwdCamSession);
+		NIVision.IMAQdxStartAcquisition(fwdCamSession);
 	}
 
 	/**
@@ -91,21 +95,23 @@ public class Robot extends IterativeRobot {
 	 * This function is called periodically during operator control
 	 */
 	boolean previousMode = false;
+	boolean prevFlipControls = false;
 
 	public void teleopPeriodic() {
+
 		// this means on = auto, off = manual. Add ! before driveBoard to flip
 		if (driveBoard.getRawButton(IO.MAN_AUTO_SW)) {
 
 			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
 			}
-		BC.runBC(driveBoard.getRawButton(IO.LAYUP), driveBoard.getRawButton(IO.STOW), 
-			driveBoard.getRawButton(IO.FAR_SHOT),driveBoard.getRawButton(IO.GATHER),
-			driveBoard.getRawButton(IO.PRIME),driveBoard.getRawButton(IO.FIRE), 
-			driveBoard.getRawButton(IO.LOWBAR),driveBoard.getRawButton(IO.PORT),
-			driveBoard.getRawButton(IO.SALLYPORT),driveBoard.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES),
-			driveBoard.getRawButton(IO.DRAWBRIDGE));
-			
+			BC.runBC(driveBoard.getRawButton(IO.LAYUP), driveBoard.getRawButton(IO.STOW),
+					driveBoard.getRawButton(IO.FAR_SHOT), driveBoard.getRawButton(IO.GATHER),
+					driveBoard.getRawButton(IO.PRIME), driveBoard.getRawButton(IO.FIRE),
+					driveBoard.getRawButton(IO.LOWBAR), driveBoard.getRawButton(IO.PORT),
+					driveBoard.getRawButton(IO.SALLYPORT), driveBoard.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES),
+					driveBoard.getRawButton(IO.DRAWBRIDGE));
+
 		}
 
 		else {
@@ -119,30 +125,41 @@ public class Robot extends IterativeRobot {
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 
-		boolean negate = lJoy.getRawButton(IO.NEGATE);
+		boolean flipControls = lJoy.getRawButton(IO.FLIP_CONTROLS);
 
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
 
-		if (negate) {
+		if (flipControls) {
+			if (flipControls != prevFlipControls) {
+				NIVision.IMAQdxConfigureGrab(backCamSession);
+				NIVision.IMAQdxStartAcquisition(backCamSession);
+			}
+			NIVision.IMAQdxGrab(backCamSession, cameraFrame, 1);
+			CameraServer.getInstance().setImage(cameraFrame);
 
 			YAxisLeft = lJoy.getY();
 			YAxisRight = rJoy.getY();
 		} else {
+			if (flipControls != prevFlipControls) {
+				NIVision.IMAQdxConfigureGrab(fwdCamSession);
+				NIVision.IMAQdxStartAcquisition(fwdCamSession);
+			}
+			NIVision.IMAQdxGrab(fwdCamSession, cameraFrame, 1);
+			CameraServer.getInstance().setImage(cameraFrame);
+
 			YAxisLeft = -lJoy.getY();
 			YAxisRight = -rJoy.getY();
 		}
+		prevFlipControls = flipControls;
 
-		
-		BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP),GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
+		BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP), GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
 
-		
 		int angle = WASDToAngle(driveBoard.getRawButton(IO.WASD_W), driveBoard.getRawButton(IO.WASD_A),
-				driveBoard.getRawButton(IO.WASD_S),driveBoard.getRawButton(IO.WASD_D));
+				driveBoard.getRawButton(IO.WASD_S), driveBoard.getRawButton(IO.WASD_D));
 
-	
-		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE),
-				rJoy.getThrottle());
+		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(),
+				rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE), rJoy.getThrottle());
 
 		if (rJoy.getRawButton(IO.ZERO_YAW)) {
 			navX.zeroYaw();
