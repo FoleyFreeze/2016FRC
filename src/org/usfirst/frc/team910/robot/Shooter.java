@@ -8,7 +8,8 @@ public class Shooter {
 	CANTalon shooterArm;
 	CANTalon loadWheels;
 	
-
+	double JOGNUMBER = 15;
+	
 	double CLOSESHOT = 1000;
 
 	double FARSHOT = 2000;
@@ -137,18 +138,13 @@ public class Shooter {
 	public void jog (boolean jogUp, boolean jogDown) {
 		double armValue = shooterArm.get();
 		if (jogUp){
-			shooterArm.set(armValue + .15);
+			shooterArm.set(armValue + JOGNUMBER);
 		
 		}
 		else if (jogDown){
-			shooterArm.set(armValue - .15);
+			shooterArm.set(armValue - JOGNUMBER);
 			
 		}
-		else {
-			
-		}
-			
-		
 		
 	}
 
