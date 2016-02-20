@@ -38,8 +38,7 @@ public class Robot extends IterativeRobot {
 
 	AnalogInput dSensor;
 
-	int fwdCamSession;
-	int backCamSession;
+	int camSession;
 	Image cameraFrame;
 
 	public void robotInit() {
@@ -58,11 +57,10 @@ public class Robot extends IterativeRobot {
 		dSensor = new AnalogInput(1);
 
 		// setup things for camera switching
-		fwdCamSession = NIVision.IMAQdxOpenCamera("cam0", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-		backCamSession = NIVision.IMAQdxOpenCamera("cam1",
-				NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-		NIVision.IMAQdxConfigureGrab(fwdCamSession);
-		NIVision.IMAQdxStartAcquisition(fwdCamSession);
+		cameraFrame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+		camSession = NIVision.IMAQdxOpenCamera("cam0", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+		NIVision.IMAQdxConfigureGrab(camSession);
+		NIVision.IMAQdxStartAcquisition(camSession);
 	}
 
 	/**
@@ -132,20 +130,28 @@ public class Robot extends IterativeRobot {
 
 		if (flipControls) {
 			if (flipControls != prevFlipControls) {
-				NIVision.IMAQdxConfigureGrab(backCamSession);
-				NIVision.IMAQdxStartAcquisition(backCamSession);
+				NIVision.IMAQdxStopAcquisition(camSession);
+	            NIVision.IMAQdxCloseCamera(camSession);
+	    		camSession = NIVision.IMAQdxOpenCamera("cam1",
+	    				NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+				NIVision.IMAQdxConfigureGrab(camSession);
+				NIVision.IMAQdxStartAcquisition(camSession);
 			}
-			NIVision.IMAQdxGrab(backCamSession, cameraFrame, 1);
+			NIVision.IMAQdxGrab(camSession, cameraFrame, 1);
 			CameraServer.getInstance().setImage(cameraFrame);
 
 			YAxisLeft = lJoy.getY();
 			YAxisRight = rJoy.getY();
 		} else {
 			if (flipControls != prevFlipControls) {
-				NIVision.IMAQdxConfigureGrab(fwdCamSession);
-				NIVision.IMAQdxStartAcquisition(fwdCamSession);
+				NIVision.IMAQdxStopAcquisition(camSession);
+	            NIVision.IMAQdxCloseCamera(camSession);
+	    		camSession = NIVision.IMAQdxOpenCamera("cam0",
+	    				NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+				NIVision.IMAQdxConfigureGrab(camSession);
+				NIVision.IMAQdxStartAcquisition(camSession);
 			}
-			NIVision.IMAQdxGrab(fwdCamSession, cameraFrame, 1);
+			NIVision.IMAQdxGrab(camSession, cameraFrame, 1);
 			CameraServer.getInstance().setImage(cameraFrame);
 
 			YAxisLeft = -lJoy.getY();
