@@ -14,6 +14,9 @@ public class Gatherer {
 	public Gatherer() {
 		gatherer = new CANTalon(IO.GATHERER);
 		gatherArm = new CANTalon(IO.GATHER_ARM);
+		
+		autoAndback(true);
+		gatherArm.enableBrakeMode(true);
 	}
 
 	public void autoAndback(boolean manualControl) {

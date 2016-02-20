@@ -16,6 +16,21 @@ public class BoulderController {
 	double GATHER_OUTOFWAY_POS = 0;
 	double SHOOTER_LOAD_POS = 0;
 
+	// defense positions
+	double SHOOTER_LOWBAR_POS = 0;
+	double GATHER_LOWBAR_POS = 0;
+	double SHOOTER_PORT_POS = 0;
+	double GATHER_PORT_POS = 0;
+	double SHOOTER_SALLY_UP = 0;
+	double SHOOTER_SALLY_DOWN = 0;
+	double GATHER_SALLY_POS = 0;
+	double GATHER_FLIPPY_FLOPPIES_POS = 0;
+	double SHOOTER_FLIPPY_FLOPPIES_UP = 0;
+	double SHOOTER_FLIPPY_FLOPPIES_DOWN = 0;
+	double GATHER_DRAWBRIDGE_POS = 0;
+	double SHOOTER_DRAWBRIDGE_DOWN = 0;
+	double SHOOTER_DRAWBRIDGE_UP = 0;
+
 	Shooter shooter;
 	Gatherer gatherer;
 
@@ -30,7 +45,8 @@ public class BoulderController {
 	double button = -1;
 
 	public void runBC(boolean layupBtn, boolean stowBtn, boolean farShotBtn, boolean gatherBtn, boolean primeBtn,
-			boolean fireBtn) {
+			boolean fireBtn, boolean lowBarBtn, boolean portBtn, boolean sallyBtn, boolean flippyBtn,
+			boolean drawbridgeBtn) {
 		gatherer.aquireShooterPosition(shooter.getPosition());
 		shooter.aquireGatherPosition(gatherer.getPosition());
 
@@ -42,6 +58,17 @@ public class BoulderController {
 			button = 2;
 		else if (gatherBtn)
 			button = 3;
+		else if (lowBarBtn) {
+			button = 7;
+		} else if (portBtn) {
+			button = 8;
+		} else if (sallyBtn)
+			button = 4;
+		else if (flippyBtn) {
+			button = 5;
+		} else if (drawbridgeBtn) {
+			button = 6;
+		}
 
 		if (button == 0) {
 			// set positions to lay up on gatherer and shooter arms//
@@ -66,12 +93,31 @@ public class BoulderController {
 			gather();
 		}
 
+		else if (button == 4) {
+			sallyPort(sallyBtn);
+			gatherState = 1;
+		} else if (button == 5) {
+			flippyFloppies(flippyBtn);
+			gatherState = 1;
+		} else if (button == 6) {
+			drawbridge(drawbridgeBtn);
+			gatherState = 1;
+		}
+		else if(button == 7){
+			lowBar(lowBarBtn);
+			gatherState = 1;
+		}else if(button == 8){
+			portcullis(portBtn);
+			gatherState = 1;
+		}
+		
+
 		if (primeBtn) {
-			prime();
+			shooter.prime();
 		}
 
 		if (fireBtn) {
-			fire();
+			shooter.fire();
 		}
 
 	}
@@ -142,20 +188,44 @@ public class BoulderController {
 		}
 	}
 
-	public void prime() {
-
-	}
-
-	public void fire() {
-
-	}
-
 	public void scoreLow() {
 
 	}
 
-	public void lowBar() {
+	public void lowBar(boolean lowBar) {
+		shooter.gotoPosition(SHOOTER_LOWBAR_POS);
+		gatherer.gotoPosition(GATHER_LOWBAR_POS);
+	}
 
+	public void sallyPort(boolean sallyBtn) {
+		if (sallyBtn) {
+			shooter.gotoPosition(SHOOTER_SALLY_DOWN);
+		} else {
+			shooter.gotoPosition(SHOOTER_SALLY_UP);
+		}
+	}
+
+	public void portcullis(boolean portcullis) {
+		shooter.gotoPosition(SHOOTER_PORT_POS);
+		gatherer.gotoPosition(GATHER_PORT_POS);
+	}
+
+	public void flippyFloppies(boolean flippyBtn) {
+		gatherer.gotoPosition(GATHER_FLIPPY_FLOPPIES_POS);
+		if (flippyBtn) {
+			shooter.gotoPosition(SHOOTER_FLIPPY_FLOPPIES_DOWN);
+		} else {
+			shooter.gotoPosition(SHOOTER_FLIPPY_FLOPPIES_UP);
+		}
+	}
+
+	public void drawbridge(boolean drawbridgeBtn) {
+		gatherer.gotoPosition(GATHER_DRAWBRIDGE_POS);
+		if (drawbridgeBtn) {
+			shooter.gotoPosition(SHOOTER_DRAWBRIDGE_DOWN);
+		} else {
+			shooter.gotoPosition(SHOOTER_DRAWBRIDGE_UP);
+		}
 	}
 
 }

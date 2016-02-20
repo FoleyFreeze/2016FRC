@@ -40,6 +40,8 @@ public class DriveTrain {
 			rmTalon = new Talon(IO.RIGHT_DRIVE_MOTOR);
 			lEncoder = new Encoder(IO.LEFT_DRIVE_A_ENCODER, IO.LEFT_DRIVE_B_ENCODER, false);
 			rEncoder = new Encoder(IO.RIGHT_DRIVE_A_ENCODER, IO.RIGHT_DRIVE_B_ENCODER, false);
+			lEncoder.setDistancePerPulse(120.0 / 3600.0);
+			rEncoder.setDistancePerPulse(120.0 / 3600.0);
 		}
 
 		navX = x;

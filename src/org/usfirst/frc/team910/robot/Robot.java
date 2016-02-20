@@ -71,32 +71,20 @@ public class Robot extends IterativeRobot {
 
 	public void autonomousPeriodic() {
 		// Auton
-
-		switch (autonstate) {
-
-		case 0:
-			autonstate = 1;
-			// prep robot for crossing defences
-			break;
-
-		case 1:
-			drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
-															// forward at Full
-															// Power
-			if (getAvgAccel() > 0.8)
-				autonstate = 2;
-			break;
-
-		case 2:
-			drive.compassDrive(1, navX.getYaw(), false, 0);
-			if (getAvgAccel() < 0.3)
-				autonstate = 3;
-			break;
-
-		case 3:
-			drive.tankDrive(0, 0);
-			break;
-		}
+		/*
+		 * switch (autonstate) {
+		 * 
+		 * case 0: autonstate = 1; // prep robot for crossing defences break;
+		 * 
+		 * case 1: drive.compassDrive(1, navX.getYaw(), false, 0);// Compass
+		 * drive // forward at Full // Power if (getAvgAccel() > 0.8) autonstate
+		 * = 2; break;
+		 * 
+		 * case 2: drive.compassDrive(1, navX.getYaw(), false, 0); if
+		 * (getAvgAccel() < 0.3) autonstate = 3; break;
+		 * 
+		 * case 3: drive.tankDrive(0, 0); break; }
+		 */
 
 	}
 
@@ -112,15 +100,20 @@ public class Robot extends IterativeRobot {
 			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
 			}
-			BC.runBC(driveBoard.getRawButton(4), driveBoard.getRawButton(5), driveBoard.getRawButton(6),
-					driveBoard.getRawButton(7), driveBoard.getRawButton(8), driveBoard.getRawButton(9));
+			// BC.runBC(driveBoard.getRawButton(4), driveBoard.getRawButton(5),
+			// driveBoard.getRawButton(6),
+			// driveBoard.getRawButton(7), driveBoard.getRawButton(8),
+			// driveBoard.getRawButton(9));
 		}
 
 		else {
 			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
+				BC.gatherer.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 			}
 			// call manual position functions
+			BC.gatherer.manualGather(GamePad.getRawAxis(1) * 0.5);
+			BC.gatherer.gatherwheel(GamePad.getRawAxis(5));
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 
@@ -168,7 +161,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
 		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
-		SmartDashboard.putNumber("avgAccel", getAvgAccel());
+		// SmartDashboard.putNumber("avgAccel", getAvgAccel());
 
 	}
 
