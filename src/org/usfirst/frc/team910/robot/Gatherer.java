@@ -61,5 +61,18 @@ public class Gatherer {
 		gatherArm.set(YAxisGamePadRight);
 
 	}
-
+	public void drawBridge () {
+		
+		
+		//bring shooter down high so tail extends high up
+		//drive forward until tail is over drawbridge
+		//bring shooter down so tail goes down over drawbridge and hooks
+		//robot reverses bringing down drawbridge as shooter goes down so hook pulls down drawbridge
+		//pin drawbridge to the ground
+		//drive forward over drawbridge
+		
+		
+		//America is the greatest.
+		
+	}
 }

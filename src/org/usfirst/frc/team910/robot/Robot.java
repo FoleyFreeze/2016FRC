@@ -26,7 +26,8 @@ public class Robot extends IterativeRobot {
 
 	DriveTrain drive;
 	BoulderController BC;
-
+	Shooter ShooterControl;
+	
 	Joystick rJoy;
 	Joystick lJoy;
 	Joystick driveBoard;
@@ -43,6 +44,7 @@ public class Robot extends IterativeRobot {
 
 		drive = new DriveTrain(navX);
 		BC = new BoulderController();
+		ShooterControl = new Shooter();
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 
@@ -136,10 +138,18 @@ public class Robot extends IterativeRobot {
 			YAxisRight = -rJoy.getY();
 		}
 
+		if (GamePad.getRawButton(IO.GAME_PAD)) {
+			ShooterControl.jog(GamePad.getRawButton(8),GamePad.getRawButton(9));
+		}
+		else {
+			
+		}
+		
 		int angle = WASDToAngle(driveBoard.getRawButton(11), driveBoard.getRawButton(1), driveBoard.getRawButton(2),
 				driveBoard.getRawButton(3));
 
 		// W is 11, A is 1, S is 2, D is 3//
+	
 		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2),
 				rJoy.getThrottle());
 
