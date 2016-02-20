@@ -21,8 +21,8 @@ public class DriveTrain {
 
 	Encoder lEncoder;
 	Encoder rEncoder;
-	
-	double MAX_RAMP_RATE = 0.03; //one second 0 to 1 ramp
+
+	double MAX_RAMP_RATE = 0.03; // one second 0 to 1 ramp
 
 	public DriveTrain(AHRS x) {
 
@@ -52,9 +52,8 @@ public class DriveTrain {
 
 	double prevL = 0;
 	double prevR = 0;
-	
-	
-	
+	double prevT = 0;
+
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
 		if (Math.abs(YAxisLeft) > 1)
 			YAxisLeft = YAxisLeft / Math.abs(YAxisLeft);
@@ -63,7 +62,7 @@ public class DriveTrain {
 
 		prevL = YAxisLeft;
 		prevR = YAxisRight;
-		
+
 		if (Robot.TEST) {
 			LFmCANTalon.set(-YAxisLeft * 1);
 			LBmCANTalon.set(-YAxisLeft * 1);
@@ -145,12 +144,46 @@ public class DriveTrain {
 	public void run(double yAxisLeft, double yAxisRight, double pov, boolean sDrive, boolean dBrake,
 			boolean compassDrive, double rThrottle) {
 
+		// ramp rate limiting left side
+		double driveL;
+		double driveR;
+		if (yAxisLeft > 0) {// for positive powers
+			if (yAxisLeft > prevL + MAX_RAMP_RATE) {// if increasing power,
+													// slowly ramp
+				driveL = prevL + MAX_RAMP_RATE;
+			} else {// if decreasing power, just do it
+				driveL = yAxisLeft;
+			}
+		} else {// for negative powers
+			if (yAxisLeft < prevL - MAX_RAMP_RATE) {// if increasing negative
+													// power, slowly ramp
+				driveL = prevL - MAX_RAMP_RATE;
+			} else {// if decreasing power, just do it
+				driveL = yAxisLeft;
+			}
+		}
+		// ramp rate limiting right side
+		if (yAxisRight > 0) {
+			if (yAxisRight > prevR + MAX_RAMP_RATE) {
+				driveR = prevR + MAX_RAMP_RATE;
+			} else {
+				driveR = yAxisRight;
+			}
+		} else {
+			if (yAxisRight < prevR - MAX_RAMP_RATE) {
+				driveR = prevR - MAX_RAMP_RATE;
+			} else {
+				driveR = yAxisRight;
+			}
+		}
+
 		if (dBrake) {
 			// Dynamic Braking Function//
 			dynamicBraking(!previousDbrake);
 			previousDbrake = true;
 			previousSdrive = false;
 			previousCdrive = false;
+			prevT = 0;
 		}
 
 		else if (sDrive) {
@@ -159,56 +192,32 @@ public class DriveTrain {
 			previousDbrake = false;
 			previousSdrive = true;
 			previousCdrive = false;
+			prevT = 0;
 
 		} else if (pov != -5000 && navX.isConnected()) {
+			rThrottle = (-rThrottle + 1) / 2;
+			double power;
+			if (rThrottle > prevT + MAX_RAMP_RATE) {// if increasing power,
+													// slowly ramp
+				power = prevT + MAX_RAMP_RATE;
+			} else {// if decreasing power, just do it
+				power = rThrottle;
+			}
 			// Compass Drive Function//
-			compassDrive((-rThrottle + 1) / 2, navX.getYaw(), !previousCdrive, pov);
+			compassDrive(power, navX.getYaw(), !previousCdrive, pov);
+			prevT = power;
 			previousCdrive = true;
 			previousDbrake = false;
 			previousSdrive = false;
 		}
 
-		else {//just drive
-			//ramp rate limiting left side
-			double driveL;
-			double driveR;
-			if(yAxisLeft > 0){//for positive powers
-				if(yAxisLeft > prevL + MAX_RAMP_RATE){//if increasing power, slowly ramp
-					driveL = prevL + MAX_RAMP_RATE;
-				}
-				else{//if decreasing power, just do it
-					driveL = yAxisLeft;
-				}
-			}
-			else{//for negative powers
-				if(yAxisLeft < prevL - MAX_RAMP_RATE){//if increasing negative power, slowly ramp
-					driveL = prevL - MAX_RAMP_RATE;
-				}
-				else{//if decreasing power, just do it
-					driveL = yAxisLeft;
-				}
-			}
-			//ramp rate limiting left side
-			if(yAxisRight > 0){
-				if(yAxisRight > prevR + MAX_RAMP_RATE){
-					driveR = prevR + MAX_RAMP_RATE;
-				}
-				else{
-					driveR = yAxisRight;
-				}
-			}
-			else{
-				if(yAxisRight < prevR - MAX_RAMP_RATE){
-					driveR = prevR - MAX_RAMP_RATE;
-				}
-				else{
-					driveR = yAxisRight;
-				}
-			}
+		else {// just drive
+
 			tankDrive(driveL, driveR);
 			previousDbrake = false;
 			previousSdrive = false;
 			previousCdrive = false;
+			prevT = 0;
 		}
 
 		SmartDashboard.putNumber("L Encoder", lEncoder.getDistance());
@@ -266,9 +275,12 @@ public class DriveTrain {
 		SmartDashboard.putNumber("power", power);
 		SmartDashboard.putNumber("inverse", inverse);
 
-		if (diff > 30) {
+		double turnAngle = IO.lookup(IO.COMPASS_ANGLE, IO.POWER_AXIS, Math.abs(power));
+		SmartDashboard.putNumber("turnAngle", turnAngle);
+
+		if (diff > turnAngle) {
 			tankDrive(-power, power);
-		} else if (diff < -30) {
+		} else if (diff < -turnAngle) {
 			tankDrive(power, -power);
 		} else {
 			adj = diff * .02;
@@ -319,14 +331,13 @@ public class DriveTrain {
 		} else if (diff < -180) {
 			diff = 360 + diff;
 		}
-		
+
 		double slowPower;
-		
-		slowPower = diff /45;
-		
+
+		slowPower = diff / 45;
+
 		tankDrive(slowPower, -slowPower);
-		
-		
+
 	}
 
 }

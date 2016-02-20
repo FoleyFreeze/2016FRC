@@ -129,8 +129,8 @@ public class Robot extends IterativeRobot {
 			YAxisRight = -rJoy.getY();
 		}
 
-		int angle = WASDToAngle(driveBoard.getRawButton(11), driveBoard.getRawButton(1), driveBoard.getRawButton(2),
-				driveBoard.getRawButton(3));
+		int angle = WASDToAngle(driveBoard.getRawButton(3), driveBoard.getRawButton(4), driveBoard.getRawButton(5),
+				driveBoard.getRawButton(6));
 
 		// W is 11, A is 1, S is 2, D is 3//
 		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2),

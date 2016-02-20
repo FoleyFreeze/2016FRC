@@ -26,4 +26,25 @@ public class IO {
 	public static final int DRIVE_BOARD = 3;
 
 	public static final int MAN_AUTO_SW = 12;
+
+	// drivetrain calibrations
+	public static final double[] COMPASS_ANGLE = {15, 15, 30, 40, 40};
+	public static final double[] POWER_AXIS = {0.0, 0.2, 0.6, 0.9, 1.0};
+
+	public static double lookup(double[] values, double[] axis, double input) {
+		int index = axis.length -1;
+		for (int i = 0; i < axis.length; i++) {
+			if (axis[i] >= input) {
+				index = i;
+				break;
+			}
+		}
+
+		if (index <= 0)
+			return values[index];
+		else {
+			double slope = (values[index] - values[index - 1]) / (axis[index] - axis[index-1]);
+			return slope * (input - axis[index]) + values[index];
+		}
+	}
 }
