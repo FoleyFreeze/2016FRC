@@ -99,10 +99,13 @@ public class Robot extends IterativeRobot {
 			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
 			}
-			// BC.runBC(driveBoard.getRawButton(4), driveBoard.getRawButton(5),
-			// driveBoard.getRawButton(6),
-			// driveBoard.getRawButton(7), driveBoard.getRawButton(8),
-			// driveBoard.getRawButton(9));
+		BC.runBC(driveBoard.getRawButton(IO.LAYUP), driveBoard.getRawButton(IO.STOW), 
+			driveBoard.getRawButton(IO.FAR_SHOT),driveBoard.getRawButton(IO.GATHER),
+			driveBoard.getRawButton(IO.PRIME),driveBoard.getRawButton(IO.FIRE), 
+			driveBoard.getRawButton(IO.LOWBAR),driveBoard.getRawButton(IO.PORT),
+			driveBoard.getRawButton(IO.SALLYPORT),driveBoard.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES),
+			driveBoard.getRawButton(IO.DRAWBRIDGE));
+			
 		}
 
 		else {
@@ -116,7 +119,7 @@ public class Robot extends IterativeRobot {
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 
-		boolean negate = lJoy.getRawButton(12);
+		boolean negate = lJoy.getRawButton(IO.NEGATE);
 
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
@@ -134,15 +137,15 @@ public class Robot extends IterativeRobot {
 		BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP),GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
 
 		
-		int angle = WASDToAngle(driveBoard.getRawButton(11), driveBoard.getRawButton(1), driveBoard.getRawButton(2),
-				driveBoard.getRawButton(3));
+		int angle = WASDToAngle(driveBoard.getRawButton(IO.WASD_W), driveBoard.getRawButton(IO.WASD_A),
+				driveBoard.getRawButton(IO.WASD_S),driveBoard.getRawButton(IO.WASD_D));
 
 		// W is 11, A is 1, S is 2, D is 3//
 	
-		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(2),
+		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(), rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE),
 				rJoy.getThrottle());
 
-		if (rJoy.getRawButton(3)) {
+		if (rJoy.getRawButton(IO.ZERO_YAW)) {
 			navX.zeroYaw();
 		}
 

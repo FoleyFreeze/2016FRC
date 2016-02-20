@@ -29,4 +29,25 @@ public class IO {
 	
 	public static final int JOG_SHOOTER_UP = 4 ;
 	public static final int JOG_SHOOTER_DOWN = 5;
+	public static final int LOWBAR = 13;
+	public static final int PORT = 14;
+	public static final int SALLYPORT = 15;
+	public static final int FLIPPY_DE_LOS_FLOPPIES = 16;
+	public static final int DRAWBRIDGE = 17;
+	public static final int LAYUP = 18;
+	public static final int STOW = 19;
+	public static final int FAR_SHOT = 20;
+	public static final int GATHER = 21;
+	public static final int PRIME = 22;
+	public static final int FIRE = 23;
+	public static final int WASD_W = 11;
+	public static final int WASD_A = 1;
+	public static final int WASD_S = 2;
+	public static final int WASD_D = 3;
+	
+	//l-joy
+	public static final int NEGATE = 12;
+	//r-joy
+	public static final int COMPASS_POWER_THROTTLE = 2;
+	public static final int ZERO_YAW = 3;
 }
