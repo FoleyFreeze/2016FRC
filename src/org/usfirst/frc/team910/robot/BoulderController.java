@@ -31,6 +31,10 @@ public class BoulderController {
 	double SHOOTER_DRAWBRIDGE_DOWN = 0;
 	double SHOOTER_DRAWBRIDGE_UP = 0;
 
+	double GATHER_HIGH;
+	double GATHER_LOW;
+	double SHOOTER_HIGH;
+	double SHOOTER_LOW;
 	Shooter shooter;
 	Gatherer gatherer;
 
@@ -47,8 +51,8 @@ public class BoulderController {
 	public void runBC(boolean layupBtn, boolean stowBtn, boolean farShotBtn, boolean gatherBtn, boolean primeBtn,
 			boolean fireBtn, boolean lowBarBtn, boolean portBtn, boolean sallyBtn, boolean flippyBtn,
 			boolean drawbridgeBtn) {
-		gatherer.aquireShooterPosition(shooter.getPosition());
-		shooter.aquireGatherPosition(gatherer.getPosition());
+		gatherer.aquireShooterPosition(shoottogather( shooter.getPosition()));
+		shooter.aquireGatherPosition(gathertoshoot(gatherer.getPosition()));
 
 		if (layupBtn)
 			button = 0;
@@ -228,4 +232,14 @@ public class BoulderController {
 		}
 	}
 
+	public double gathertoshoot(double gatherpos){
+		return  ((gatherpos - GATHER_LOW)/(GATHER_HIGH - GATHER_LOW))*(SHOOTER_HIGH - SHOOTER_LOW)+SHOOTER_LOW;		
+	}
+
+	public double shoottogather(double shooterpos){
+		return ((shooterpos - SHOOTER_LOW)/(SHOOTER_HIGH - SHOOTER_LOW))*(GATHER_HIGH - GATHER_LOW)+ GATHER_LOW;
+		
+		
+	}
 }
+

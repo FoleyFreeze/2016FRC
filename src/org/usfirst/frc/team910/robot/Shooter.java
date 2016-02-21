@@ -7,9 +7,11 @@ public class Shooter {
 	CANTalon shooterWheel;
 	CANTalon shooterArm;
 	CANTalon loadWheels;
-	
+
+	double jogoffset;
+
 	double JOGNUMBER = 15;
-	
+
 	double CLOSESHOT = 1000;
 
 	double FARSHOT = 2000;
@@ -29,6 +31,8 @@ public class Shooter {
 	double gatherPosition;
 
 	double SAFETYDISTANCE = 500;
+
+	double jooffset;
 
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
@@ -54,14 +58,14 @@ public class Shooter {
 	public void gotoPosition(double position) {
 
 		// if going down//
-		if (shooterArm.getPosition() > position) {
-			if (position > gatherPosition) {
-				shooterArm.set(position);
+		if (shooterArm.getPosition() > position + jogoffset) {
+			if (position + jogoffset > gatherPosition) {
+				shooterArm.set(position + jogoffset);
 			} else {
 				shooterArm.set(gatherPosition + SAFETYDISTANCE);
 			}
 		} else {
-			shooterArm.set(position);
+			shooterArm.set(position + jogoffset);
 		}
 	}
 
@@ -120,38 +124,34 @@ public class Shooter {
 		}
 	}
 
-	public void drawBridge () {
-		
-		
-		//bring shooter down high so tail extends high up
-		//drive forward until tail is over drawbridge
-		//bring shooter down so tail goes down over drawbridge and hooks
-		//robot reverses bringing down drawbridge as shooter goes down so hook pulls down drawbridge
-		//pin drawbridge to the ground
-		//drive forward over drawbridge
-		
-		
-		//America is the greatest.
-		
-	}
-	
-	public void jog (boolean jogUp, boolean jogDown) {
-		double armValue = shooterArm.get();
-		if (jogUp){
-			shooterArm.set(armValue + JOGNUMBER);
-		
-		}
-		else if (jogDown){
-			shooterArm.set(armValue - JOGNUMBER);
-			
-		}
-		
+	public void drawBridge() {
+
+		// bring shooter down high so tail extends high up
+		// drive forward until tail is over drawbridge
+		// bring shooter down so tail goes down over drawbridge and hooks
+		// robot reverses bringing down drawbridge as shooter goes down so hook
+		// pulls down drawbridge
+		// pin drawbridge to the ground
+		// drive forward over drawbridge
+
+		// America is the greatest.
+
 	}
 
+	boolean prevJogUp = false;
+	boolean prevJogDown = false;
 
+	public void jog(boolean jogUp, boolean jogDown) {
+		if (jogUp && !prevJogUp) {
 
+			jogoffset += JOGNUMBER;
+		} else if (jogDown && !prevJogDown) {
 
+			jogoffset -= JOGNUMBER;
+		}
+
+		prevJogUp = jogUp;
+		prevJogDown = jogDown;
+	}
 
 }
-
-
