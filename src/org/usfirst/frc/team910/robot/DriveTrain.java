@@ -339,5 +339,12 @@ public class DriveTrain {
 		tankDrive(slowPower, -slowPower);
 
 	}
-
+	
+	public void resetEncoders(){
+		rEncoder.reset();
+		lEncoder.reset();
+	}
+	public double getDistance(){
+		return (rEncoder.getDistance() + lEncoder.getDistance()) / 2;
+	}
 }

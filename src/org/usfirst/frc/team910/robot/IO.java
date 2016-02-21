@@ -40,13 +40,13 @@ public class IO {
 	public static final int GATHER = 21;
 	public static final int PRIME = 22;
 	public static final int FIRE = 23;
-	public static final int WASD_W = 11;
-	public static final int WASD_A = 1;
-	public static final int WASD_S = 2;
-	public static final int WASD_D = 3;
+	public static final int WASD_W = 10;
+	public static final int WASD_A = 9;
+	public static final int WASD_S = 11;
+	public static final int WASD_D = 12;
 	
 	//l-joy
-	public static final int NEGATE = 12;
+	public static final int FLIP_CONTROLS = 12;
 	//r-joy
 	public static final int COMPASS_POWER_THROTTLE = 2;
 	public static final int ZERO_YAW = 3;
