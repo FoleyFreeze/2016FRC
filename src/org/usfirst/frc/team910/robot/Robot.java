@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -39,10 +40,12 @@ public class Robot extends IterativeRobot {
 
 	AnalogInput dSensor;
 
-	int camSession;
-	Image cameraFrame;
-
 	public void robotInit() {
+		chooser = new SendableChooser();
+		chooser.addDefault("Default Auto", defaultAuto);
+		chooser.addObject("My Auto", customAuto);
+		SmartDashboard.putData("Auto choices", chooser);
+
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 
 		drive = new DriveTrain(navX);
@@ -58,9 +61,9 @@ public class Robot extends IterativeRobot {
 		dSensor = new AnalogInput(1);
 
 		// setup things for camera switching
-		//cameraFrame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-		//camSession = NIVision.IMAQdxOpenCamera("cam0", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-		//NIVision.IMAQdxConfigureGrab(camSession);
+		BetterCameraServer.init("cam0", "cam1");
+		// CameraServer.getInstance().startAutomaticCapture("cam0");
+		time.start();
 	}
 
 	/**
@@ -68,25 +71,53 @@ public class Robot extends IterativeRobot {
 	 * 
 	 */
 
+	final String defaultAuto = "Default";
+	final String customAuto = "My Auto";
+	String autoSelected;
+	SendableChooser chooser;
 	int autonstate = 0;
 
 	public void autonomousPeriodic() {
-		// Auton
-		/*
-		 * switch (autonstate) {
-		 * 
-		 * case 0: autonstate = 1; // prep robot for crossing defences break;
-		 * 
-		 * case 1: drive.compassDrive(1, navX.getYaw(), false, 0);// Compass
-		 * drive // forward at Full // Power if (getAvgAccel() > 0.8) autonstate
-		 * = 2; break;
-		 * 
-		 * case 2: drive.compassDrive(1, navX.getYaw(), false, 0); if
-		 * (getAvgAccel() < 0.3) autonstate = 3; break;
-		 * 
-		 * case 3: drive.tankDrive(0, 0); break; }
-		 */
+		autoSelected = (String) chooser.getSelected();
+		// autoSelected = SmartDashboard.getString("Auto Selector",
+		// defaultAuto);
+		System.out.println("Auto selected: " + autoSelected);
 
+		switch (autonstate) {
+		case 0:
+			time.start();
+			time.reset();
+			navX.zeroYaw();
+			autonstate = 1;
+			break;
+
+		case 1:
+			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			if (time.get() >= 3) {
+				autonstate = 2;
+			}
+			break;
+
+		case 2:
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+		}
+	}
+
+	// called when disabled
+	public void disabledPeriodic() {
+		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
+		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
+		SmartDashboard.putNumber("navX Roll", navX.getRoll());
+		SmartDashboard.putNumber("navX X", navX.getRawGyroX());
+		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
+		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
+		SmartDashboard.putNumber("Distance", dSensor.getVoltage());
+		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
+		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
+		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
+
+		SmartDashboard.putString("Auto", (String) chooser.getSelected());
 	}
 
 	/**
@@ -99,6 +130,7 @@ public class Robot extends IterativeRobot {
 	Timer time = new Timer();
 
 	public void teleopPeriodic() {
+		BetterCameraServer.start();
 
 		// this means on = auto, off = manual. Add ! before driveBoard to flip
 		if (driveBoard.getRawButton(IO.MAN_AUTO_SW)) {
@@ -133,35 +165,43 @@ public class Robot extends IterativeRobot {
 
 		if (firstTime) {
 			firstTime = false;
-			//NIVision.IMAQdxStartAcquisition(camSession);
+			// cam.setCamera(0);
+			// NIVision.IMAQdxConfigureGrab(camSession);
+			// NIVision.IMAQdxStartAcquisition(camSession);
 		}
-		
+
+		if (flipControls != prevFlipControls)
+			BetterCameraServer.switchCamera();
+
 		if (flipControls) {
-			/*if (flipControls != prevFlipControls) {
-				camSession = NIVision.IMAQdxOpenCamera("cam1",
-						NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-				NIVision.IMAQdxConfigureGrab(camSession);
-				NIVision.IMAQdxStartAcquisition(camSession);
-			}*/
+			/*
+			 * if (flipControls != prevFlipControls) { camSession =
+			 * NIVision.IMAQdxOpenCamera("cam1",
+			 * NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+			 * NIVision.IMAQdxConfigureGrab(camSession);
+			 * NIVision.IMAQdxStartAcquisition(camSession); }
+			 */
 
 			YAxisLeft = lJoy.getY();
 			YAxisRight = rJoy.getY();
 		} else {
-			/*if (flipControls != prevFlipControls) {
-				camSession = NIVision.IMAQdxOpenCamera("cam0",
-						NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-				NIVision.IMAQdxConfigureGrab(camSession);
-				NIVision.IMAQdxStartAcquisition(camSession);
-			}*/
-			
+			/*
+			 * if (flipControls != prevFlipControls) { camSession =
+			 * NIVision.IMAQdxOpenCamera("cam0",
+			 * NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+			 * NIVision.IMAQdxConfigureGrab(camSession);
+			 * NIVision.IMAQdxStartAcquisition(camSession); }
+			 */
+
 			YAxisLeft = -lJoy.getY();
 			YAxisRight = -rJoy.getY();
 		}
 		prevFlipControls = flipControls;
-		
-		//NIVision.IMAQdxGrab(camSession, cameraFrame, 1);
-		//CameraServer.getInstance().setImage(cameraFrame);
 
+		// cam.setCamera(0);
+		// cam.updateCamera();
+		// NIVision.IMAQdxGrab(camSession, cameraFrame, 1);
+		// CameraServer.getInstance().setImage(cameraFrame);
 
 		// BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP),
 		// GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
@@ -189,6 +229,8 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
 		// SmartDashboard.putNumber("avgAccel", getAvgAccel());
 
+		SmartDashboard.putNumber("cycle time", time.get());
+		time.reset();
 	}
 
 	/**
