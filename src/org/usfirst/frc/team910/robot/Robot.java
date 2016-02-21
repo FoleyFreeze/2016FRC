@@ -2,11 +2,7 @@
 package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
-import com.ni.vision.NIVision;
-import com.ni.vision.NIVision.Image;
-
 import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
@@ -39,6 +35,8 @@ public class Robot extends IterativeRobot {
 	AHRS navX;
 
 	AnalogInput dSensor;
+	
+	Auton auton;
 
 	public void robotInit() {
 		chooser = new SendableChooser();
@@ -64,6 +62,8 @@ public class Robot extends IterativeRobot {
 		BetterCameraServer.init("cam0", "cam1");
 		// CameraServer.getInstance().startAutomaticCapture("cam0");
 		time.start();
+		
+		auton = new Auton(navX, drive);
 	}
 
 	/**
@@ -83,25 +83,16 @@ public class Robot extends IterativeRobot {
 		// defaultAuto);
 		System.out.println("Auto selected: " + autoSelected);
 
-		switch (autonstate) {
-		case 0:
-			time.start();
-			time.reset();
-			navX.zeroYaw();
-			autonstate = 1;
+		switch (autoSelected) {
+		case defaultAuto:
+			auton.defaultAuto();
 			break;
 
-		case 1:
-			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
-			if (time.get() >= 3) {
-				autonstate = 2;
-			}
+		case customAuto:
+			//auton.customAuto();
 			break;
-
-		case 2:
-			drive.tankDrive(0.0, 0.0);
-			time.reset();
 		}
+
 	}
 
 	// called when disabled
