@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -57,10 +58,9 @@ public class Robot extends IterativeRobot {
 		dSensor = new AnalogInput(1);
 
 		// setup things for camera switching
-		cameraFrame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
-		camSession = NIVision.IMAQdxOpenCamera("cam0", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-		NIVision.IMAQdxConfigureGrab(camSession);
-		NIVision.IMAQdxStartAcquisition(camSession);
+		//cameraFrame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_RGB, 0);
+		//camSession = NIVision.IMAQdxOpenCamera("cam0", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+		//NIVision.IMAQdxConfigureGrab(camSession);
 	}
 
 	/**
@@ -94,6 +94,9 @@ public class Robot extends IterativeRobot {
 	 */
 	boolean previousMode = false;
 	boolean prevFlipControls = false;
+	boolean firstTime = true;
+	boolean capCam = false;
+	Timer time = new Timer();
 
 	public void teleopPeriodic() {
 
@@ -123,43 +126,45 @@ public class Robot extends IterativeRobot {
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 
-		boolean flipControls = lJoy.getRawButton(IO.FLIP_CONTROLS);
+		boolean flipControls = rJoy.getRawButton(IO.FLIP_CONTROLS);
 
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
 
+		if (firstTime) {
+			firstTime = false;
+			//NIVision.IMAQdxStartAcquisition(camSession);
+		}
+		
 		if (flipControls) {
-			if (flipControls != prevFlipControls) {
-				NIVision.IMAQdxStopAcquisition(camSession);
-	            NIVision.IMAQdxCloseCamera(camSession);
-	    		camSession = NIVision.IMAQdxOpenCamera("cam1",
-	    				NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+			/*if (flipControls != prevFlipControls) {
+				camSession = NIVision.IMAQdxOpenCamera("cam1",
+						NIVision.IMAQdxCameraControlMode.CameraControlModeController);
 				NIVision.IMAQdxConfigureGrab(camSession);
 				NIVision.IMAQdxStartAcquisition(camSession);
-			}
-			NIVision.IMAQdxGrab(camSession, cameraFrame, 1);
-			CameraServer.getInstance().setImage(cameraFrame);
+			}*/
 
 			YAxisLeft = lJoy.getY();
 			YAxisRight = rJoy.getY();
 		} else {
-			if (flipControls != prevFlipControls) {
-				NIVision.IMAQdxStopAcquisition(camSession);
-	            NIVision.IMAQdxCloseCamera(camSession);
-	    		camSession = NIVision.IMAQdxOpenCamera("cam0",
-	    				NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+			/*if (flipControls != prevFlipControls) {
+				camSession = NIVision.IMAQdxOpenCamera("cam0",
+						NIVision.IMAQdxCameraControlMode.CameraControlModeController);
 				NIVision.IMAQdxConfigureGrab(camSession);
 				NIVision.IMAQdxStartAcquisition(camSession);
-			}
-			NIVision.IMAQdxGrab(camSession, cameraFrame, 1);
-			CameraServer.getInstance().setImage(cameraFrame);
-
+			}*/
+			
 			YAxisLeft = -lJoy.getY();
 			YAxisRight = -rJoy.getY();
 		}
 		prevFlipControls = flipControls;
+		
+		//NIVision.IMAQdxGrab(camSession, cameraFrame, 1);
+		//CameraServer.getInstance().setImage(cameraFrame);
 
-		BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP), GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
+
+		// BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP),
+		// GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
 
 		int angle = WASDToAngle(driveBoard.getRawButton(IO.WASD_W), driveBoard.getRawButton(IO.WASD_A),
 				driveBoard.getRawButton(IO.WASD_S), driveBoard.getRawButton(IO.WASD_D));
