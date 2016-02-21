@@ -26,7 +26,7 @@ public class Robot extends IterativeRobot {
 
 	DriveTrain drive;
 	BoulderController BC;
-
+	
 	
 	Joystick rJoy;
 	Joystick lJoy;
@@ -69,6 +69,54 @@ public class Robot extends IterativeRobot {
 	int autonstate = 0;
 
 	public void autonomousPeriodic() {
+		switch (autonstate){
+		
+		case 0: autonstate = 1; 
+				break;
+		
+		case 1: drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
+				break;
+				
+		case 2: drive.compassDrive(1, navX.getYaw(), false, 0); 
+			if (getAvgAccel() < 0.3) 
+			autonstate = 3; 
+			break;
+		
+		case 3: drive.tankDrive(0, 0); 
+				break;
+			
+		case 4: //lowbar position 1 (left to right)
+			 drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
+			 //wait 10ms
+			 drive.compassDrive(-1, navX.getYaw(), false, 0);
+			 //wait 10ms
+			 drive.compassDrive(1, navX.getYaw(), false, 0);
+			 //wait 10ms
+			 drive.compassDrive(-1, navX.getYaw(), false, 0);
+			 break;
+		
+		case 5: //rock-wall/rough-terrain position 2
+			 drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
+			 //wait 10ms
+			 drive.compassDrive(-1, navX.getYaw(), false, 0);
+			 //wait 10ms
+			 drive.compassDrive(1, navX.getYaw(), false, 0);
+			 //wait 10ms
+			 drive.compassDrive(-1, navX.getYaw(), false, 0);
+			
+		case 6: //drawbridge/sallyport position 3
+			
+		case 7:	//moat/ramparts position 4
+			 drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
+			 //wait 10ms
+			 drive.compassDrive(-1, navX.getYaw(), false, 0);
+			 //wait 10ms
+			 drive.compassDrive(1, navX.getYaw(), false, 0);
+			 //wait 10ms
+			 drive.compassDrive(-1, navX.getYaw(), false, 0);
+		case 8: //portcullis/ cheval-de-frise position 5	
+			
+		}	
 		// Auton
 		/*
 		 * switch (autonstate) {
