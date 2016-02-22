@@ -35,7 +35,7 @@ public class Robot extends IterativeRobot {
 	AHRS navX;
 
 	AnalogInput dSensor;
-	
+
 	Auton auton;
 
 	public void robotInit() {
@@ -62,7 +62,7 @@ public class Robot extends IterativeRobot {
 		BetterCameraServer.init("cam0", "cam1");
 		// CameraServer.getInstance().startAutomaticCapture("cam0");
 		time.start();
-		
+
 		auton = new Auton(navX, drive);
 	}
 
@@ -79,54 +79,42 @@ public class Robot extends IterativeRobot {
 
 	public void autonomousPeriodic() {
 
-		/*switch (autonstate){
-		
-		case 0: autonstate = 1; 
-				break;
-		
-		case 1: drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
-				break;
-				
-		case 2: drive.compassDrive(1, navX.getYaw(), false, 0); 
-			if (getAvgAccel() < 0.3) 
-			autonstate = 3; 
-			break;
-		
-		case 3: drive.tankDrive(0, 0); 
-				break;
-			
-		case 4: //lowbar position 1 (left to right)
-			 drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
-			 //wait 10ms
-			 drive.compassDrive(-1, navX.getYaw(), false, 0);
-			 //wait 10ms
-			 drive.compassDrive(1, navX.getYaw(), false, 0);
-			 //wait 10ms
-			 drive.compassDrive(-1, navX.getYaw(), false, 0);
-			 break;
-		
-		case 5: //rock-wall/rough-terrain position 2
-			 drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
-			 //wait 10ms
-			 drive.compassDrive(-1, navX.getYaw(), false, 0);
-			 //wait 10ms
-			 drive.compassDrive(1, navX.getYaw(), false, 0);
-			 //wait 10ms
-			 drive.compassDrive(-1, navX.getYaw(), false, 0);
-			
-		case 6: //drawbridge/sallyport position 3
-			
-		case 7:	//moat/ramparts position 4
-			 drive.compassDrive(1, navX.getYaw(), false, 0);// Compass drive
-			 //wait 10ms
-			 drive.compassDrive(-1, navX.getYaw(), false, 0);
-			 //wait 10ms
-			 drive.compassDrive(1, navX.getYaw(), false, 0);
-			 //wait 10ms
-			 drive.compassDrive(-1, navX.getYaw(), false, 0);
-		case 8: //portcullis/ cheval-de-frise position 5	
-			
-		}*/	
+		/*
+		 * switch (autonstate){
+		 * 
+		 * case 0: autonstate = 1; break;
+		 * 
+		 * case 1: drive.compassDrive(1, navX.getYaw(), false, 0);// Compass
+		 * drive break;
+		 * 
+		 * case 2: drive.compassDrive(1, navX.getYaw(), false, 0); if
+		 * (getAvgAccel() < 0.3) autonstate = 3; break;
+		 * 
+		 * case 3: drive.tankDrive(0, 0); break;
+		 * 
+		 * case 4: //lowbar position 1 (left to right) drive.compassDrive(1,
+		 * navX.getYaw(), false, 0);// Compass drive //wait 10ms
+		 * drive.compassDrive(-1, navX.getYaw(), false, 0); //wait 10ms
+		 * drive.compassDrive(1, navX.getYaw(), false, 0); //wait 10ms
+		 * drive.compassDrive(-1, navX.getYaw(), false, 0); break;
+		 * 
+		 * case 5: //rock-wall/rough-terrain position 2 drive.compassDrive(1,
+		 * navX.getYaw(), false, 0);// Compass drive //wait 10ms
+		 * drive.compassDrive(-1, navX.getYaw(), false, 0); //wait 10ms
+		 * drive.compassDrive(1, navX.getYaw(), false, 0); //wait 10ms
+		 * drive.compassDrive(-1, navX.getYaw(), false, 0);
+		 * 
+		 * case 6: //drawbridge/sallyport position 3
+		 * 
+		 * case 7: //moat/ramparts position 4 drive.compassDrive(1,
+		 * navX.getYaw(), false, 0);// Compass drive //wait 10ms
+		 * drive.compassDrive(-1, navX.getYaw(), false, 0); //wait 10ms
+		 * drive.compassDrive(1, navX.getYaw(), false, 0); //wait 10ms
+		 * drive.compassDrive(-1, navX.getYaw(), false, 0); case 8:
+		 * //portcullis/ cheval-de-frise position 5
+		 * 
+		 * }
+		 */
 
 		autoSelected = (String) chooser.getSelected();
 		// autoSelected = SmartDashboard.getString("Auto Selector",
@@ -139,7 +127,7 @@ public class Robot extends IterativeRobot {
 			break;
 
 		case customAuto:
-			//auton.customAuto();
+			// auton.customAuto();
 			break;
 		}
 
@@ -178,6 +166,8 @@ public class Robot extends IterativeRobot {
 
 			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
+				BC.gatherer.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
+				BC.shooter.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 			}
 			BC.runBC(driveBoard.getRawButton(IO.LAYUP), driveBoard.getRawButton(IO.STOW),
 					driveBoard.getRawButton(IO.FAR_SHOT), driveBoard.getRawButton(IO.GATHER),
@@ -192,10 +182,12 @@ public class Robot extends IterativeRobot {
 			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
 				BC.gatherer.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
+				BC.shooter.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 			}
 			// call manual position functions
-			BC.gatherer.manualGather(GamePad.getRawAxis(1) * 0.5);
-			BC.gatherer.gatherwheel(GamePad.getRawAxis(5));
+			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5);
+			// BC.gatherer.gatherwheel(GamePad.getRawAxis(5));
+			BC.shooter.manualShooter(-GamePad.getRawAxis(5) * 0.25, GamePad.getRawButton(5));
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 
@@ -204,48 +196,22 @@ public class Robot extends IterativeRobot {
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
 
-		if (firstTime) {
-			firstTime = false;
-			// cam.setCamera(0);
-			// NIVision.IMAQdxConfigureGrab(camSession);
-			// NIVision.IMAQdxStartAcquisition(camSession);
-		}
-
 		if (flipControls != prevFlipControls)
 			BetterCameraServer.switchCamera();
 
 		if (flipControls) {
-			/*
-			 * if (flipControls != prevFlipControls) { camSession =
-			 * NIVision.IMAQdxOpenCamera("cam1",
-			 * NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-			 * NIVision.IMAQdxConfigureGrab(camSession);
-			 * NIVision.IMAQdxStartAcquisition(camSession); }
-			 */
 
 			YAxisLeft = lJoy.getY();
 			YAxisRight = rJoy.getY();
 		} else {
-			/*
-			 * if (flipControls != prevFlipControls) { camSession =
-			 * NIVision.IMAQdxOpenCamera("cam0",
-			 * NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-			 * NIVision.IMAQdxConfigureGrab(camSession);
-			 * NIVision.IMAQdxStartAcquisition(camSession); }
-			 */
 
 			YAxisLeft = -lJoy.getY();
 			YAxisRight = -rJoy.getY();
 		}
 		prevFlipControls = flipControls;
 
-		// cam.setCamera(0);
-		// cam.updateCamera();
-		// NIVision.IMAQdxGrab(camSession, cameraFrame, 1);
-		// CameraServer.getInstance().setImage(cameraFrame);
-
-		// BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP),
-		// GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
+		BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP),
+		 GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
 
 		int angle = WASDToAngle(driveBoard.getRawButton(IO.WASD_W), driveBoard.getRawButton(IO.WASD_A),
 				driveBoard.getRawButton(IO.WASD_S), driveBoard.getRawButton(IO.WASD_D));

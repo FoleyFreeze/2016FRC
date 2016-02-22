@@ -32,8 +32,6 @@ public class Shooter {
 
 	double SAFETYDISTANCE = 500;
 
-	double jooffset;
-
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
