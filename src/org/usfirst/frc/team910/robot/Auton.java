@@ -11,7 +11,7 @@ public class Auton {
 	public Auton(AHRS navX, DriveTrain drive) {
 		this.navX = navX;
 		this.drive = drive;
-	}
+	} 
 
 	Timer time = new Timer();
 	int autonstate = 0;

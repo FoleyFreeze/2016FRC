@@ -35,7 +35,7 @@ public class Shooter {
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
-
+		loadWheels = new CANTalon(IO.LOAD_WHEEL);
 	}
 
 	public void autoAndback(boolean manualControl) {
@@ -105,13 +105,13 @@ public class Shooter {
 
 	}
 
-	public void setLoadWheels(double speed) {
+	
+	
 
-	}
+	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
 
-	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper) {
-
-		shooterArm.set(YAxisGamepadRight);
+		shooterArm.set(YAxisGamepadRight); 
+		loadWheels.set(LoadWheelAxis);
 
 		if (GamepadLBumper) {
 

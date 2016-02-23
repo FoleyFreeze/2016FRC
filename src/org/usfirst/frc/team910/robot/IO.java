@@ -15,6 +15,7 @@ public class IO {
 
 	public static final int SHOOTER_WHEEL = 7;
 	public static final int SHOOTER_ARM = 8;
+	public static final int LOAD_WHEEL = 9;
 
 	public static final int CLIMBER_ARM_MOTOR = 7;
 

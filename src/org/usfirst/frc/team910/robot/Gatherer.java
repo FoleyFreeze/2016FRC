@@ -17,6 +17,8 @@ public class Gatherer {
 		
 		autoAndback(true);
 		gatherArm.enableBrakeMode(true);
+		gatherArm.configPeakOutputVoltage(7.0, -7.0);
+		gatherArm.setPID(0.05, 0.001, 0.0);
 	}
 
 	public void autoAndback(boolean manualControl) {
@@ -64,18 +66,5 @@ public class Gatherer {
 		gatherArm.set(YAxisGamePadRight);
 
 	}
-	public void drawBridge () {
-		
-		
-		//bring shooter down high so tail extends high up
-		//drive forward until tail is over drawbridge
-		//bring shooter down so tail goes down over drawbridge and hooks
-		//robot reverses bringing down drawbridge as shooter goes down so hook pulls down drawbridge
-		//pin drawbridge to the ground
-		//drive forward over drawbridge
-		
-		
-		//America is the greatest.
-		
-	}
+	
 }

@@ -5,6 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -37,6 +38,8 @@ public class Robot extends IterativeRobot {
 	AnalogInput dSensor;
 
 	Auton auton;
+	
+	PowerDistributionPanel pdp;
 
 	public void robotInit() {
 		chooser = new SendableChooser();
@@ -64,6 +67,8 @@ public class Robot extends IterativeRobot {
 		time.start();
 
 		auton = new Auton(navX, drive);
+		
+		pdp = new PowerDistributionPanel();
 	}
 
 	/**
@@ -187,7 +192,7 @@ public class Robot extends IterativeRobot {
 			// call manual position functions
 			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5);
 			// BC.gatherer.gatherwheel(GamePad.getRawAxis(5));
-			BC.shooter.manualShooter(-GamePad.getRawAxis(5) * 0.25, GamePad.getRawButton(5));
+			BC.shooter.manualShooter(-GamePad.getRawAxis(5) * 0.25, GamePad.getRawButton(5), GamePad.getRawAxis(2) + GamePad.getRawAxis(3));
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 
@@ -236,6 +241,13 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
 		// SmartDashboard.putNumber("avgAccel", getAvgAccel());
 
+		SmartDashboard.putNumber("pdp 3 g-arm", pdp.getCurrent(3));
+		SmartDashboard.putNumber("pdp 4 g-wheel", pdp.getCurrent(4));
+		SmartDashboard.putNumber("pdp 5", pdp.getCurrent(5));
+		SmartDashboard.putNumber("pdp 6", pdp.getCurrent(6));
+		SmartDashboard.putNumber("pdp 7", pdp.getCurrent(7));
+		SmartDashboard.putNumber("pdp 8", pdp.getCurrent(8));
+		
 		SmartDashboard.putNumber("cycle time", time.get());
 		time.reset();
 	}
