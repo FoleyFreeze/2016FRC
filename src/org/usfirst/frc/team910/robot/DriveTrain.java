@@ -302,11 +302,11 @@ public class DriveTrain {
 		}
 
 	}
-
+	//returns the value of x and y
 	public double getAngle(double y, double x) {
 		return Math.atan2(y, x) * 180 / Math.PI;
 	}
-
+	//calculates the hypotenuse created with x and y
 	public double getR(double y, double x) {
 		double c;
 		c = (x * x) + (y * y);

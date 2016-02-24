@@ -4,11 +4,12 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class Shooter {
-	CANTalon shooterWheel;
+	CANTalon shooterWheelL;
+	CANTalon shooterWheelR;
 	CANTalon shooterArm;
 	CANTalon loadWheelL;
 	CANTalon loadWheelR;
-
+	
 	double jogoffset;
 
 	double JOGNUMBER = 15;
@@ -34,12 +35,17 @@ public class Shooter {
 	double SAFETYDISTANCE = 500;
 
 	public Shooter() {
-		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
+		shooterWheelL = new CANTalon(IO.SHOOTER_WHEEL_L);
+		shooterWheelR = new CANTalon(IO.SHOOTER_WHEEL_R);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
 		loadWheelL = new CANTalon(IO.LOAD_WHEEL_L);
 		loadWheelL.enableBrakeMode(true);
 		loadWheelR = new CANTalon(IO.LOAD_WHEEL_R);
 		loadWheelR.enableBrakeMode(true);
+		
+		shooterWheelL.changeControlMode(TalonControlMode.Speed);
+		shooterWheelR.changeControlMode(TalonControlMode.Follower);
+		shooterWheelR.set(IO.SHOOTER_WHEEL_L);
 	}
 
 	public void autoAndback(boolean manualControl) {
@@ -47,11 +53,11 @@ public class Shooter {
 		if (manualControl) {
 
 			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
-			shooterWheel.changeControlMode(TalonControlMode.Speed);
+	
 		} else {
 
 			shooterArm.changeControlMode(TalonControlMode.Position);
-			shooterWheel.changeControlMode(TalonControlMode.Speed);
+
 
 		}
 
@@ -96,13 +102,13 @@ public class Shooter {
 
 		case 3:
 
-			shooterWheel.set(FAST);
+			shooterWheelL.set(FAST);
 			break;
 		}
 	}
 
 	public void fire() {
-		if (shooterWheel.getSpeed() > FAST - MARGIN) {
+		if (shooterWheelL.getSpeed() > FAST - MARGIN) {
 			loadWheelL.set(loadWheelL.getPosition() + FIRE);
 			loadWheelR.set(loadWheelR.getPosition() + FIRE);
 		}
@@ -121,10 +127,10 @@ public class Shooter {
 		}
 		if (GamepadLBumper) {
 
-			shooterWheel.set(FAST);
+			shooterWheelL.set(FAST);
 
 		} else {
-			shooterWheel.set(0);
+			shooterWheelL.set(0);
 		}
 	}
 
