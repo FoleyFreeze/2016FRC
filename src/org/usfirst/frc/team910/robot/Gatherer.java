@@ -14,7 +14,7 @@ public class Gatherer {
 	public Gatherer() {
 		gatherer = new CANTalon(IO.GATHERER);
 		gatherArm = new CANTalon(IO.GATHER_ARM);
-		
+
 		autoAndback(true);
 		gatherArm.enableBrakeMode(true);
 		gatherArm.configPeakOutputVoltage(7.0, -7.0);
@@ -61,10 +61,17 @@ public class Gatherer {
 		return gatherArm.getPosition();
 	}
 
-	public void manualGather(double YAxisGamePadRight) {
+	public void manualGather(double YAxisGamePadRight, boolean intakeForward, boolean intakeBackward) {
 
+		if (intakeForward) {
+			gatherer.set(1);
+		} else if (intakeBackward) {
+			gatherer.set(-1);
+		} else {
+			gatherer.set(0);
+		}
 		gatherArm.set(YAxisGamePadRight);
 
 	}
-	
+
 }

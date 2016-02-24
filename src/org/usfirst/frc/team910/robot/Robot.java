@@ -62,7 +62,7 @@ public class Robot extends IterativeRobot {
 		dSensor = new AnalogInput(1);
 
 		// setup things for camera switching
-		BetterCameraServer.init("cam0", "cam1");
+		//BetterCameraServer.init("cam0", "cam1");
 		// CameraServer.getInstance().startAutomaticCapture("cam0");
 		time.start();
 
@@ -150,8 +150,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
 		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
-
+		SmartDashboard.putNumber("gather pot",BC.gatherer.gatherArm.getPosition());
 		SmartDashboard.putString("Auto", (String) chooser.getSelected());
+		SmartDashboard.putNumber("shooter pot",BC.shooter.shooterArm.getPosition());
 	}
 
 	/**
@@ -164,7 +165,7 @@ public class Robot extends IterativeRobot {
 	Timer time = new Timer();
 
 	public void teleopPeriodic() {
-		BetterCameraServer.start();
+		//BetterCameraServer.start();
 
 		// this means on = auto, off = manual. Add ! before driveBoard to flip
 		if (driveBoard.getRawButton(IO.MAN_AUTO_SW)) {
@@ -190,9 +191,9 @@ public class Robot extends IterativeRobot {
 				BC.shooter.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 			}
 			// call manual position functions
-			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5);
+			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5, GamePad.getRawButton(1),GamePad.getRawButton(2));
 			// BC.gatherer.gatherwheel(GamePad.getRawAxis(5));
-			BC.shooter.manualShooter(-GamePad.getRawAxis(5) * 0.25, GamePad.getRawButton(5), GamePad.getRawAxis(2) + GamePad.getRawAxis(3));
+			BC.shooter.manualShooter(-GamePad.getRawAxis(5) * 0.5, GamePad.getRawButton(5), GamePad.getRawAxis(2) + GamePad.getRawAxis(3));
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 

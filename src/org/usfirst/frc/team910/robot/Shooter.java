@@ -6,7 +6,8 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 public class Shooter {
 	CANTalon shooterWheel;
 	CANTalon shooterArm;
-	CANTalon loadWheels;
+	CANTalon loadWheelL;
+	CANTalon loadWheelR;
 
 	double jogoffset;
 
@@ -35,7 +36,10 @@ public class Shooter {
 	public Shooter() {
 		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
-		loadWheels = new CANTalon(IO.LOAD_WHEEL);
+		loadWheelL = new CANTalon(IO.LOAD_WHEEL_L);
+		loadWheelL.enableBrakeMode(true);
+		loadWheelR = new CANTalon(IO.LOAD_WHEEL_R);
+		loadWheelR.enableBrakeMode(true);
 	}
 
 	public void autoAndback(boolean manualControl) {
@@ -80,12 +84,12 @@ public class Shooter {
 	public void prime() {
 		switch (primeState) {
 		case 1:
-			loadWheels.set(loadWheels.getPosition() - REVERSE);
+			loadWheelL.set(loadWheelL.getPosition() - REVERSE);
 			primeState = 2;
 			break;
 
 		case 2:
-			if (loadWheels.getPosition() < loadWheels.getSetpoint()) {
+			if (loadWheelL.getPosition() < loadWheelL.getSetpoint()) {
 				primeState = 3;
 			}
 			break;
@@ -99,20 +103,22 @@ public class Shooter {
 
 	public void fire() {
 		if (shooterWheel.getSpeed() > FAST - MARGIN) {
-			loadWheels.set(loadWheels.getPosition() + FIRE);
-
+			loadWheelL.set(loadWheelL.getPosition() + FIRE);
+			loadWheelR.set(loadWheelR.getPosition() + FIRE);
 		}
 
 	}
 
-	
-	
-
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
 
-		shooterArm.set(YAxisGamepadRight); 
-		loadWheels.set(LoadWheelAxis);
+		shooterArm.set(YAxisGamepadRight);
+		loadWheelL.set(LoadWheelAxis);
 
+		if (LoadWheelAxis < 0) {
+			loadWheelR.set(0);
+		} else {
+			loadWheelR.set(LoadWheelAxis);
+		}
 		if (GamepadLBumper) {
 
 			shooterWheel.set(FAST);
@@ -150,6 +156,11 @@ public class Shooter {
 
 		prevJogUp = jogUp;
 		prevJogDown = jogDown;
+	}
+
+	public void setLoadWheels(double d) {
+		// TODO Auto-generated method stub
+
 	}
 
 }
