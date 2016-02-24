@@ -13,12 +13,12 @@ public class IO {
 	public static final int GATHERER = 4;
 	public static final int GATHER_ARM = 3;
 
-	public static final int SHOOTER_WHEEL_L = 7;
-	public static final int SHOOTER_WHEEL_R = 7;
+	public static final int SHOOTER_WHEEL_L = 10;
+	public static final int SHOOTER_WHEEL_R = 6;
 
-	public static final int SHOOTER_ARM = 9;
-	public static final int LOAD_WHEEL_L = 8;
-	public static final int LOAD_WHEEL_R = 70;
+	public static final int SHOOTER_ARM = 12;
+	public static final int LOAD_WHEEL_L = 11;
+	public static final int LOAD_WHEEL_R = 5;
 
 	public static final int CLIMBER_ARM_MOTOR = 7;
 

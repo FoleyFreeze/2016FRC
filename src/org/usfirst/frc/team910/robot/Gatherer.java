@@ -64,9 +64,9 @@ public class Gatherer {
 	public void manualGather(double YAxisGamePadRight, boolean intakeForward, boolean intakeBackward) {
 
 		if (intakeForward) {
-			gatherer.set(1);
-		} else if (intakeBackward) {
 			gatherer.set(-1);
+		} else if (intakeBackward) {
+			gatherer.set(1);
 		} else {
 			gatherer.set(0);
 		}

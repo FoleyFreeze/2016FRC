@@ -193,7 +193,7 @@ public class Robot extends IterativeRobot {
 			// call manual position functions
 			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5, GamePad.getRawButton(1),GamePad.getRawButton(2));
 			// BC.gatherer.gatherwheel(GamePad.getRawAxis(5));
-			BC.shooter.manualShooter(-GamePad.getRawAxis(5) * 0.5, GamePad.getRawButton(5), GamePad.getRawAxis(2) + GamePad.getRawAxis(3));
+			BC.shooter.manualShooter(-GamePad.getRawAxis(5) * 1, GamePad.getRawButton(5), GamePad.getRawAxis(3) - GamePad.getRawAxis(2));
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 
@@ -261,6 +261,7 @@ public class Robot extends IterativeRobot {
 	}
 
 	public int WASDToAngle(boolean W, boolean A, boolean S, boolean D) {
+		//Controls Compass Drive
 		if (W) {
 			if (A) {
 				return -45;

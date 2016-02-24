@@ -42,10 +42,13 @@ public class Shooter {
 		loadWheelL.enableBrakeMode(true);
 		loadWheelR = new CANTalon(IO.LOAD_WHEEL_R);
 		loadWheelR.enableBrakeMode(true);
-		
-		shooterWheelL.changeControlMode(TalonControlMode.Speed);
+		loadWheelR.reverseOutput(false);
+		//shooterWheelL.changeControlMode(TalonControlMode.Speed);
 		shooterWheelR.changeControlMode(TalonControlMode.Follower);
 		shooterWheelR.set(IO.SHOOTER_WHEEL_L);
+		shooterWheelR.reverseOutput(false);
+		shooterWheelR.enableBrakeMode(false);
+		shooterWheelL.enableBrakeMode(false);
 	}
 
 	public void autoAndback(boolean manualControl) {
@@ -118,7 +121,7 @@ public class Shooter {
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
 
 		shooterArm.set(YAxisGamepadRight);
-		loadWheelL.set(LoadWheelAxis);
+		loadWheelL.set(-LoadWheelAxis);
 
 		if (LoadWheelAxis < 0) {
 			loadWheelR.set(0);
@@ -127,7 +130,7 @@ public class Shooter {
 		}
 		if (GamepadLBumper) {
 
-			shooterWheelL.set(FAST);
+			shooterWheelL.set(1);
 
 		} else {
 			shooterWheelL.set(0);
