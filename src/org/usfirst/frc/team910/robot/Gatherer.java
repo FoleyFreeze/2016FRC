@@ -1,6 +1,7 @@
 package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class Gatherer {
@@ -19,6 +20,7 @@ public class Gatherer {
 		gatherArm.enableBrakeMode(true);
 		gatherArm.configPeakOutputVoltage(7.0, -7.0);
 		gatherArm.setPID(0.05, 0.001, 0.0);
+		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 	}
 
 	public void autoAndback(boolean manualControl) {

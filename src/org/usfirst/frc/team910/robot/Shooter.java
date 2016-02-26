@@ -9,7 +9,7 @@ public class Shooter {
 	CANTalon shooterArm;
 	CANTalon loadWheelL;
 	CANTalon loadWheelR;
-	
+
 	double jogoffset;
 
 	double JOGNUMBER = 15;
@@ -43,7 +43,7 @@ public class Shooter {
 		loadWheelR = new CANTalon(IO.LOAD_WHEEL_R);
 		loadWheelR.enableBrakeMode(true);
 		loadWheelR.reverseOutput(false);
-		//shooterWheelL.changeControlMode(TalonControlMode.Speed);
+		// shooterWheelL.changeControlMode(TalonControlMode.Speed);
 		shooterWheelR.changeControlMode(TalonControlMode.Follower);
 		shooterWheelR.set(IO.SHOOTER_WHEEL_L);
 		shooterWheelR.reverseOutput(false);
@@ -56,14 +56,25 @@ public class Shooter {
 		if (manualControl) {
 
 			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
-	
+
 		} else {
 
 			shooterArm.changeControlMode(TalonControlMode.Position);
 
-
 		}
 
+	}
+
+	private void setMotorPosition(double position) {
+		final double CEIL = 1000;
+		final double FLOOR = 0;
+		if (position < FLOOR) {
+			shooterArm.set(FLOOR);
+		} else if (position > CEIL) {
+			shooterArm.set(CEIL);
+		} else {
+			shooterArm.set(position);
+		}
 	}
 
 	public void gotoPosition(double position) {
@@ -71,12 +82,12 @@ public class Shooter {
 		// if going down//
 		if (shooterArm.getPosition() > position + jogoffset) {
 			if (position + jogoffset > gatherPosition) {
-				shooterArm.set(position + jogoffset);
+				setMotorPosition(position + jogoffset);
 			} else {
-				shooterArm.set(gatherPosition + SAFETYDISTANCE);
+				setMotorPosition(gatherPosition + SAFETYDISTANCE);
 			}
 		} else {
-			shooterArm.set(position + jogoffset);
+			setMotorPosition(position + jogoffset);
 		}
 	}
 
@@ -119,7 +130,9 @@ public class Shooter {
 	}
 
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
-
+		if (YAxisGamepadRight < 0) {
+			YAxisGamepadRight /= 2;
+		}
 		shooterArm.set(YAxisGamepadRight);
 		loadWheelL.set(-LoadWheelAxis);
 
