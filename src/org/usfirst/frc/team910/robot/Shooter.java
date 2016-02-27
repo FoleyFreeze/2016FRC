@@ -4,15 +4,9 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class Shooter {
-	CANTalon shooterWheelL;
-	CANTalon shooterWheelR;
+	CANTalon shooterWheel;
 	CANTalon shooterArm;
-	CANTalon loadWheelL;
-	CANTalon loadWheelR;
-
-	double jogoffset;
-
-	double JOGNUMBER = 15;
+	CANTalon loadWheels;
 
 	double CLOSESHOT = 1000;
 
@@ -35,20 +29,9 @@ public class Shooter {
 	double SAFETYDISTANCE = 500;
 
 	public Shooter() {
-		shooterWheelL = new CANTalon(IO.SHOOTER_WHEEL_L);
-		shooterWheelR = new CANTalon(IO.SHOOTER_WHEEL_R);
+		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
-		loadWheelL = new CANTalon(IO.LOAD_WHEEL_L);
-		loadWheelL.enableBrakeMode(true);
-		loadWheelR = new CANTalon(IO.LOAD_WHEEL_R);
-		loadWheelR.enableBrakeMode(true);
-		loadWheelR.reverseOutput(false);
-		// shooterWheelL.changeControlMode(TalonControlMode.Speed);
-		shooterWheelR.changeControlMode(TalonControlMode.Follower);
-		shooterWheelR.set(IO.SHOOTER_WHEEL_L);
-		shooterWheelR.reverseOutput(false);
-		shooterWheelR.enableBrakeMode(false);
-		shooterWheelL.enableBrakeMode(false);
+
 	}
 
 	public void autoAndback(boolean manualControl) {
@@ -56,38 +39,27 @@ public class Shooter {
 		if (manualControl) {
 
 			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
-
+			shooterWheel.changeControlMode(TalonControlMode.Speed);
 		} else {
 
 			shooterArm.changeControlMode(TalonControlMode.Position);
+			shooterWheel.changeControlMode(TalonControlMode.Speed);
 
 		}
 
-	}
-
-	private void setMotorPosition(double position) {
-		final double CEIL = 1000;
-		final double FLOOR = 0;
-		if (position < FLOOR) {
-			shooterArm.set(FLOOR);
-		} else if (position > CEIL) {
-			shooterArm.set(CEIL);
-		} else {
-			shooterArm.set(position);
-		}
 	}
 
 	public void gotoPosition(double position) {
 
 		// if going down//
-		if (shooterArm.getPosition() > position + jogoffset) {
-			if (position + jogoffset > gatherPosition) {
-				setMotorPosition(position + jogoffset);
+		if (shooterArm.getPosition() > position) {
+			if (position > gatherPosition) {
+				shooterArm.set(position);
 			} else {
-				setMotorPosition(gatherPosition + SAFETYDISTANCE);
+				shooterArm.set(gatherPosition + SAFETYDISTANCE);
 			}
 		} else {
-			setMotorPosition(position + jogoffset);
+			shooterArm.set(position);
 		}
 	}
 
@@ -104,85 +76,47 @@ public class Shooter {
 	public void prime() {
 		switch (primeState) {
 		case 1:
-			loadWheelL.set(loadWheelL.getPosition() - REVERSE);
+			loadWheels.set(loadWheels.getPosition() - REVERSE);
 			primeState = 2;
 			break;
 
 		case 2:
-			if (loadWheelL.getPosition() < loadWheelL.getSetpoint()) {
+			if (loadWheels.getPosition() < loadWheels.getSetpoint()) {
 				primeState = 3;
 			}
 			break;
 
 		case 3:
 
-			shooterWheelL.set(FAST);
+			shooterWheel.set(FAST);
 			break;
 		}
 	}
 
 	public void fire() {
-		if (shooterWheelL.getSpeed() > FAST - MARGIN) {
-			loadWheelL.set(loadWheelL.getPosition() + FIRE);
-			loadWheelR.set(loadWheelR.getPosition() + FIRE);
+		if (shooterWheel.getSpeed() > FAST - MARGIN) {
+			loadWheels.set(loadWheels.getPosition() + FIRE);
+
 		}
 
 	}
 
-	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
-		if (YAxisGamepadRight < 0) {
-			YAxisGamepadRight /= 2;
-		}
-		shooterArm.set(YAxisGamepadRight);
-		loadWheelL.set(-LoadWheelAxis);
+	public void setLoadWheels(double speed) {
 
-		if (LoadWheelAxis < 0) {
-			loadWheelR.set(0);
-		} else {
-			loadWheelR.set(LoadWheelAxis);
-		}
+	}
+
+	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper) {
+
+		shooterArm.set(YAxisGamepadRight);
+
 		if (GamepadLBumper) {
 
-			shooterWheelL.set(1);
+			shooterWheel.set(FAST);
 
 		} else {
-			shooterWheelL.set(0);
+			shooterWheel.set(0);
 		}
 	}
 
-	public void drawBridge() {
-
-		// bring shooter down high so tail extends high up
-		// drive forward until tail is over drawbridge
-		// bring shooter down so tail goes down over drawbridge and hooks
-		// robot reverses bringing down drawbridge as shooter goes down so hook
-		// pulls down drawbridge
-		// pin drawbridge to the ground
-		// drive forward over drawbridge
-
-		// America is the greatest.
-
-	}
-
-	boolean prevJogUp = false;
-	boolean prevJogDown = false;
-
-	public void jog(boolean jogUp, boolean jogDown) {
-		if (jogUp && !prevJogUp) {
-
-			jogoffset += JOGNUMBER;
-		} else if (jogDown && !prevJogDown) {
-
-			jogoffset -= JOGNUMBER;
-		}
-
-		prevJogUp = jogUp;
-		prevJogDown = jogDown;
-	}
-
-	public void setLoadWheels(double d) {
-		// TODO Auto-generated method stub
-
-	}
 
 }
