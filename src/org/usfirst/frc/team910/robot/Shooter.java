@@ -131,7 +131,7 @@ public class Shooter {
 
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
 		if (YAxisGamepadRight < 0) {
-			YAxisGamepadRight /= 2;
+			YAxisGamepadRight /= 1;
 		}
 		shooterArm.set(YAxisGamepadRight);
 		loadWheelL.set(-LoadWheelAxis);

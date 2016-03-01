@@ -21,6 +21,7 @@ public class Gatherer {
 		gatherArm.configPeakOutputVoltage(7.0, -7.0);
 		gatherArm.setPID(0.05, 0.001, 0.0);
 		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
+		autoAndback(true);
 	}
 
 	public void autoAndback(boolean manualControl) {

@@ -29,7 +29,7 @@ public class IO {
 	public static final int GAME_PAD = 2;
 	public static final int DRIVE_BOARD = 3;
 
-	public static final int MAN_AUTO_SW = 12;
+	public static final int MAN_AUTO_SW = 13;
 	
 	public static final int JOG_SHOOTER_UP = 4 ;
 	public static final int JOG_SHOOTER_DOWN = 5;
