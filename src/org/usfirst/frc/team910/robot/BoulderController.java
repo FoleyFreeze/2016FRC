@@ -1,6 +1,7 @@
 package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Joystick;
 
 //import edu.wpi.first.wpilibj.CANTalon;
 
@@ -48,29 +49,27 @@ public class BoulderController {
 
 	double button = -1;
 
-	public void runBC(boolean layupBtn, boolean stowBtn, boolean farShotBtn, boolean gatherBtn, boolean primeBtn,
-			boolean fireBtn, boolean lowBarBtn, boolean portBtn, boolean sallyBtn, boolean flippyBtn,
-			boolean drawbridgeBtn) {
-		gatherer.aquireShooterPosition(shoottogather( shooter.getPosition()));
+	public void runBC(Joystick driverstation) {
+		gatherer.aquireShooterPosition(shoottogather(shooter.getPosition()));
 		shooter.aquireGatherPosition(gathertoshoot(gatherer.getPosition()));
 
-		if (layupBtn)
+		if (driverstation.getRawButton(IO.LAYUP))
 			button = 0;
-		else if (stowBtn)
+		else if (driverstation.getRawButton(IO.STOW))
 			button = 1;
-		else if (farShotBtn)
+		else if (driverstation.getRawButton(IO.FAR_SHOT))
 			button = 2;
-		else if (gatherBtn)
+		else if (driverstation.getRawButton(IO.GATHER))
 			button = 3;
-		else if (lowBarBtn) {
+		else if (driverstation.getRawButton(IO.LOWBAR)) {
 			button = 7;
-		} else if (portBtn) {
+		} else if (driverstation.getRawButton(IO.PORT)) {
 			button = 8;
-		} else if (sallyBtn)
+		} else if (driverstation.getRawButton(IO.SALLYPORT))
 			button = 4;
-		else if (flippyBtn) {
+		else if (driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES)) {
 			button = 5;
-		} else if (drawbridgeBtn) {
+		} else if (driverstation.getRawButton(IO.DRAWBRIDGE)) {
 			button = 6;
 		}
 
@@ -98,29 +97,27 @@ public class BoulderController {
 		}
 
 		else if (button == 4) {
-			sallyPort(sallyBtn);
+			sallyPort(driverstation.getRawButton(IO.SALLYPORT));
 			gatherState = 1;
 		} else if (button == 5) {
-			flippyFloppies(flippyBtn);
+			flippyFloppies(driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES));
 			gatherState = 1;
 		} else if (button == 6) {
-			drawbridge(drawbridgeBtn);
+			drawbridge(driverstation.getRawButton(IO.DRAWBRIDGE));
+			gatherState = 1;
+		} else if (button == 7) {
+			lowBar(driverstation.getRawButton(IO.LOWBAR));
+			gatherState = 1;
+		} else if (button == 8) {
+			portcullis(driverstation.getRawButton(IO.PORT));
 			gatherState = 1;
 		}
-		else if(button == 7){
-			lowBar(lowBarBtn);
-			gatherState = 1;
-		}else if(button == 8){
-			portcullis(portBtn);
-			gatherState = 1;
-		}
-		
 
-		if (primeBtn) {
+		if (driverstation.getRawButton(IO.PRIME)) {
 			shooter.prime();
 		}
 
-		if (fireBtn) {
+		if (driverstation.getRawButton(IO.FIRE)) {
 			shooter.fire();
 		}
 
@@ -232,14 +229,12 @@ public class BoulderController {
 		}
 	}
 
-	public double gathertoshoot(double gatherpos){
-		return  ((gatherpos - GATHER_LOW)/(GATHER_HIGH - GATHER_LOW))*(SHOOTER_HIGH - SHOOTER_LOW)+SHOOTER_LOW;		
+	public double gathertoshoot(double gatherpos) {
+		return ((gatherpos - GATHER_LOW) / (GATHER_HIGH - GATHER_LOW)) * (SHOOTER_HIGH - SHOOTER_LOW) + SHOOTER_LOW;
 	}
 
-	public double shoottogather(double shooterpos){
-		return ((shooterpos - SHOOTER_LOW)/(SHOOTER_HIGH - SHOOTER_LOW))*(GATHER_HIGH - GATHER_LOW)+ GATHER_LOW;
-		
-		
+	public double shoottogather(double shooterpos) {
+		return ((shooterpos - SHOOTER_LOW) / (SHOOTER_HIGH - SHOOTER_LOW)) * (GATHER_HIGH - GATHER_LOW) + GATHER_LOW;
+
 	}
 }
-

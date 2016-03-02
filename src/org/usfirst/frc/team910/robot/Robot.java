@@ -175,12 +175,14 @@ public class Robot extends IterativeRobot {
 				BC.gatherer.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 				BC.shooter.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 			}
-			BC.runBC(driveBoard.getRawButton(IO.LAYUP), driveBoard.getRawButton(IO.STOW),
+			
+			BC.runBC(driveBoard);
+			/*BC.runBC(driveBoard.getRawButton(IO.LAYUP), driveBoard.getRawButton(IO.STOW),
 					driveBoard.getRawButton(IO.FAR_SHOT), driveBoard.getRawButton(IO.GATHER),
 					driveBoard.getRawButton(IO.PRIME), driveBoard.getRawButton(IO.FIRE),
 					driveBoard.getRawButton(IO.LOWBAR), driveBoard.getRawButton(IO.PORT),
 					driveBoard.getRawButton(IO.SALLYPORT), driveBoard.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES),
-					driveBoard.getRawButton(IO.DRAWBRIDGE));
+					driveBoard.getRawButton(IO.DRAWBRIDGE));*/
 
 		}
 
