@@ -29,7 +29,7 @@ public class IO {
 	public static final int GAME_PAD = 2;
 	public static final int DRIVE_BOARD = 3;
 
-	public static final int MAN_AUTO_SW = 13;
+	public static final int MAN_AUTO_SW = 1;
 	
 	public static final int JOG_SHOOTER_UP = 4 ;
 	public static final int JOG_SHOOTER_DOWN = 5;
@@ -38,12 +38,12 @@ public class IO {
 	public static final int SALLYPORT = 15;
 	public static final int FLIPPY_DE_LOS_FLOPPIES = 16;
 	public static final int DRAWBRIDGE = 17;
-	public static final int LAYUP = 18;
+	public static final int LAYUP = 2;
 	public static final int STOW = 19;
-	public static final int FAR_SHOT = 20;
-	public static final int GATHER = 21;
-	public static final int PRIME = 22;
-	public static final int FIRE = 23;
+	public static final int FAR_SHOT = 3;
+	public static final int GATHER = 6;
+	public static final int PRIME = 5;
+	public static final int FIRE = 4;
 	public static final int WASD_W = 10;
 	public static final int WASD_A = 9;
 	public static final int WASD_S = 11;

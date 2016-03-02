@@ -1,6 +1,7 @@
 package org.usfirst.frc.team910.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class Shooter {
@@ -32,7 +33,7 @@ public class Shooter {
 
 	double gatherPosition;
 
-	double SAFETYDISTANCE = 500;
+	double SAFETYDISTANCE = 25;
 
 	public Shooter() {
 		shooterWheelL = new CANTalon(IO.SHOOTER_WHEEL_L);
@@ -44,22 +45,33 @@ public class Shooter {
 		loadWheelR.enableBrakeMode(true);
 		loadWheelR.reverseOutput(false);
 		// shooterWheelL.changeControlMode(TalonControlMode.Speed);
-		shooterWheelR.changeControlMode(TalonControlMode.Follower);
-		shooterWheelR.set(IO.SHOOTER_WHEEL_L);
+		//shooterWheelR.changeControlMode(TalonControlMode.Follower);
+		//shooterWheelR.set(IO.SHOOTER_WHEEL_L);
+		shooterWheelR.changeControlMode(TalonControlMode.PercentVbus);
+		shooterWheelL.changeControlMode(TalonControlMode.PercentVbus);
 		shooterWheelR.reverseOutput(false);
 		shooterWheelR.enableBrakeMode(false);
 		shooterWheelL.enableBrakeMode(false);
+		
+		shooterArm.changeControlMode(TalonControlMode.Position);
+		//shooterArm.setProfile(0);
+		shooterArm.setPID(20, 0, 0);
+		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
+		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
+		shooterArm.setAllowableClosedLoopErr(10);
+		shooterArm.configNominalOutputVoltage(5.0, -5.0);
+		autoAndback(false);
 	}
 
 	public void autoAndback(boolean manualControl) {
 
-		if (manualControl) {
+		if (!manualControl) {
 
 			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
 
 		} else {
 
-			shooterArm.changeControlMode(TalonControlMode.Position);
+			//shooterArm.changeControlMode(TalonControlMode.Position);
 
 		}
 
@@ -102,7 +114,7 @@ public class Shooter {
 	int primeState;
 
 	public void prime() {
-		switch (primeState) {
+		/*switch (primeState) {
 		case 1:
 			loadWheelL.set(loadWheelL.getPosition() - REVERSE);
 			primeState = 2;
@@ -118,14 +130,18 @@ public class Shooter {
 
 			shooterWheelL.set(FAST);
 			break;
-		}
+		}*/
+		shooterWheelL.set(1);
+		shooterWheelR.set(1);
 	}
 
 	public void fire() {
-		if (shooterWheelL.getSpeed() > FAST - MARGIN) {
+		/*if (shooterWheelL.getSpeed() > FAST - MARGIN) {
 			loadWheelL.set(loadWheelL.getPosition() + FIRE);
 			loadWheelR.set(loadWheelR.getPosition() + FIRE);
-		}
+		}*/
+		loadWheelL.set(1);
+		loadWheelR.set(1);
 
 	}
 
@@ -144,9 +160,11 @@ public class Shooter {
 		if (GamepadLBumper) {
 
 			shooterWheelL.set(1);
+			shooterWheelR.set(1);
 
 		} else {
 			shooterWheelL.set(0);
+			shooterWheelR.set(0);
 		}
 	}
 

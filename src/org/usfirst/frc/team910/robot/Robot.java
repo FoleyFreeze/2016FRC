@@ -184,6 +184,15 @@ public class Robot extends IterativeRobot {
 					driveBoard.getRawButton(IO.LOWBAR), driveBoard.getRawButton(IO.PORT),
 					driveBoard.getRawButton(IO.SALLYPORT), driveBoard.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES),
 					driveBoard.getRawButton(IO.DRAWBRIDGE));*/
+			if (GamePad.getRawButton(1)) {
+				BC.gatherer.gatherer.set(-1);
+			} else if (GamePad.getRawButton(2)) {
+				BC.gatherer.gatherer.set(1);
+			} else {
+				BC.gatherer.gatherer.set(0);
+			}
+			
+			SmartDashboard.putNumber("gatherArm setpoint", BC.gatherer.gatherArm.getSetpoint());
 
 		}
 

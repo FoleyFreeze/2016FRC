@@ -10,24 +10,24 @@ public class Gatherer {
 	CANTalon gatherArm;
 
 	double shooterPosition;
-	double SAFETYDISTANCE = 500;
+	double SAFETYDISTANCE = 25;
 
 	public Gatherer() {
 		//constructor for gatherer and gatherArm
 		gatherer = new CANTalon(IO.GATHERER);
 		gatherArm = new CANTalon(IO.GATHER_ARM);
 
-		autoAndback(true);
+		autoAndback(false);
 		gatherArm.enableBrakeMode(true);
-		gatherArm.configPeakOutputVoltage(7.0, -7.0);
-		gatherArm.setPID(0.05, 0.001, 0.0);
+		gatherArm.configPeakOutputVoltage(6.0, -1.0);
+		gatherArm.setPID(18, 0.013, 0.0);
 		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
-		autoAndback(true);
+		autoAndback(false);
 	}
 
 	public void autoAndback(boolean manualControl) {
 
-		if (manualControl) {
+		if (!manualControl) {
 
 			gatherArm.changeControlMode(TalonControlMode.PercentVbus);
 
