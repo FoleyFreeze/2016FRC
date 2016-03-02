@@ -150,20 +150,6 @@ public class Shooter {
 		}
 	}
 
-	public void drawBridge() {
-
-		// bring shooter down high so tail extends high up
-		// drive forward until tail is over drawbridge
-		// bring shooter down so tail goes down over drawbridge and hooks
-		// robot reverses bringing down drawbridge as shooter goes down so hook
-		// pulls down drawbridge
-		// pin drawbridge to the ground
-		// drive forward over drawbridge
-
-		// America is the greatest.
-
-	}
-
 	boolean prevJogUp = false;
 	boolean prevJogDown = false;
 
@@ -180,9 +166,14 @@ public class Shooter {
 		prevJogDown = jogDown;
 	}
 
-	public void setLoadWheels(double d) {
-		// TODO Auto-generated method stub
+	public void setLoadWheels(double speed) {
+		loadWheelL.set(-speed);
 
+		if (speed < 0) {
+			loadWheelR.set(0);
+		} else {
+			loadWheelR.set(speed);
+		}
 	}
 
 }

@@ -48,9 +48,10 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putData("Auto choices", chooser);
 
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
-
+		pdp = new PowerDistributionPanel();
+		
 		drive = new DriveTrain(navX);
-		BC = new BoulderController();
+		BC = new BoulderController(pdp);
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 
@@ -68,7 +69,7 @@ public class Robot extends IterativeRobot {
 
 		auton = new Auton(navX, drive);
 		
-		pdp = new PowerDistributionPanel();
+		
 	}
 
 	/**
