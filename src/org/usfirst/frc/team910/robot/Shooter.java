@@ -4,9 +4,15 @@ import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class Shooter {
-	CANTalon shooterWheel;
+	CANTalon shooterWheelL;
+	CANTalon shooterWheelR;
 	CANTalon shooterArm;
-	CANTalon loadWheels;
+	CANTalon loadWheelL;
+	CANTalon loadWheelR;
+
+	double jogoffset;
+
+	double JOGNUMBER = 15;
 
 	double CLOSESHOT = 1000;
 
@@ -29,9 +35,20 @@ public class Shooter {
 	double SAFETYDISTANCE = 500;
 
 	public Shooter() {
-		shooterWheel = new CANTalon(IO.SHOOTER_WHEEL);
+		shooterWheelL = new CANTalon(IO.SHOOTER_WHEEL_L);
+		shooterWheelR = new CANTalon(IO.SHOOTER_WHEEL_R);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
-
+		loadWheelL = new CANTalon(IO.LOAD_WHEEL_L);
+		loadWheelL.enableBrakeMode(true);
+		loadWheelR = new CANTalon(IO.LOAD_WHEEL_R);
+		loadWheelR.enableBrakeMode(true);
+		loadWheelR.reverseOutput(false);
+		// shooterWheelL.changeControlMode(TalonControlMode.Speed);
+		shooterWheelR.changeControlMode(TalonControlMode.Follower);
+		shooterWheelR.set(IO.SHOOTER_WHEEL_L);
+		shooterWheelR.reverseOutput(false);
+		shooterWheelR.enableBrakeMode(false);
+		shooterWheelL.enableBrakeMode(false);
 	}
 
 	public void autoAndback(boolean manualControl) {
@@ -39,27 +56,38 @@ public class Shooter {
 		if (manualControl) {
 
 			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
-			shooterWheel.changeControlMode(TalonControlMode.Speed);
+
 		} else {
 
 			shooterArm.changeControlMode(TalonControlMode.Position);
-			shooterWheel.changeControlMode(TalonControlMode.Speed);
 
 		}
 
 	}
 
+	private void setMotorPosition(double position) {
+		final double CEIL = 1000;
+		final double FLOOR = 0;
+		if (position < FLOOR) {
+			shooterArm.set(FLOOR);
+		} else if (position > CEIL) {
+			shooterArm.set(CEIL);
+		} else {
+			shooterArm.set(position);
+		}
+	}
+
 	public void gotoPosition(double position) {
 
 		// if going down//
-		if (shooterArm.getPosition() > position) {
-			if (position > gatherPosition) {
-				shooterArm.set(position);
+		if (shooterArm.getPosition() > position + jogoffset) {
+			if (position + jogoffset > gatherPosition) {
+				setMotorPosition(position + jogoffset);
 			} else {
-				shooterArm.set(gatherPosition + SAFETYDISTANCE);
+				setMotorPosition(gatherPosition + SAFETYDISTANCE);
 			}
 		} else {
-			shooterArm.set(position);
+			setMotorPosition(position + jogoffset);
 		}
 	}
 
@@ -76,19 +104,19 @@ public class Shooter {
 	public void prime() {
 		switch (primeState) {
 		case 1:
-			loadWheels.set(loadWheels.getPosition() - REVERSE);
+			loadWheelL.set(loadWheelL.getPosition() - REVERSE);
 			primeState = 2;
 			break;
 
 		case 2:
-			if (loadWheels.getPosition() < loadWheels.getSetpoint()) {
+			if (loadWheelL.getPosition() < loadWheelL.getSetpoint()) {
 				primeState = 3;
 			}
 			break;
 
 		case 3:
 
-			shooterWheel.set(FAST);
+			shooterWheelL.set(FAST);
 			break;
 		}
 	}
@@ -103,30 +131,58 @@ public class Shooter {
 
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
 		if (YAxisGamepadRight < 0) {
-			YAxisGamepadRight /= 1;
+			YAxisGamepadRight /= 2;
 		}
 		shooterArm.set(YAxisGamepadRight);
 		loadWheelL.set(-LoadWheelAxis);
+
+		if (LoadWheelAxis < 0) {
+			loadWheelR.set(0);
+		} else {
+			loadWheelR.set(LoadWheelAxis);
 		}
-
-	}
-
-	public void setLoadWheels(double speed) {
-
-	}
-
-	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper) {
-
-		shooterArm.set(YAxisGamepadRight);
-
 		if (GamepadLBumper) {
 
-			shooterWheel.set(FAST);
+			shooterWheelL.set(1);
 
 		} else {
-			shooterWheel.set(0);
+			shooterWheelL.set(0);
 		}
 	}
 
+	public void drawBridge() {
+
+		// bring shooter down high so tail extends high up
+		// drive forward until tail is over drawbridge
+		// bring shooter down so tail goes down over drawbridge and hooks
+		// robot reverses bringing down drawbridge as shooter goes down so hook
+		// pulls down drawbridge
+		// pin drawbridge to the ground
+		// drive forward over drawbridge
+
+		// America is the greatest.
+
+	}
+
+	boolean prevJogUp = false;
+	boolean prevJogDown = false;
+
+	public void jog(boolean jogUp, boolean jogDown) {
+		if (jogUp && !prevJogUp) {
+
+			jogoffset += JOGNUMBER;
+		} else if (jogDown && !prevJogDown) {
+
+			jogoffset -= JOGNUMBER;
+		}
+
+		prevJogUp = jogUp;
+		prevJogDown = jogDown;
+	}
+
+	public void setLoadWheels(double d) {
+		// TODO Auto-generated method stub
+
+	}
 
 }
