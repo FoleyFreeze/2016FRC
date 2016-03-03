@@ -11,7 +11,7 @@ public class Shooter {
 	CANTalon loadWheelL;
 	CANTalon loadWheelR;
 
-	double jogoffset;
+	double jogoffset = 0;
 
 	double JOGNUMBER = 15;
 
@@ -71,7 +71,7 @@ public class Shooter {
 
 		} else {
 
-			//shooterArm.changeControlMode(TalonControlMode.Position);
+			shooterArm.changeControlMode(TalonControlMode.Position);
 
 		}
 

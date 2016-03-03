@@ -39,7 +39,7 @@ public class IO {
 	public static final int FLIPPY_DE_LOS_FLOPPIES = 16;
 	public static final int DRAWBRIDGE = 17;
 	public static final int LAYUP = 2;
-	public static final int STOW = 19;
+	public static final int STOW = 7;
 	public static final int FAR_SHOT = 3;
 	public static final int GATHER = 6;
 	public static final int PRIME = 5;

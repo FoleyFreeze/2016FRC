@@ -154,6 +154,10 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("gather pot",BC.gatherer.gatherArm.getPosition());
 		SmartDashboard.putString("Auto", (String) chooser.getSelected());
 		SmartDashboard.putNumber("shooter pot",BC.shooter.shooterArm.getPosition());
+		SmartDashboard.putNumber("shooter CLE", BC.shooter.shooterArm.getClosedLoopError());
+		
+		SmartDashboard.putNumber("gather CLE",BC.gatherer.gatherArm.getClosedLoopError());
+		SmartDashboard.putNumber("gather setpt", BC.gatherer.gatherArm.getSetpoint());
 	}
 
 	/**
@@ -184,15 +188,8 @@ public class Robot extends IterativeRobot {
 					driveBoard.getRawButton(IO.LOWBAR), driveBoard.getRawButton(IO.PORT),
 					driveBoard.getRawButton(IO.SALLYPORT), driveBoard.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES),
 					driveBoard.getRawButton(IO.DRAWBRIDGE));*/
-			if (GamePad.getRawButton(1)) {
-				BC.gatherer.gatherer.set(-1);
-			} else if (GamePad.getRawButton(2)) {
-				BC.gatherer.gatherer.set(1);
-			} else {
-				BC.gatherer.gatherer.set(0);
-			}
 			
-			SmartDashboard.putNumber("gatherArm setpoint", BC.gatherer.gatherArm.getSetpoint());
+			SmartDashboard.putNumber("shooterArm setpoint", BC.shooter.shooterArm.getSetpoint());
 
 		}
 
@@ -201,6 +198,7 @@ public class Robot extends IterativeRobot {
 				// Call Mode Switch Function
 				BC.gatherer.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 				BC.shooter.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
+				BC.gatherState = 1;
 			}
 			// call manual position functions
 			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5, GamePad.getRawButton(1),GamePad.getRawButton(2));
@@ -256,10 +254,15 @@ public class Robot extends IterativeRobot {
 
 		SmartDashboard.putNumber("pdp 3 g-arm", pdp.getCurrent(3));
 		SmartDashboard.putNumber("pdp 4 g-wheel", pdp.getCurrent(4));
-		SmartDashboard.putNumber("pdp 5", pdp.getCurrent(5));
+		SmartDashboard.putNumber("pdp 12 s-arm", pdp.getCurrent(12));
 		SmartDashboard.putNumber("pdp 6", pdp.getCurrent(6));
 		SmartDashboard.putNumber("pdp 7", pdp.getCurrent(7));
 		SmartDashboard.putNumber("pdp 8", pdp.getCurrent(8));
+		
+		SmartDashboard.putNumber("shooter pot",BC.shooter.shooterArm.getPosition());
+		SmartDashboard.putNumber("shooter CLE", BC.shooter.shooterArm.getClosedLoopError());
+		SmartDashboard.putNumber("gather CLE",BC.gatherer.gatherArm.getClosedLoopError());
+		SmartDashboard.putNumber("gather setpt", BC.gatherer.gatherArm.getSetpoint());
 		
 		SmartDashboard.putNumber("cycle time", time.get());
 		time.reset();
