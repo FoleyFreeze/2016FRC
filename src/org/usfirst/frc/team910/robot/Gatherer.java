@@ -26,7 +26,7 @@ public class Gatherer {
 	}
 
 	public void autoAndback(boolean manualControl) {
-
+		// changes the control mode of the gatherer
 		if (manualControl) {
 
 			gatherArm.changeControlMode(TalonControlMode.PercentVbus);
