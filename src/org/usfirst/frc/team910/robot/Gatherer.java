@@ -67,7 +67,7 @@ public class Gatherer {
 	}
 
 	public void manualGather(double YAxisGamePadRight, boolean intakeForward, boolean intakeBackward) {
-
+		// controls for manual gathering, use the gamepad
 		if (intakeForward) {
 			gatherer.set(-1);
 		} else if (intakeBackward) {
