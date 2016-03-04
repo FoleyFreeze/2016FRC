@@ -50,7 +50,7 @@ public class Shooter {
 		shooterWheelR.enableBrakeMode(false);
 		shooterWheelL.enableBrakeMode(false);
 	}
-
+//switches the shooter arm from working according to power or position according to whether the robot is in manual control mode
 	public void autoAndback(boolean manualControl) {
 
 		if (manualControl) {
@@ -64,7 +64,7 @@ public class Shooter {
 		}
 
 	}
-
+//sets stops for the shooter arm so it dosen't go too high or too low
 	private void setMotorPosition(double position) {
 		final double CEIL = 1000;
 		final double FLOOR = 0;
@@ -76,7 +76,7 @@ public class Shooter {
 			shooterArm.set(position);
 		}
 	}
-
+//adds a static amount to or from the shooter arm to slightly raise or lower it
 	public void gotoPosition(double position) {
 
 		// if going down//
@@ -100,7 +100,7 @@ public class Shooter {
 	}
 
 	int primeState;
-
+//gets loads wheels to push the ball slightly forward until they are past a certain position. Once past this positions the shooter wheels speed up to full speed.
 	public void prime() {
 		switch (primeState) {
 		case 1:
@@ -120,7 +120,7 @@ public class Shooter {
 			break;
 		}
 	}
-
+//when the speed of the shooter wheels pass a certain range of speed, the shooter wheels accelerate and push the ball into the shooter wheels.
 	public void fire() {
 		if (shooterWheelL.getSpeed() > FAST - MARGIN) {
 			loadWheelL.set(loadWheelL.getPosition() + FIRE);
@@ -128,7 +128,7 @@ public class Shooter {
 		}
 
 	}
-
+//manual shooter mode. maps the shooter arm to the y axis of the right gamepad analogue stick. maps the load wheel position to its own axis. 
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
 		if (YAxisGamepadRight < 0) {
 			YAxisGamepadRight /= 2;
