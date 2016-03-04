@@ -24,7 +24,7 @@ public class Robot extends IterativeRobot {
 	 * used for any initialization code.
 	 */
 	static final boolean TEST = false;
-
+	LEDcontrol led;
 	DriveTrain drive;
 	BoulderController BC;
 
@@ -200,8 +200,23 @@ public class Robot extends IterativeRobot {
 		}
 		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		boolean flipControls = rJoy.getRawButton(IO.FLIP_CONTROLS);
-
+	
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
 
