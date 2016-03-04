@@ -59,6 +59,7 @@ public class BoulderController {
 	double button = -1;
 
 	public void runBC(Joystick driverstation) {
+		// Sets all buttons to premade positions for gatherer and shooter arm
 		gatherer.aquireShooterPosition(shoottogather(shooter.getPosition()));
 		shooter.aquireGatherPosition(gathertoshoot(gatherer.getPosition()));
 
@@ -133,6 +134,7 @@ public class BoulderController {
 	}
 
 	public void layup() {
+		// sets shooter layup position and gatherer stow position
 		shooter.gotoPosition(SHOOTER_LAYUP_POS);
 		gatherer.gotoPosition(GATHER_STOW_POS);
 	}
@@ -150,6 +152,7 @@ public class BoulderController {
 	}
 
 	public void farShot() {
+		// sets shooter for far shot and gatherer to stow position
 		shooter.gotoPosition(SHOOTER_FARSHOT_POS);
 		gatherer.gotoPosition(GATHER_STOW_POS);
 	}
@@ -223,11 +226,15 @@ public class BoulderController {
 	}
 
 	public void lowBar(boolean lowBar) {
+		// folds shooter down and gatherer as low as possible to go under low
+		// bar
 		shooter.gotoPosition(SHOOTER_LOWBAR_POS);
 		gatherer.gotoPosition(GATHER_LOWBAR_POS);
 	}
 
 	public void sallyPort(boolean sallyBtn) {
+		// When the "sally" button is pressed, it will move down, otherwise it
+		// will move up
 		if (sallyBtn) {
 			shooter.gotoPosition(SHOOTER_SALLY_DOWN);
 		} else {
@@ -236,11 +243,15 @@ public class BoulderController {
 	}
 
 	public void portcullis(boolean portcullis) {
+		// move shooter and gatherer to porticullis position
 		shooter.gotoPosition(SHOOTER_PORT_POS);
 		gatherer.gotoPosition(GATHER_PORT_POS);
 	}
 
 	public void flippyFloppies(boolean flippyBtn) {
+		// moves gatherer to Cheval de Frise Position
+		// If the button is active, move the shooter down, otherwise shooter
+		// goes up
 		gatherer.gotoPosition(GATHER_FLIPPY_FLOPPIES_POS);
 		if (flippyBtn) {
 			shooter.gotoPosition(SHOOTER_FLIPPY_FLOPPIES_DOWN);
@@ -250,6 +261,8 @@ public class BoulderController {
 	}
 
 	public void drawbridge(boolean drawbridgeBtn) {
+		// sets gatherer to drawbridge position
+		// if button is active, shooter goes down, otherwise shooter goes up
 		gatherer.gotoPosition(GATHER_DRAWBRIDGE_POS);
 		if (drawbridgeBtn) {
 			shooter.gotoPosition(SHOOTER_DRAWBRIDGE_DOWN);

@@ -13,7 +13,7 @@ public class Gatherer {
 	double SAFETYDISTANCE = 500;
 
 	public Gatherer() {
-		//constructor for gatherer and gatherArm
+		// constructor for gatherer and gatherArm
 		gatherer = new CANTalon(IO.GATHERER);
 		gatherArm = new CANTalon(IO.GATHER_ARM);
 
@@ -58,6 +58,7 @@ public class Gatherer {
 	}
 
 	public void gatherwheel(double speed) {
+		// sets gatherer speed
 		gatherer.set(speed);
 	}
 

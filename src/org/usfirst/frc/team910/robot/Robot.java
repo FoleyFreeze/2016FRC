@@ -84,7 +84,7 @@ public class Robot extends IterativeRobot {
 	int autonstate = 0;
 
 	public void autonomousPeriodic() {
-
+		// Drive over defenses
 		/*
 		 * switch (autonstate){
 		 * 
@@ -166,6 +166,9 @@ public class Robot extends IterativeRobot {
 	Timer time = new Timer();
 
 	public void teleopPeriodic() {
+		/* Controls all teleop operations, including the automatic gatherer and shooter positions,
+		 * manual gathering and shooting, and manual movement 
+		 */
 		//BetterCameraServer.start();
 
 		// this means on = auto, off = manual. Add ! before driveBoard to flip
