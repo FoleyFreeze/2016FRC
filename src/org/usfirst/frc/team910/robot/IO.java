@@ -30,8 +30,8 @@ public class IO {
 	public static final int DRIVE_BOARD = 3;
 
 	public static final int MAN_AUTO_SW = 13;
-	
-	public static final int JOG_SHOOTER_UP = 4 ;
+
+	public static final int JOG_SHOOTER_UP = 4;
 	public static final int JOG_SHOOTER_DOWN = 5;
 	public static final int LOWBAR = 13;
 	public static final int PORT = 14;
@@ -48,19 +48,19 @@ public class IO {
 	public static final int WASD_A = 9;
 	public static final int WASD_S = 11;
 	public static final int WASD_D = 12;
-	
-	//l-joy
+
+	// l-joy
 	public static final int FLIP_CONTROLS = 12;
-	//r-joy
+	// r-joy
 	public static final int COMPASS_POWER_THROTTLE = 2;
 	public static final int ZERO_YAW = 3;
 
 	// drivetrain calibrations
-	public static final double[] COMPASS_ANGLE = {15, 15, 30, 40, 40};
-	public static final double[] POWER_AXIS = {0.0, 0.2, 0.6, 0.9, 1.0};
+	public static final double[] COMPASS_ANGLE = { 15, 15, 30, 40, 40 };
+	public static final double[] POWER_AXIS = { 0.0, 0.2, 0.6, 0.9, 1.0 };
 
 	public static double lookup(double[] values, double[] axis, double input) {
-		int index = axis.length -1;
+		int index = axis.length - 1;
 		for (int i = 0; i < axis.length; i++) {
 			if (axis[i] >= input) {
 				index = i;
@@ -71,7 +71,7 @@ public class IO {
 		if (index <= 0)
 			return values[index];
 		else {
-			double slope = (values[index] - values[index - 1]) / (axis[index] - axis[index-1]);
+			double slope = (values[index] - values[index - 1]) / (axis[index] - axis[index - 1]);
 			return slope * (input - axis[index]) + values[index];
 		}
 	}

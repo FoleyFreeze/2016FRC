@@ -55,6 +55,7 @@ public class DriveTrain {
 	double prevT = 0;
 
 	public void tankDrive(double YAxisLeft, double YAxisRight) {
+		// controls tank drive motors, obtaining joystick inputs
 		if (Math.abs(YAxisLeft) > 1)
 			YAxisLeft = YAxisLeft / Math.abs(YAxisLeft);
 		if (Math.abs(YAxisRight) > 1)
@@ -84,7 +85,10 @@ public class DriveTrain {
 	double startEncL, startEncR;
 
 	public void dynamicBraking(boolean firstTime) {
-
+		/*
+		 * code for dynamic braking The first time it is called, it obtains the
+		 * distances of the encoders, then power to the motors is set
+		 */
 		if (firstTime) {
 			startEncL = lEncoder.getDistance();
 			startEncR = rEncoder.getDistance();
@@ -102,7 +106,8 @@ public class DriveTrain {
 	double intrevalue;
 
 	public void driveStraight(double lpower, boolean firstTime) {
-
+		// driveStraight allows the robot to be driven straight by moving one
+		// joystick with the right trigger held
 		double levalue;
 		double revalue;
 
@@ -226,7 +231,11 @@ public class DriveTrain {
 	}
 
 	public void compassDrive(double power, double currentYAW, boolean firstYAW, double targetAngle) {
-
+		/*
+		 * Compass drive uses field-oriented drive to drive in straight lines
+		 * using the "WASD" buttons pushing the left button causes the robot to drive left, the right to move right, and so on.
+		 * Each button is set to an angle that the robot turns. 
+		 */
 		double diff;
 		double adj;
 		double inverse = 1;
@@ -316,7 +325,7 @@ public class DriveTrain {
 	}
 
 	public void shooterAlign(double cameraAngle, double botAngle) {
-
+		// Moves shooter to the camera's position
 		double diff;
 
 		diff = botAngle - cameraAngle;
@@ -343,11 +352,13 @@ public class DriveTrain {
 	}
 
 	public void resetEncoders() {
+		// Resets Encoders
 		lEncoder.reset();
 		rEncoder.reset();
 	}
 
 	public double getDistance() {
+		// Obtains the distance from each encoder
 		return (lEncoder.getDistance() + rEncoder.getDistance()) / 2;
 	}
 

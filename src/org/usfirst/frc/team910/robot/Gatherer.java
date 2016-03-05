@@ -13,7 +13,7 @@ public class Gatherer {
 	double SAFETYDISTANCE = 500;
 
 	public Gatherer() {
-		//constructor for gatherer and gatherArm
+		// constructor for gatherer and gatherArm
 		gatherer = new CANTalon(IO.GATHERER);
 		gatherArm = new CANTalon(IO.GATHER_ARM);
 
@@ -26,7 +26,7 @@ public class Gatherer {
 	}
 
 	public void autoAndback(boolean manualControl) {
-
+		// changes the control mode of the gatherer
 		if (manualControl) {
 
 			gatherArm.changeControlMode(TalonControlMode.PercentVbus);
@@ -58,6 +58,7 @@ public class Gatherer {
 	}
 
 	public void gatherwheel(double speed) {
+		// sets gatherer speed
 		gatherer.set(speed);
 	}
 
@@ -66,7 +67,7 @@ public class Gatherer {
 	}
 
 	public void manualGather(double YAxisGamePadRight, boolean intakeForward, boolean intakeBackward) {
-
+		// controls for manual gathering, use the gamepad
 		if (intakeForward) {
 			gatherer.set(-1);
 		} else if (intakeBackward) {

@@ -11,12 +11,14 @@ public class Auton {
 	public Auton(AHRS navX, DriveTrain drive) {
 		this.navX = navX;
 		this.drive = drive;
-	} 
+	}
 
 	Timer time = new Timer();
 	int autonstate = 0;
 
 	public void defaultAuto() {
+		// When auton begins, the robot will use Compass Drive to drive over a
+		// defense
 		switch (autonstate) {
 		case 0:
 			time.start();

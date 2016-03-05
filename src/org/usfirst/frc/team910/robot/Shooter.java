@@ -66,6 +66,7 @@ public class Shooter {
 	}
 //sets stops for the shooter arm so it dosen't go too high or too low
 	private void setMotorPosition(double position) {
+		//Sets save points where the shooter should not pass, including positions near the floor and celing, respectively
 		final double CEIL = 1000;
 		final double FLOOR = 0;
 		if (position < FLOOR) {
@@ -92,6 +93,7 @@ public class Shooter {
 	}
 
 	public double getPosition() {
+		//Obtains shooter position
 		return shooterArm.getPosition();
 	}
 
@@ -102,6 +104,7 @@ public class Shooter {
 	int primeState;
 //gets loads wheels to push the ball slightly forward until they are past a certain position. Once past this positions the shooter wheels speed up to full speed.
 	public void prime() {
+		//This sets the shooter wheels to an optimal speed before sending the ball threw them
 		switch (primeState) {
 		case 1:
 			loadWheelL.set(loadWheelL.getPosition() - REVERSE);
@@ -122,6 +125,7 @@ public class Shooter {
 	}
 //when the speed of the shooter wheels pass a certain range of speed, the shooter wheels accelerate and push the ball into the shooter wheels.
 	public void fire() {
+		//The shooter wheels set
 		if (shooterWheelL.getSpeed() > FAST - MARGIN) {
 			loadWheelL.set(loadWheelL.getPosition() + FIRE);
 			loadWheelR.set(loadWheelR.getPosition() + FIRE);
@@ -130,6 +134,7 @@ public class Shooter {
 	}
 //manual shooter mode. maps the shooter arm to the y axis of the right gamepad analogue stick. maps the load wheel position to its own axis. 
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
+		//the gamepad's right joy can manually change the shooters position, the left bumper activates the shooter at full speed
 		if (YAxisGamepadRight < 0) {
 			YAxisGamepadRight /= 2;
 		}
@@ -154,6 +159,7 @@ public class Shooter {
 	boolean prevJogDown = false;
 
 	public void jog(boolean jogUp, boolean jogDown) {
+		// Adds a static amount to the shooter's position, up or down
 		if (jogUp && !prevJogUp) {
 
 			jogoffset += JOGNUMBER;
@@ -167,6 +173,7 @@ public class Shooter {
 	}
 
 	public void setLoadWheels(double speed) {
+		//sets the speed of the load wheels
 		loadWheelL.set(-speed);
 
 		if (speed < 0) {
