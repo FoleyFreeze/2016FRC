@@ -57,11 +57,12 @@ public class BoulderController {
 	}
 
 	double button = -1;
-
+    //selects preset position
 	public void runBC(Joystick driverstation) {
 		gatherer.aquireShooterPosition(shoottogather(shooter.getPosition()));
 		shooter.aquireGatherPosition(gathertoshoot(gatherer.getPosition()));
-
+		/*buttons on the right side of driverstation with corresponding numbers on practice control
+		board*/
 		if (driverstation.getRawButton(IO.LAYUP))
 			button = 0;
 		else if (driverstation.getRawButton(IO.STOW))
@@ -123,6 +124,9 @@ public class BoulderController {
 		}
 
 		if (driverstation.getRawButton(IO.PRIME)) {
+			/*gets loads wheels to push the ball slightly forward until
+		 	they are past a certain position. Once past 
+			this positions the shooter wheels speed up to full speed.*/
 			shooter.prime();
 		}
 
@@ -223,24 +227,29 @@ public class BoulderController {
 	}
 
 	public void lowBar(boolean lowBar) {
+		// moves shooter and gatherer to corresponding positions
 		shooter.gotoPosition(SHOOTER_LOWBAR_POS);
 		gatherer.gotoPosition(GATHER_LOWBAR_POS);
 	}
 
 	public void sallyPort(boolean sallyBtn) {
 		if (sallyBtn) {
+			// moves shooter to corresponding positions
 			shooter.gotoPosition(SHOOTER_SALLY_DOWN);
 		} else {
+			// moves shooter to corresponding positions
 			shooter.gotoPosition(SHOOTER_SALLY_UP);
 		}
 	}
 
 	public void portcullis(boolean portcullis) {
+		// moves shooter and gatherer to corresponding positions
 		shooter.gotoPosition(SHOOTER_PORT_POS);
 		gatherer.gotoPosition(GATHER_PORT_POS);
 	}
 
 	public void flippyFloppies(boolean flippyBtn) {
+		// moves shooter and gatherer to corresponding positions
 		gatherer.gotoPosition(GATHER_FLIPPY_FLOPPIES_POS);
 		if (flippyBtn) {
 			shooter.gotoPosition(SHOOTER_FLIPPY_FLOPPIES_DOWN);
@@ -250,6 +259,7 @@ public class BoulderController {
 	}
 
 	public void drawbridge(boolean drawbridgeBtn) {
+		// moves shooter and gatherer to corresponding positions
 		gatherer.gotoPosition(GATHER_DRAWBRIDGE_POS);
 		if (drawbridgeBtn) {
 			shooter.gotoPosition(SHOOTER_DRAWBRIDGE_DOWN);

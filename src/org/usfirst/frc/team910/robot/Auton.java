@@ -36,6 +36,18 @@ public class Auton {
 		case 2:
 			drive.tankDrive(0.0, 0.0);
 			time.reset();
+		case 3:
+			/*lowbar position 1 (left to right)*/ drive.compassDrive(1,
+				navX.getYaw(), false, 0);// Compass drive //wait 10ms
+				drive.compassDrive(-1, navX.getYaw(), false, 0); //wait 10ms
+				drive.compassDrive(1, navX.getYaw(), false, 0); //wait 10ms
+				drive.compassDrive(-1, navX.getYaw(), false, 0); break;
+		case 4: 
+			 //rock-wall/rough-terrain position 2 drive.compassDrive(1,
+			  //navX.getYaw(), false, 0); // Compass drive wait 10ms
+			  drive.compassDrive(-1, navX.getYaw(), false, 0); //wait 10ms
+			  drive.compassDrive(1, navX.getYaw(), false, 0); //wait 10ms
+			  drive.compassDrive(-1, navX.getYaw(), false, 0);
 		}
 	}
 }
