@@ -55,11 +55,11 @@ public class Shooter {
 		
 		shooterArm.changeControlMode(TalonControlMode.Position);
 		//shooterArm.setProfile(0);
-		shooterArm.setPID(20, 0, 0);
+		shooterArm.setPID(10, 0, 0);
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
 		shooterArm.setAllowableClosedLoopErr(10);
-		shooterArm.configNominalOutputVoltage(5.0, -5.0);
+		shooterArm.configNominalOutputVoltage(4.0, -4.0);
 		autoAndback(false);
 	}
 

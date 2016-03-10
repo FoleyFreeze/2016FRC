@@ -10,15 +10,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class BoulderController {
 
 	// shooter positions (high to low)
-	double SHOOTER_MAX_HEIGHT = 528; //against hard stop
+	double SHOOTER_MAX_HEIGHT = 610; //against hard stop
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 50;// 586;
 	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 78; 
-	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 104; 
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 154; 
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 428; 
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 443; 
 
 	// gatherer positions (low to high)
-	double GATHER_FULLDOWN_POS = 650; //resting on the ground
+	double GATHER_FULLDOWN_POS = 357; //resting on the ground
 	double GATHER_LOAD_SHOOTER_POS = GATHER_FULLDOWN_POS + 15;
 	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 80;
 	double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 271;
