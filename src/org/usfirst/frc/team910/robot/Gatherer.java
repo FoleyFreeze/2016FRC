@@ -19,8 +19,8 @@ public class Gatherer {
 
 		autoAndback(false);
 		gatherArm.enableBrakeMode(true);
-		gatherArm.configPeakOutputVoltage(6.0, -1.0);
-		gatherArm.setPID(18, 0.015, 0.0);
+		gatherArm.configPeakOutputVoltage(7.0, -1.0);
+		gatherArm.setPID(35, 0.05, 0.0);
 		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		autoAndback(false);
 	}
@@ -42,7 +42,7 @@ public class Gatherer {
 	public void gotoPosition(double position) {
 
 		// if going up//
-		if (gatherArm.getPosition() < position) {
+		/*if (gatherArm.getPosition() < position) {
 			if (position < shooterPosition) {
 				gatherArm.set(position);
 			} else {
@@ -50,7 +50,8 @@ public class Gatherer {
 			}
 		} else {
 			gatherArm.set(position);
-		}
+		}*/
+		gatherArm.set(position);
 	}
 
 	public void aquireShooterPosition(double position) {

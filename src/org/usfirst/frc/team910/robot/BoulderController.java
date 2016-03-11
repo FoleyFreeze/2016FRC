@@ -10,15 +10,15 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class BoulderController {
 
 	// shooter positions (high to low)
-	double SHOOTER_MAX_HEIGHT = 610; //against hard stop
+	double SHOOTER_MAX_HEIGHT = 820; //against hard stop
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 50;// 586;
 	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 78; 
 	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 154; 
-	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 428; 
-	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 443; 
+	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 431; 
+	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 450; 
 
 	// gatherer positions (low to high)
-	double GATHER_FULLDOWN_POS = 357; //resting on the ground
+	double GATHER_FULLDOWN_POS = 626; //resting on the ground
 	double GATHER_LOAD_SHOOTER_POS = GATHER_FULLDOWN_POS + 15;
 	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 80;
 	double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 271;
@@ -52,13 +52,13 @@ public class BoulderController {
 
 	public BoulderController(PowerDistributionPanel pdp) {
 		this.pdp = pdp;
-		shooter = new Shooter();
+		shooter = new Shooter(pdp);
 		gatherer = new Gatherer();
 		time = new Timer();
 		time.start();
 	}
 
-	double button = -1;
+	int button = -1;
 	
 	boolean prevFire = false;
 
@@ -204,11 +204,11 @@ public class BoulderController {
 			break;
 
 		case 2: // ball is under gatherer, move gatherer down to pick up ball
-			gatherer.gatherArm.configPeakOutputVoltage(6.0, -6.0);
+			gatherer.gatherArm.configPeakOutputVoltage(7.0, -6.0);
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
 			gatherer.gatherwheel(-1);
 			if (Math.abs(gatherer.gatherArm.getClosedLoopError()) < 3) {
-				gatherer.gatherArm.configPeakOutputVoltage(6.0, -1.0);
+				gatherer.gatherArm.configPeakOutputVoltage(7.0, -1.0);
 				gatherState = 3;
 				time.reset();
 			}
@@ -218,7 +218,7 @@ public class BoulderController {
 			shooter.gotoPosition(SHOOTER_PRELOAD_POS);
 			shooter.setLoadWheels(1);
 			gatherer.gatherwheel(0);
-			if (time.get() >= 3) {
+			if (Math.abs(shooter.shooterArm.getClosedLoopError()) < 7) {
 				gatherState = 4;
 				time.reset();
 			}
@@ -226,15 +226,15 @@ public class BoulderController {
 		case 4: // load the ball into the shooter
 			shooter.gotoPosition(SHOOTER_LOAD_POS);
 			shooter.setLoadWheels(1);
-			if (time.get() >= 2 /*|| checkForLoadCurrent()*/) {
+			if (time.get() >= 2.0 /*|| checkForLoadCurrent()*/) {
 				gatherState = 5;
 				time.reset();
 			}
 			break;
 
 		case 5: // back the ball up slightly
-			shooter.setLoadWheels(-0.5);
-			if (time.get() >= 0.5) {
+			shooter.setLoadWheels(-0.7);
+			if (time.get() >= 0.35) {
 				gatherState = 6;
 			}
 			break;

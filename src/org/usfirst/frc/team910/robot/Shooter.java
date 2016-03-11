@@ -3,6 +3,8 @@ package org.usfirst.frc.team910.robot;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.Timer;
 
 public class Shooter {
 	CANTalon shooterWheelL;
@@ -34,8 +36,13 @@ public class Shooter {
 	double gatherPosition;
 
 	double SAFETYDISTANCE = 25;
+	
+	PowerDistributionPanel pdp;
+	Timer time = new Timer();
 
-	public Shooter() {
+	public Shooter(PowerDistributionPanel pdp) {
+		this.pdp = pdp;
+		time.start();
 		shooterWheelL = new CANTalon(IO.SHOOTER_WHEEL_L);
 		shooterWheelR = new CANTalon(IO.SHOOTER_WHEEL_R);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
@@ -58,8 +65,8 @@ public class Shooter {
 		shooterArm.setPID(10, 0, 0);
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
-		shooterArm.setAllowableClosedLoopErr(10);
-		shooterArm.configNominalOutputVoltage(4.0, -4.0);
+		shooterArm.setAllowableClosedLoopErr(5);
+		shooterArm.configNominalOutputVoltage(3.0, -3.0);
 		autoAndback(false);
 	}
 
@@ -93,7 +100,7 @@ public class Shooter {
 	public void gotoPosition(double position) {
 
 		// if going down//
-		if (shooterArm.getPosition() > position + jogoffset) {
+		/*if (shooterArm.getPosition() > position + jogoffset) {
 			if (position + jogoffset > gatherPosition) {
 				setMotorPosition(position + jogoffset);
 			} else {
@@ -101,7 +108,8 @@ public class Shooter {
 			}
 		} else {
 			setMotorPosition(position + jogoffset);
-		}
+		}*/
+		setMotorPosition(position + jogoffset);
 	}
 
 	public double getPosition() {
@@ -197,6 +205,36 @@ public class Shooter {
 			loadWheelR.set(0);
 		} else {
 			loadWheelR.set(speed);
+		}
+	}
+	
+	double AMP_THRESHOLD = 20;
+	double STOP_TIME = 5;
+	double START_TIME = 5;
+	boolean SAFE_STOP = false;
+	
+	public void driveArm(double drive){
+		double amps = pdp.getCurrent(IO.SHOOTER_ARM);
+		
+		if(SAFE_STOP){
+			if(time.get() > START_TIME){
+				time.reset();
+				shooterArm.enable();
+				SAFE_STOP = false;
+			}
+		} else {
+	 		
+			if (amps > AMP_THRESHOLD){
+				if(time.get() > STOP_TIME){
+					shooterArm.disable();
+					SAFE_STOP = true;
+				} else {
+					shooterArm.set(drive);
+				}
+			} else {
+				time.reset();
+				shooterArm.set(drive);
+			}
 		}
 	}
 

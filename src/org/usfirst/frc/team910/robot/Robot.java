@@ -202,6 +202,7 @@ public class Robot extends IterativeRobot {
 				BC.gatherer.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 				BC.shooter.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
 				BC.gatherState = 1;
+				BC.button = -1;
 			}
 			// call manual position functions
 			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5, GamePad.getRawButton(1),GamePad.getRawButton(2));
@@ -264,6 +265,7 @@ public class Robot extends IterativeRobot {
 		
 		SmartDashboard.putNumber("shooter pot",BC.shooter.shooterArm.getPosition());
 		SmartDashboard.putNumber("shooter CLE", BC.shooter.shooterArm.getClosedLoopError());
+		SmartDashboard.putNumber("gather pot",BC.gatherer.gatherArm.getPosition());
 		SmartDashboard.putNumber("gather CLE",BC.gatherer.gatherArm.getClosedLoopError());
 		SmartDashboard.putNumber("gather setpt", BC.gatherer.gatherArm.getSetpoint());
 		
