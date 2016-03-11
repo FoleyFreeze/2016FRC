@@ -236,12 +236,19 @@ public class BoulderController {
 			shooter.setLoadWheels(-0.7);
 			if (time.get() >= 0.35) {
 				gatherState = 6;
+				time.reset();
 			}
 			break;
 
 		case 6: // go to shooting position
 			shooter.setLoadWheels(0);
 			shooter.gotoPosition(SHOOTER_LAYUP_POS);
+			if(time.get() > 1){
+				gatherState = 7;
+			}
+			break;
+			
+		case 7:
 			gatherer.gotoPosition(GATHER_STOW_POS);
 			break;
 		}
