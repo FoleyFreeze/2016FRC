@@ -143,7 +143,7 @@ public class Shooter {
 			loadWheelL.set(loadWheelL.getPosition() + FIRE);
 			loadWheelR.set(loadWheelR.getPosition() + FIRE);
 		}*/
-		loadWheelL.set(1);
+		loadWheelL.set(-1);
 		loadWheelR.set(1);
 
 	}
@@ -163,7 +163,7 @@ public class Shooter {
 		}
 		if (GamepadLBumper) {
 
-			shooterWheelL.set(1);
+			shooterWheelL.set(-1);
 			shooterWheelR.set(1);
 
 		} else {
