@@ -69,8 +69,8 @@ public class VisionProcessor {
 		NIVision.IMAQdxConfigureGrab(session);
 		NIVision.IMAQdxStartAcquisition(session);
 	}
-	
-	public void disabled(){
+
+	public void disabled() {
 		NIVision.IMAQdxGrab(session, frame, 1);
 		CameraServer.getInstance().setImage(frame);
 	}
@@ -94,99 +94,131 @@ public class VisionProcessor {
 		numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
 		SmartDashboard.putNumber("Filtered particles", numParticles);
 
-		//search the targets for the best one, then see if it is good enough
+		// search the targets for the best one, then see if it is good enough
 		double smallestScore = 999;
 		int bestParticle = 0;
 		if (numParticles < 20 && numParticles > 0) {
 			for (int i = 0; i < numParticles; i++) {
 				double score = scoreParticle(i);
-				if(score < smallestScore){
+				if (score < smallestScore) {
 					bestParticle = i;
 					smallestScore = score;
 				}
 			}
 		}
-		
-		//display best particle data
-		if(smallestScore < TARGET_SCORE){
+
+		// display best particle data
+		if (smallestScore < TARGET_SCORE) {
 			double area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_AREA);
-			
-			double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
+
+			double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
 			double cvh_area_ratio = area / cvh_area;
-			
-			double perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_PERIMETER);
-			double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
+
+			double perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_PERIMETER);
+			double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
 			double perimeter_ratio = perimeter / cvh_perimeter;
-			
-			double com_x = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
-			double com_y = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
-			double top = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
-			double left = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
-			double width = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
-			double height = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
+
+			double com_x = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
+			double com_y = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
+			double top = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
+			double left = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
+			double width = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
+			double height = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+					NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
 			double com_x_ratio = (com_x - left) / width;
 			double com_y_ratio = (com_y - top) / height;
-			
+
 			SmartDashboard.putNumber("comX", com_x_ratio);
 			SmartDashboard.putNumber("comY", com_y_ratio);
 			SmartDashboard.putNumber("cvhAreaRatio", cvh_area_ratio);
-			SmartDashboard.putNumber("periRatio", perimeter_ratio);	
-			
-			Rect rect = new Rect((int) top,(int) left,(int) height,(int) width);
-			NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, (float) 0xFFFFFF);
+			SmartDashboard.putNumber("periRatio", perimeter_ratio);
+
+			Rect rect = new Rect((int) top, (int) left, (int) height, (int) width);
+			NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT,
+					(float) 0xFFFFFF);
 		}
 		SmartDashboard.putNumber("bestScore", smallestScore);
-		//SmartDashboard.putNumber("cycleTime", time.get());
-		//time.reset();
-		
-		//draw image to driver station
+		// SmartDashboard.putNumber("cycleTime", time.get());
+		// time.reset();
+
+		// draw image to driver station
 		CameraServer.getInstance().setImage(frame);
 		// CameraServer.getInstance().setImage(binaryFrame);
 	}
-	
-	
-	//score metrics
+
+	// score metrics
 	double COM_X_TARGET = 0.5;
 	double COM_Y_TARGET = 0.675;
 	double AREA_TARGET = 0.245;
 	double PERI_TARGET = 1.3;
-	
-	//for debugging
+
+	// for debugging
 	boolean DRAW_RECT = true;
-		
-	public double scoreParticle(int particleIndex){
+
+	public double scoreParticle(int particleIndex) {
 		double area = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_AREA);
-		
-		double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
+
+		double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
 		double cvh_area_ratio = area / cvh_area;
-		
-		double perimeter = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_PERIMETER);
-		double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
+
+		double perimeter = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_PERIMETER);
+		double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
 		double perimeter_ratio = perimeter / cvh_perimeter;
-		
-		double com_x = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
-		double com_y = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
-		double top = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
-		double left = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
-		double width = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
-		double height = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
+
+		double com_x = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
+		double com_y = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
+		double top = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
+		double left = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
+		double width = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
+		double height = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
+				NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
 		double com_x_ratio = (com_x - left) / width;
 		double com_y_ratio = (com_y - top) / height;
-		
-		if(DRAW_RECT){
-			Rect rect = new Rect((int) top,(int) left,(int) height,(int) width);
+
+		if (DRAW_RECT) {
+			Rect rect = new Rect((int) top, (int) left, (int) height, (int) width);
 			NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT, (float) 255);
 		}
-		
+
 		double score = 0.0;
 		score += Math.abs(com_x_ratio - COM_X_TARGET);
 		score += Math.abs(com_y_ratio - COM_Y_TARGET);
 		score += Math.abs(cvh_area_ratio - AREA_TARGET);
 		score += Math.abs(perimeter_ratio - PERI_TARGET) / 4;
 		return score;
+
+	}
+
+	getAngle(){
+		double RES_Y = 480;
+		double RES_X = 640;
+		double rect_left = 40;
+		double rect_top = 360;
+		double rect_width = 100;
+		double rect_height = 80;
+		double FOV = 60;
 		
+		double center = rect_left + (rect_width/2);
+		double DDistance = center -(RES_X/2);
+		double angle = DDistance * FOV/2;
 		
-		
+	
 	}
 
 }
