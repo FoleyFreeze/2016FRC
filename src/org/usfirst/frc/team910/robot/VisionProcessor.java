@@ -24,6 +24,8 @@ public class VisionProcessor {
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
 	NIVision.Range VAL_RANGE = new NIVision.Range(40, 75);
 	double VIEW_ANGLE = 60; // msft hd 3000
+	double RES_Y = 480;
+	double RES_X = 640;
 	int WHITE_BALANCE = 4000; // 3000 - 5300ish
 	double EXPOSURE = 0.0;
 	double BRIGHTNESS = 1.0;
@@ -35,6 +37,11 @@ public class VisionProcessor {
 	NIVision.ParticleFilterCriteria2 criteria[] = new NIVision.ParticleFilterCriteria2[1];
 	NIVision.ParticleFilterOptions2 filterOptions = new NIVision.ParticleFilterOptions2(0, 0, 1, 1);
 
+	//best candidate target
+	Rect bestRect = new Rect();
+	double bestScore = 0;
+	boolean goodTarget = false;
+	
 	VisionProcessor() {
 
 	}
@@ -144,7 +151,14 @@ public class VisionProcessor {
 			Rect rect = new Rect((int) top, (int) left, (int) height, (int) width);
 			NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT,
 					(float) 0xFFFFFF);
+			
+			bestRect = rect;
+			bestScore = smallestScore;
+			goodTarget = true;
+		} else {
+			goodTarget = false;
 		}
+		
 		SmartDashboard.putNumber("bestScore", smallestScore);
 		// SmartDashboard.putNumber("cycleTime", time.get());
 		// time.reset();
@@ -205,20 +219,16 @@ public class VisionProcessor {
 
 	}
 
-	getAngle(){
-		double RES_Y = 480;
-		double RES_X = 640;
-		double rect_left = 40;
-		double rect_top = 360;
-		double rect_width = 100;
-		double rect_height = 80;
-		double FOV = 60;
-		
-		double center = rect_left + (rect_width/2);
-		double DDistance = center -(RES_X/2);
-		double angle = DDistance * FOV/2;
-		
-	
+	public double getAngle(){
+		if(goodTarget){
+			double center = bestRect.left + (bestRect.width/2);
+			double DDistance = center - (RES_X/2);
+			double angle = DDistance * VIEW_ANGLE/2;
+			
+			return angle;
+		} else {
+			return 0;
+		}
 	}
 
 }
