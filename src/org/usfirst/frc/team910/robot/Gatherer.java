@@ -20,7 +20,7 @@ public class Gatherer {
 		autoAndback(false);
 		gatherArm.enableBrakeMode(true);
 		gatherArm.configPeakOutputVoltage(7.0, -1.0);
-		gatherArm.setPID(35, 0.05, 0.0);
+		gatherArm.setPID(30, 0.05, 0.0);
 		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		autoAndback(false);
 	}

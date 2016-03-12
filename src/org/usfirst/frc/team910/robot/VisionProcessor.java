@@ -31,7 +31,7 @@ public class VisionProcessor {
 	double BRIGHTNESS = 1.0;
 	double AREA_MIN = 0.05;
 	double AREA_MAX = 100.0;
-	double TARGET_SCORE = 0.15;
+	double TARGET_SCORE = 0.18;
 
 	// filter criteria
 	NIVision.ParticleFilterCriteria2 criteria[] = new NIVision.ParticleFilterCriteria2[1];

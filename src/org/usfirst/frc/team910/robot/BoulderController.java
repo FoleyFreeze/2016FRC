@@ -10,12 +10,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class BoulderController {
 
 	// shooter positions (high to low)
-	double SHOOTER_MAX_HEIGHT = 830; //against hard stop
-	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 10;// 586;
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 10; 
-	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 110; 
+	static double SHOOTER_MAX_HEIGHT = 830; //against hard stop
+	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 5;// 586;
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 5; 
+	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 30;
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 100; 
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 431; 
-	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 450; 
+	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 448; 
 
 	// gatherer positions (low to high)
 	double GATHER_FULLDOWN_POS = 626; //resting on the ground
@@ -151,6 +152,7 @@ public class BoulderController {
 		// sets shooter layup position and gatherer stow position
 		shooter.gotoPosition(SHOOTER_LAYUP_POS);
 		gatherer.gotoPosition(GATHER_STOW_POS);
+		gatherer.gatherwheel(0);
 	}
 
 	public void stow() {
@@ -162,13 +164,14 @@ public class BoulderController {
 		// shooter arm rotates to fit inside the bumper
 		shooter.gotoPosition(SHOOTER_STOW_POS);
 		gatherer.gotoPosition(GATHER_STOW_POS);
-
+		gatherer.gatherwheel(0);
 	}
 
 	public void farShot() {
 		// sets shooter for far shot and gatherer to stow position
 		shooter.gotoPosition(SHOOTER_FARSHOT_POS);
-		gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
+		gatherer.gotoPosition(GATHER_STOW_POS);
+		gatherer.gatherwheel(0);
 	}
 
 	int gatherState = 1;
@@ -217,7 +220,7 @@ public class BoulderController {
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
 			shooter.gotoPosition(SHOOTER_PRELOAD_POS);
 			shooter.setLoadWheels(1);
-			gatherer.gatherwheel(0);
+			
 			if (Math.abs(shooter.shooterArm.getClosedLoopError()) < 7) {
 				gatherState = 4;
 				time.reset();
@@ -234,6 +237,7 @@ public class BoulderController {
 
 		case 5: // back the ball up slightly
 			shooter.setLoadWheels(-0.7);
+			gatherer.gatherwheel(0);									//Turn off gatherer wheel
 			if (time.get() >= 0.35) {
 				gatherState = 6;
 				time.reset();
@@ -265,6 +269,7 @@ public class BoulderController {
 		// bar
 		shooter.gotoPosition(SHOOTER_LOWBAR_POS);
 		gatherer.gotoPosition(GATHER_LOWBAR_POS);
+		gatherer.gatherwheel(0);
 	}
 
 	public void sallyPort(boolean sallyBtn) {
@@ -275,12 +280,14 @@ public class BoulderController {
 		} else {
 			shooter.gotoPosition(SHOOTER_SALLY_UP);
 		}
+		gatherer.gatherwheel(0);
 	}
 
 	public void portcullis(boolean portcullis) {
 		// move shooter and gatherer to porticullis position
 		shooter.gotoPosition(SHOOTER_PORT_POS);
 		gatherer.gotoPosition(GATHER_PORT_POS);
+		gatherer.gatherwheel(0);
 	}
 
 	public void flippyFloppies(boolean flippyBtn) {
@@ -293,6 +300,7 @@ public class BoulderController {
 		} else {
 			shooter.gotoPosition(SHOOTER_FLIPPY_FLOPPIES_UP);
 		}
+		gatherer.gatherwheel(0);
 	}
 
 	public void drawbridge(boolean drawbridgeBtn) {
@@ -304,6 +312,7 @@ public class BoulderController {
 		} else {
 			shooter.gotoPosition(SHOOTER_DRAWBRIDGE_UP);
 		}
+		gatherer.gatherwheel(0);
 	}
 
 	public double gathertoshoot(double gatherpos) {
@@ -316,8 +325,9 @@ public class BoulderController {
 	}
 
 	public boolean checkForGatherCurrent() {
-		double curr = pdp.getCurrent(IO.GATHERER) - pdp.getCurrent(IO.GATHER_ARM);
-		return curr > 5;
+		//double curr = pdp.getCurrent(IO.GATHERER) - pdp.getCurrent(IO.GATHER_ARM);
+		double curr = pdp.getCurrent(IO.GATHERER);
+		return curr > 7;
 	}
 
 	public boolean checkForLoadCurrent() {

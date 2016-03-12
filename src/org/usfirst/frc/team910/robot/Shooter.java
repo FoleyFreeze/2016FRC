@@ -84,6 +84,8 @@ public class Shooter {
 
 	}
 
+	boolean prevVoltSwitch = false;
+	
 	private void setMotorPosition(double position) {
 		//Sets save points where the shooter should not pass, including positions near the floor and celing, respectively
 		final double CEIL = 1000;
@@ -94,6 +96,19 @@ public class Shooter {
 			shooterArm.set(CEIL);
 		} else {
 			shooterArm.set(position);
+		}
+		
+		//switch the minimum voltage at the top end of the 4bar to allow smoother movement
+		if(shooterArm.getPosition() > BoulderController.SHOOTER_MIN_VOLT_SWITCH){
+			if(!prevVoltSwitch){
+				shooterArm.configNominalOutputVoltage(0.0, 0.0);
+			}
+			prevVoltSwitch = true;
+		} else {
+			if(prevVoltSwitch){
+				shooterArm.configNominalOutputVoltage(3.0, -3.0);
+			}
+			prevVoltSwitch = false;
 		}
 	}
 
@@ -141,7 +156,7 @@ public class Shooter {
 			shooterWheelL.set(FAST);
 			break;
 		}*/
-		shooterWheelL.set(1);
+		shooterWheelL.set(-1);
 		shooterWheelR.set(1);
 	}
 
