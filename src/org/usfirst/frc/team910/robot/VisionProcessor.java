@@ -22,7 +22,7 @@ public class VisionProcessor {
 	// constants
 	NIVision.Range HUE_RANGE = new NIVision.Range(0, 255);
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
-	NIVision.Range VAL_RANGE = new NIVision.Range(40, 75);
+	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150);
 	double VIEW_ANGLE = 60; // msft hd 3000
 	double RES_Y = 480;
 	double RES_X = 640;
@@ -57,7 +57,7 @@ public class VisionProcessor {
 		criteria[0] = new NIVision.ParticleFilterCriteria2(NIVision.MeasurementType.MT_AREA_BY_IMAGE_AREA, AREA_MIN,
 				AREA_MAX, 0, 0);
 
-		session = NIVision.IMAQdxOpenCamera("cam0", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+		session = NIVision.IMAQdxOpenCamera("cam1", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
 
 		// configure settings
 		NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::WhiteBalance::Mode", "Manual");
@@ -73,13 +73,17 @@ public class VisionProcessor {
 		val = minv + (long) (((double) (maxv - minv)) * (((double) BRIGHTNESS) / 100.0));
 		NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Brightness::Value", val);
 
+		//should be 640x480 at 30fps
+		NIVision.IMAQdxSetAttributeU32(session, "AcquisitionAttributes::VideoMode", 48);
+		
 		NIVision.IMAQdxConfigureGrab(session);
 		NIVision.IMAQdxStartAcquisition(session);
 	}
 
 	public void disabled() {
-		NIVision.IMAQdxGrab(session, frame, 1);
-		CameraServer.getInstance().setImage(frame);
+		//NIVision.IMAQdxGrab(session, frame, 1);
+		//CameraServer.getInstance().setImage(frame);
+		//run();
 	}
 
 	public void run() {
@@ -223,7 +227,10 @@ public class VisionProcessor {
 		if(goodTarget){
 			double center = bestRect.left + (bestRect.width/2);
 			double DDistance = center - (RES_X/2);
-			double angle = DDistance * VIEW_ANGLE/2;
+			double angle = DDistance / RES_X * VIEW_ANGLE;
+			SmartDashboard.putNumber("targetCenter",center);
+			SmartDashboard.putNumber("targetDist",DDistance);
+			SmartDashboard.putNumber("camAngle",angle);
 			
 			return angle;
 		} else {

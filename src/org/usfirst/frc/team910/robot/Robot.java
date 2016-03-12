@@ -40,12 +40,11 @@ public class Robot extends IterativeRobot {
 	Auton auton;
 	
 	PowerDistributionPanel pdp;
+	
+	VisionProcessor vp = new VisionProcessor();
 
 	public void robotInit() {
-		chooser = new SendableChooser();
-		chooser.addDefault("Default Auto", defaultAuto);
-		chooser.addObject("My Auto", customAuto);
-		SmartDashboard.putData("Auto choices", chooser);
+		
 
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 		pdp = new PowerDistributionPanel();
@@ -67,8 +66,18 @@ public class Robot extends IterativeRobot {
 		// CameraServer.getInstance().startAutomaticCapture("cam0");
 		time.start();
 
-		auton = new Auton(navX, drive);
 		
+		
+		//init the vision codes
+		vp.setup();
+		
+		//setup the autons
+		auton = new Auton(navX, drive, vp, BC);
+		
+		auton.chooser = new SendableChooser();
+		auton.chooser.addDefault("Default Auto", auton.defaultAuto);
+		auton.chooser.addObject("My Auto", auton.crossCamShootAuto);
+		SmartDashboard.putData("Auto choices", auton.chooser);
 		
 	}
 
@@ -77,11 +86,7 @@ public class Robot extends IterativeRobot {
 	 * 
 	 */
 
-	final String defaultAuto = "Default";
-	final String customAuto = "My Auto";
-	String autoSelected;
-	SendableChooser chooser;
-	int autonstate = 0;
+	
 
 	public void autonomousPeriodic() {
 		// Drive over defenses
@@ -122,20 +127,7 @@ public class Robot extends IterativeRobot {
 		 * }
 		 */
 
-		autoSelected = (String) chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
-		System.out.println("Auto selected: " + autoSelected);
-
-		switch (autoSelected) {
-		case defaultAuto:
-			auton.defaultAuto();
-			break;
-
-		case customAuto:
-			// auton.customAuto();
-			break;
-		}
+		auton.runAuto();
 
 	}
 
@@ -152,12 +144,14 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
 		SmartDashboard.putNumber("gather pot",BC.gatherer.gatherArm.getPosition());
-		SmartDashboard.putString("Auto", (String) chooser.getSelected());
+		SmartDashboard.putString("Auto", (String) auton.chooser.getSelected());
 		SmartDashboard.putNumber("shooter pot",BC.shooter.shooterArm.getPosition());
 		SmartDashboard.putNumber("shooter CLE", BC.shooter.shooterArm.getClosedLoopError());
 		
 		SmartDashboard.putNumber("gather CLE",BC.gatherer.gatherArm.getClosedLoopError());
 		SmartDashboard.putNumber("gather setpt", BC.gatherer.gatherArm.getSetpoint());
+		
+		vp.disabled();
 	}
 
 	/**
@@ -168,7 +162,10 @@ public class Robot extends IterativeRobot {
 	boolean firstTime = true;
 	boolean capCam = false;
 	Timer time = new Timer();
-
+	
+	int cameraState = 0;
+	double cameraAngle = 0;
+	
 	public void teleopPeriodic() {
 		/* Controls all teleop operations, including the automatic gatherer and shooter positions,
 		 * manual gathering and shooting, and manual movement 
@@ -236,9 +233,30 @@ public class Robot extends IterativeRobot {
 		int angle = WASDToAngle(driveBoard.getRawButton(IO.WASD_W), driveBoard.getRawButton(IO.WASD_A),
 				driveBoard.getRawButton(IO.WASD_S), driveBoard.getRawButton(IO.WASD_D));
 
-		drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(),
-				rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE), rJoy.getThrottle());
-
+		//auto camera aim
+		if(lJoy.getRawButton(IO.AIM_CAMERA)){
+			switch(cameraState){
+			case 0:
+				vp.run();
+				//keep trying until we get a good image
+				if(vp.goodTarget){
+					cameraAngle = vp.getAngle() + navX.getYaw();
+					cameraState = 1;
+				}
+				break;
+			case 1:
+				drive.shooterAlign(cameraAngle, navX.getYaw());
+				SmartDashboard.putNumber("cameraAngle", cameraAngle);
+				SmartDashboard.putBoolean("goodTarget", vp.goodTarget);
+				break;
+			}
+			
+		} else { //if camera is not auto aiming then allow driving 
+			drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(),
+					rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE), rJoy.getThrottle());
+			cameraState = 0;
+		}
+		
 		if (rJoy.getRawButton(IO.ZERO_YAW)) {
 			navX.zeroYaw();
 		}

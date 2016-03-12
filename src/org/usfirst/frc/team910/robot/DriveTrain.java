@@ -328,7 +328,7 @@ public class DriveTrain {
 		// Moves shooter to the camera's position
 		double diff;
 
-		diff = botAngle - cameraAngle;
+		diff = cameraAngle - botAngle;
 
 		if (Math.abs(diff) > 360) {
 			if (diff > 0)
@@ -345,8 +345,14 @@ public class DriveTrain {
 
 		double slowPower;
 
-		slowPower = diff / 45;
+		slowPower = diff * 0.05;
 
+		if(slowPower > 0.25){
+			slowPower = 0.25;
+		} else if(slowPower < -0.25){
+			slowPower = -0.25;
+		}
+		
 		tankDrive(slowPower, -slowPower);
 
 	}
