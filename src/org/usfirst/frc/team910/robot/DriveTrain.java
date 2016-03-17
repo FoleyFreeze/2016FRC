@@ -134,7 +134,7 @@ public class DriveTrain {
 			gooddiff = currentdiff - intdiff;
 			SmartDashboard.putNumber("good diff", gooddiff);
 
-			adj = gooddiff * .25;
+			adj = gooddiff * .25; //Drive Straight P value; applying full power after 4 inches. pretty agressive
 
 			double lnew = lpower - adj;
 			double rnew = lpower + adj;
@@ -292,7 +292,7 @@ public class DriveTrain {
 		} else if (diff < -turnAngle) {
 			tankDrive(power, -power);
 		} else {
-			adj = diff * .02;
+			adj = diff * .02; //compass drive P value (for driving straight) pretty low, but only increase if necessary
 			SmartDashboard.putNumber("adjustment", adj);
 
 			// power = power * inverse;
@@ -345,9 +345,9 @@ public class DriveTrain {
 
 		double slowPower;
 
-		slowPower = diff * 0.15;
+		slowPower = diff * 0.15; //align to goal (vision) P value; could be increased by .05 or so
 
-		if(slowPower > 0.35){
+		if(slowPower > 0.35){  //max power levels, consider increasing if no movement at large angles
 			slowPower = 0.35;
 		} else if(slowPower < -0.35){
 			slowPower = -0.35;
