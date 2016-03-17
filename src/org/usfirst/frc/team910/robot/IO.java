@@ -31,31 +31,32 @@ public class IO {
 
 	public static final int MAN_AUTO_SW = 1;
 	
-	public static final int JOG_SHOOTER_UP = 4 ;
-	public static final int JOG_SHOOTER_DOWN = 5;
-	public static final int LOWBAR = 13;
-	public static final int PORT = 14;
-	public static final int SALLYPORT = 15;
-	public static final int FLIPPY_DE_LOS_FLOPPIES = 16;
-	public static final int DRAWBRIDGE = 17;
-	public static final int LAYUP = 2;
-	public static final int STOW = 7;
+	public static final int JOG_SHOOTER_UP = 15 ;
+	public static final int JOG_SHOOTER_DOWN = 14;
+	public static final int LOWBAR = 6;
+	public static final int PORT = 9;
+	public static final int SALLYPORT = 11;
+	public static final int FLIPPY_DE_LOS_FLOPPIES = 8;
+	public static final int DRAWBRIDGE = 7;
+	public static final int LAYUP = 4;
+	public static final int STOW = 2;
 	public static final int FAR_SHOT = 3;
-	public static final int GATHER = 6;
-	public static final int PRIME = 5;
-	public static final int FIRE = 4;
-	public static final int WASD_W = 10;
-	public static final int WASD_A = 9;
-	public static final int WASD_S = 11;
-	public static final int WASD_D = 12;
-
+	public static final int GATHER = 5;
+	public static final int PRIME = 13;
+	public static final int FIRE = 12;
+	public static final int WASD_W = 21;
+	public static final int WASD_A = 20;
+	public static final int WASD_S = 19;
+	public static final int WASD_D = 18;
+	public static final int FLIP_CONTROLS = 17;
+	
 	// l-joy
-	public static final int FLIP_CONTROLS = 12;
-	public static final int AIM_CAMERA = 7;
+
 	
 	// r-joy
 	public static final int COMPASS_POWER_THROTTLE = 2;
 	public static final int ZERO_YAW = 3;
+	public static final int AIM_CAMERA = 2;
 
 	// drivetrain calibrations
 	public static final double[] COMPASS_ANGLE = { 15, 15, 30, 40, 40 };

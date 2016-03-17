@@ -41,8 +41,9 @@ public class Robot extends IterativeRobot {
 	
 	PowerDistributionPanel pdp;
 	
-	VisionProcessor vp = new VisionProcessor();
-
+	static VisionProcessor vp = new VisionProcessor();
+	boolean visionWorking = false;
+	
 	public void robotInit() {
 		
 
@@ -69,14 +70,21 @@ public class Robot extends IterativeRobot {
 		
 		
 		//init the vision codes
-		vp.setup();
+		try{
+			vp.setup();
+			visionWorking = true;
+		} catch (Exception e){
+			visionWorking = false;
+		}
+		SmartDashboard.putBoolean("visionStatus", visionWorking);
 		
 		//setup the autons
-		auton = new Auton(navX, drive, vp, BC);
+		auton = new Auton(navX, drive, BC, visionWorking);
 		
 		auton.chooser = new SendableChooser();
-		auton.chooser.addDefault("Default Auto", auton.defaultAuto);
-		auton.chooser.addObject("My Auto", auton.crossCamShootAuto);
+		auton.chooser.addDefault("DoNothing Auto", auton.defaultAuto);
+		auton.chooser.addObject("CrossCamShootAuto", auton.crossCamShootAuto);
+		auton.chooser.addObject("JustDriveAuto", auton.justDriveAuto);
 		SmartDashboard.putData("Auto choices", auton.chooser);
 		
 	}
@@ -173,13 +181,14 @@ public class Robot extends IterativeRobot {
 		//BetterCameraServer.start();
 
 		// this means on = auto, off = manual. Add ! before driveBoard to flip
-		if (driveBoard.getRawButton(IO.MAN_AUTO_SW)) {
+		boolean automaticMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
+		if (automaticMode) {
 
-			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
+			//if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
-				BC.gatherer.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
-				BC.shooter.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
-			}
+				BC.gatherer.autoAndback(automaticMode);
+				BC.shooter.autoAndback(automaticMode);
+			//}
 			
 			BC.runBC(driveBoard);
 			/*BC.runBC(driveBoard.getRawButton(IO.LAYUP), driveBoard.getRawButton(IO.STOW),
@@ -194,19 +203,19 @@ public class Robot extends IterativeRobot {
 		}
 
 		else {
-			if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
+			//if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
-				BC.gatherer.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
-				BC.shooter.autoAndback(driveBoard.getRawButton(IO.MAN_AUTO_SW));
+				BC.gatherer.autoAndback(automaticMode);
+				BC.shooter.autoAndback(automaticMode);
 				BC.gatherState = 1;
 				BC.button = -1;
-			}
+			//}
 			// call manual position functions
 			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5, GamePad.getRawButton(1),GamePad.getRawButton(2));
 			// BC.gatherer.gatherwheel(GamePad.getRawAxis(5));
 			BC.shooter.manualShooter(-GamePad.getRawAxis(5) * 1, GamePad.getRawButton(5), GamePad.getRawAxis(3) - GamePad.getRawAxis(2));
 		}
-		previousMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
+		previousMode = automaticMode;
 
 		boolean flipControls = rJoy.getRawButton(IO.FLIP_CONTROLS);
 
@@ -234,7 +243,7 @@ public class Robot extends IterativeRobot {
 				driveBoard.getRawButton(IO.WASD_S), driveBoard.getRawButton(IO.WASD_D));
 
 		//auto camera aim
-		if(lJoy.getRawButton(IO.AIM_CAMERA)){
+		if(rJoy.getRawButton(IO.AIM_CAMERA) && navX.isConnected()){
 			switch(cameraState){
 			case 0:
 				vp.run();
@@ -268,7 +277,7 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
-		SmartDashboard.putNumber("Distance", dSensor.getVoltage());
+		//SmartDashboard.putNumber("Distance", dSensor.getVoltage());
 		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
 		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());

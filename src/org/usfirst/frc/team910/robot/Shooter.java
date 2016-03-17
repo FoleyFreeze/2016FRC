@@ -62,11 +62,11 @@ public class Shooter {
 		
 		shooterArm.changeControlMode(TalonControlMode.Position);
 		//shooterArm.setProfile(0);
-		shooterArm.setPID(10, 0, 0);
+		shooterArm.setPID(8, 0, 0);
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
 		shooterArm.setAllowableClosedLoopErr(5);
-		shooterArm.configNominalOutputVoltage(3.0, -3.0);
+		shooterArm.configNominalOutputVoltage(1.5, -1.5);
 		autoAndback(false);
 	}
 
@@ -88,7 +88,7 @@ public class Shooter {
 	
 	private void setMotorPosition(double position) {
 		//Sets save points where the shooter should not pass, including positions near the floor and celing, respectively
-		final double CEIL = 1000;
+		final double CEIL = BoulderController.SHOOTER_MAX_HEIGHT;
 		final double FLOOR = 0;
 		if (position < FLOOR) {
 			shooterArm.set(FLOOR);

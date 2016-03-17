@@ -11,33 +11,33 @@ public class BoulderController {
 
 	// shooter positions (high to low)
 	static double SHOOTER_MAX_HEIGHT = 830; //against hard stop
-	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 5;// 586;
+	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 1;// 586;
 	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 5; 
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 30;
-	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 100; 
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 85; 
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 431; 
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 448; 
 
 	// gatherer positions (low to high)
 	double GATHER_FULLDOWN_POS = 626; //resting on the ground
 	double GATHER_LOAD_SHOOTER_POS = GATHER_FULLDOWN_POS + 15;
-	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 80;
+	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 86;
 	double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 271;
 	
 	// defense positions
-	double SHOOTER_LOWBAR_POS = 0;
+	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 470;
 	double GATHER_LOWBAR_POS = GATHER_FULLDOWN_POS;
-	double SHOOTER_PORT_POS = 0;
-	double GATHER_PORT_POS = 0;
-	double SHOOTER_SALLY_UP = 0;
-	double SHOOTER_SALLY_DOWN = 0;
-	double GATHER_SALLY_POS = 0;
-	double GATHER_FLIPPY_FLOPPIES_POS = 0;
-	double SHOOTER_FLIPPY_FLOPPIES_UP = 0;
-	double SHOOTER_FLIPPY_FLOPPIES_DOWN = 0;
-	double GATHER_DRAWBRIDGE_POS = 0;
-	double SHOOTER_DRAWBRIDGE_DOWN = 0;
-	double SHOOTER_DRAWBRIDGE_UP = 0;
+	double SHOOTER_PORT_POS = SHOOTER_LAYUP_POS;
+	double GATHER_PORT_POS = GATHER_FULLDOWN_POS;
+	double SHOOTER_SALLY_UP = SHOOTER_LAYUP_POS;
+	double SHOOTER_SALLY_DOWN = SHOOTER_LAYUP_POS;
+	double GATHER_SALLY_POS = GATHER_FULLDOWN_POS;
+	double GATHER_FLIPPY_FLOPPIES_POS = GATHER_FULLDOWN_POS;
+	double SHOOTER_FLIPPY_FLOPPIES_UP = SHOOTER_LAYUP_POS;
+	double SHOOTER_FLIPPY_FLOPPIES_DOWN = SHOOTER_LAYUP_POS;
+	double GATHER_DRAWBRIDGE_POS = GATHER_FULLDOWN_POS;
+	double SHOOTER_DRAWBRIDGE_DOWN = SHOOTER_LAYUP_POS;
+	double SHOOTER_DRAWBRIDGE_UP = SHOOTER_LAYUP_POS;
 
 	// interference positions
 	double GATHER_HIGH = GATHER_STOW_POS + 10;
@@ -211,7 +211,7 @@ public class BoulderController {
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
 			gatherer.gatherwheel(-1);
 			if (Math.abs(gatherer.gatherArm.getClosedLoopError()) < 3) {
-				gatherer.gatherArm.configPeakOutputVoltage(7.0, -1.0);
+				gatherer.gatherArm.configPeakOutputVoltage(7.0, -3.0);
 				gatherState = 3;
 				time.reset();
 			}
@@ -238,7 +238,7 @@ public class BoulderController {
 		case 5: // back the ball up slightly
 			shooter.setLoadWheels(-0.7);
 			gatherer.gatherwheel(0);									//Turn off gatherer wheel
-			if (time.get() >= 0.35) {
+			if (time.get() >= 0.42) {//was .35
 				gatherState = 6;
 				time.reset();
 			}

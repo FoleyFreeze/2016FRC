@@ -345,12 +345,12 @@ public class DriveTrain {
 
 		double slowPower;
 
-		slowPower = diff * 0.05;
+		slowPower = diff * 0.15;
 
-		if(slowPower > 0.25){
-			slowPower = 0.25;
-		} else if(slowPower < -0.25){
-			slowPower = -0.25;
+		if(slowPower > 0.35){
+			slowPower = 0.35;
+		} else if(slowPower < -0.35){
+			slowPower = -0.35;
 		}
 		
 		tankDrive(slowPower, -slowPower);

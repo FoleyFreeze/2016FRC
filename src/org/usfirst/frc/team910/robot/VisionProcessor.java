@@ -7,6 +7,7 @@ import com.ni.vision.NIVision.ImageType;
 import com.ni.vision.NIVision.MeasurementType;
 import com.ni.vision.NIVision.Rect;
 import com.ni.vision.NIVision.ShapeMode;
+import com.ni.vision.VisionException;
 
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Timer;
@@ -15,7 +16,7 @@ import edu.wpi.first.wpilibj.vision.USBCamera;
 
 public class VisionProcessor {
 	int session;
-	Image frame;
+	Image frame1, frame2;
 	Image binaryFrame;
 	Timer time;
 
@@ -45,11 +46,12 @@ public class VisionProcessor {
 	VisionProcessor() {
 
 	}
-
+	
 	public void setup() {
-		frame = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
+		frame1 = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
+		frame2 = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
 		binaryFrame = NIVision.imaqCreateImage(ImageType.IMAGE_U8, 0);
-		Timer time = new Timer();
+		time = new Timer();
 		time.start();
 		time.reset();
 
@@ -73,7 +75,7 @@ public class VisionProcessor {
 		val = minv + (long) (((double) (maxv - minv)) * (((double) BRIGHTNESS) / 100.0));
 		NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Brightness::Value", val);
 
-		//should be 640x480 at 30fps
+		//48 should be 640x480 at 30fps
 		NIVision.IMAQdxSetAttributeU32(session, "AcquisitionAttributes::VideoMode", 48);
 		
 		NIVision.IMAQdxConfigureGrab(session);
@@ -86,90 +88,107 @@ public class VisionProcessor {
 		//run();
 	}
 
+	int buffid = 1;
+	boolean switchFrames = false;
 	public void run() {
-		NIVision.IMAQdxGrab(session, frame, 1);
+		if(time.get() > 0.2){
+			time.reset();
 
-		NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, HUE_RANGE, SAT_RANGE, VAL_RANGE);
-
-		// total number of particles
-		int numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
-		SmartDashboard.putNumber("Masked particles", numParticles);
-
-		// CameraServer.getInstance().setImage(binaryFrame);
-
-		// filter out small particles
-		int imaqError = NIVision.imaqParticleFilter4(binaryFrame, binaryFrame, criteria, filterOptions, null);
-		SmartDashboard.putNumber("error", imaqError);
-
-		// Send particle count after filtering to dash board
-		numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
-		SmartDashboard.putNumber("Filtered particles", numParticles);
-
-		// search the targets for the best one, then see if it is good enough
-		double smallestScore = 999;
-		int bestParticle = 0;
-		if (numParticles < 20 && numParticles > 0) {
-			for (int i = 0; i < numParticles; i++) {
-				double score = scoreParticle(i);
-				if (score < smallestScore) {
-					bestParticle = i;
-					smallestScore = score;
+			NIVision.Image frame;
+			if(switchFrames){
+				frame = frame1;
+				switchFrames = false;
+			} else {
+				frame = frame2;
+				switchFrames = true;
+			}
+		
+			NIVision.IMAQdxGrab(session, frame, buffid);//used to be 1, but that crashes in auton
+			
+						
+			NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, HUE_RANGE, SAT_RANGE, VAL_RANGE);
+	
+			// total number of particles
+			int numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
+			SmartDashboard.putNumber("Masked particles", numParticles);
+	
+			// CameraServer.getInstance().setImage(binaryFrame);
+	
+			// filter out small particles
+			int imaqError = NIVision.imaqParticleFilter4(binaryFrame, binaryFrame, criteria, filterOptions, null);
+			SmartDashboard.putNumber("error", imaqError);
+	
+			// Send particle count after filtering to dash board
+			numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
+			SmartDashboard.putNumber("Filtered particles", numParticles);
+	
+			// search the targets for the best one, then see if it is good enough
+			double smallestScore = 999;
+			int bestParticle = 0;
+			if (numParticles < 20 && numParticles > 0) {
+				for (int i = 0; i < numParticles; i++) {
+					double score = scoreParticle(i, frame);
+					if (score < smallestScore) {
+						bestParticle = i;
+						smallestScore = score;
+					}
 				}
 			}
-		}
-
-		// display best particle data
-		if (smallestScore < TARGET_SCORE) {
-			double area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_AREA);
-
-			double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
-			double cvh_area_ratio = area / cvh_area;
-
-			double perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_PERIMETER);
-			double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
-			double perimeter_ratio = perimeter / cvh_perimeter;
-
-			double com_x = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
-			double com_y = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
-			double top = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
-			double left = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
-			double width = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
-			double height = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
-					NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
-			double com_x_ratio = (com_x - left) / width;
-			double com_y_ratio = (com_y - top) / height;
-
-			SmartDashboard.putNumber("comX", com_x_ratio);
-			SmartDashboard.putNumber("comY", com_y_ratio);
-			SmartDashboard.putNumber("cvhAreaRatio", cvh_area_ratio);
-			SmartDashboard.putNumber("periRatio", perimeter_ratio);
-
-			Rect rect = new Rect((int) top, (int) left, (int) height, (int) width);
-			NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT,
-					(float) 0xFFFFFF);
+	
+			// display best particle data
+			if (smallestScore < TARGET_SCORE) {
+				double area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_AREA);
+	
+				double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
+				double cvh_area_ratio = area / cvh_area;
+	
+				double perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_PERIMETER);
+				double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
+				double perimeter_ratio = perimeter / cvh_perimeter;
+	
+				double com_x = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
+				double com_y = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
+				double top = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
+				double left = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
+				double width = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
+				double height = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+						NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
+				double com_x_ratio = (com_x - left) / width;
+				double com_y_ratio = (com_y - top) / height;
+	
+				SmartDashboard.putNumber("comX", com_x_ratio);
+				SmartDashboard.putNumber("comY", com_y_ratio);
+				SmartDashboard.putNumber("cvhAreaRatio", cvh_area_ratio);
+				SmartDashboard.putNumber("periRatio", perimeter_ratio);
+	
+				Rect rect = new Rect((int) top, (int) left, (int) height, (int) width);
+				NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT,
+						(float) 0xFFFFFF);
+				
+				bestRect = rect;
+				bestScore = smallestScore;
+				goodTarget = true;
+			} else {
+				goodTarget = false;
+			}
 			
-			bestRect = rect;
-			bestScore = smallestScore;
-			goodTarget = true;
-		} else {
-			goodTarget = false;
+			SmartDashboard.putNumber("bestScore", smallestScore);
+			// SmartDashboard.putNumber("cycleTime", time.get());
+			// time.reset();
+	
+			// draw image to driver station
+			CameraServer.getInstance().setImage(frame);
+			// CameraServer.getInstance().setImage(binaryFrame);
+			//frame.free();
 		}
-		
-		SmartDashboard.putNumber("bestScore", smallestScore);
-		// SmartDashboard.putNumber("cycleTime", time.get());
-		// time.reset();
-
-		// draw image to driver station
-		CameraServer.getInstance().setImage(frame);
-		// CameraServer.getInstance().setImage(binaryFrame);
 	}
 
 	// score metrics
@@ -181,7 +200,7 @@ public class VisionProcessor {
 	// for debugging
 	boolean DRAW_RECT = true;
 
-	public double scoreParticle(int particleIndex) {
+	public double scoreParticle(int particleIndex, NIVision.Image frame) {
 		double area = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_AREA);
 
 		double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,

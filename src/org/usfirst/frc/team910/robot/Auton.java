@@ -9,20 +9,21 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Auton {
 	AHRS navX;
 	DriveTrain drive;
-	VisionProcessor vp;
 	BoulderController bc;
+	boolean visionWorking = false;
 	
 	
 	final String defaultAuto = "Do Nothing";
 	final String crossCamShootAuto = "Cross, Camera, Shoot";
+	final String justDriveAuto = "Just Drive Fwd";
 	String autoSelected;
 	SendableChooser chooser;
 
-	public Auton(AHRS navX, DriveTrain drive, VisionProcessor vp, BoulderController bc) {
+	public Auton(AHRS navX, DriveTrain drive, BoulderController bc, boolean visionWorking) {
 		this.navX = navX;
 		this.drive = drive;
-		this.vp = vp;
 		this.bc = bc;
+		this.visionWorking = visionWorking;
 	}
 
 	Timer time = new Timer();
@@ -48,7 +49,7 @@ public class Auton {
 		case 1:
 			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
 			//drive for 7ft or 3 seconds
-			if (time.get() >= 3 || drive.getDistance() > 84) {
+			if (time.get() >= 3 || drive.getDistance() > 160) {
 				autonstate = 2;
 			}
 			break;
@@ -56,14 +57,18 @@ public class Auton {
 		case 2:
 			drive.tankDrive(0.0, 0.0);
 			time.reset();
-			autonstate = 3;
+			if(visionWorking){
+				autonstate = 3;
+			} else {
+				autonstate = 7;
+			}
 			break;
 			
 		case 3://look for camera target
-			vp.run();
+			Robot.vp.run();
 			//keep trying until we get a good image
-			if(vp.goodTarget){
-				cameraAngle = vp.getAngle() + navX.getYaw();
+			if(Robot.vp.goodTarget){
+				cameraAngle = Robot.vp.getAngle() + navX.getYaw();
 				autonstate = 4;
 				time.reset();
 			}
@@ -72,7 +77,7 @@ public class Auton {
 		case 4://once target is found, turn to face it
 			drive.shooterAlign(cameraAngle, navX.getYaw());
 			SmartDashboard.putNumber("cameraAngle", cameraAngle);
-			SmartDashboard.putBoolean("goodTarget", vp.goodTarget);
+			SmartDashboard.putBoolean("goodTarget", Robot.vp.goodTarget);
 			if(time.get() > 2){
 				autonstate = 5;
 				time.reset();
@@ -102,6 +107,33 @@ public class Auton {
 		}
 	}
 	
+	public void justDriveAuto(){
+		// When auton begins, the robot will use Compass Drive to drive over a
+				// defense
+				switch (autonstate) {
+				case 0:
+					time.start();
+					time.reset();
+					navX.zeroYaw();
+					drive.resetEncoders();
+					autonstate = 1;
+					break;
+
+				case 1:
+					drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+					//drive for 7ft or 3 seconds
+					if (time.get() >= 3 || drive.getDistance() > 160) {
+						autonstate = 2;
+					}
+					break;
+
+				case 2:
+					drive.tankDrive(0.0, 0.0);
+					time.reset();
+					break;
+				}
+	}
+	
 	public void runAuto(){
 		autoSelected = (String) chooser.getSelected();
 		// autoSelected = SmartDashboard.getString("Auto Selector",
@@ -115,6 +147,10 @@ public class Auton {
 
 		case crossCamShootAuto:
 			crossCamShootAuto();
+			break;
+		
+		case justDriveAuto:
+			justDriveAuto();
 			break;
 		}
 	}
