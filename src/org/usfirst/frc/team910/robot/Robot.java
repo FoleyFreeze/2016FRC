@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -28,6 +29,9 @@ public class Robot extends IterativeRobot {
 	DriveTrain drive;
 	BoulderController BC;
 
+	Solenoid ringOfFire;
+	Solenoid irSensor;
+	
 	Joystick rJoy;
 	Joystick lJoy;
 	Joystick driveBoard;
@@ -45,7 +49,8 @@ public class Robot extends IterativeRobot {
 	boolean visionWorking = false;
 	
 	public void robotInit() {
-		
+		ringOfFire = new Solenoid(3);
+		irSensor = new Solenoid(4);
 
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 		pdp = new PowerDistributionPanel();
@@ -136,6 +141,8 @@ public class Robot extends IterativeRobot {
 		 */
 
 		auton.runAuto();
+		ringOfFire.set(true);
+		irSensor.set(true);
 
 	}
 
@@ -175,6 +182,9 @@ public class Robot extends IterativeRobot {
 	double cameraAngle = 0;
 	
 	public void teleopPeriodic() {
+
+		ringOfFire.set(true);
+		irSensor.set(true);
 		/* Controls all teleop operations, including the automatic gatherer and shooter positions,
 		 * manual gathering and shooting, and manual movement 
 		 */

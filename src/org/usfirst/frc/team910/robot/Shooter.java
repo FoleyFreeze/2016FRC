@@ -63,6 +63,7 @@ public class Shooter {
 		shooterArm.changeControlMode(TalonControlMode.Position);
 		//shooterArm.setProfile(0);
 		shooterArm.setPID(8, 0, 0);
+		shooterArm.setInverted(true);//flipped for comp bot
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
 		shooterArm.setAllowableClosedLoopErr(5);
@@ -79,7 +80,7 @@ public class Shooter {
 		} else {
 
 			shooterArm.changeControlMode(TalonControlMode.Position);
-
+			shooterArm.setInverted(true); //flipped for comp bot
 		}
 
 	}
@@ -156,7 +157,7 @@ public class Shooter {
 			shooterWheelL.set(FAST);
 			break;
 		}*/
-		shooterWheelL.set(-1);
+		shooterWheelL.set(1);//flipped for comp
 		shooterWheelR.set(1);
 	}
 
@@ -166,8 +167,8 @@ public class Shooter {
 			loadWheelL.set(loadWheelL.getPosition() + FIRE);
 			loadWheelR.set(loadWheelR.getPosition() + FIRE);
 		}*/
-		loadWheelL.set(-1);
-		loadWheelR.set(1);
+		loadWheelL.set(1);//flipped for comp
+		loadWheelR.set(-1);//flipped for comp
 
 	}
 
@@ -176,17 +177,17 @@ public class Shooter {
 		if (YAxisGamepadRight < 0) {
 			YAxisGamepadRight /= 2;
 		}
-		shooterArm.set(YAxisGamepadRight);
-		loadWheelL.set(-LoadWheelAxis);
+		shooterArm.set(YAxisGamepadRight); //flipped for comp bot
+		loadWheelL.set(LoadWheelAxis);//flipped for comp
 
 		if (LoadWheelAxis < 0) {
 			loadWheelR.set(0);
 		} else {
-			loadWheelR.set(LoadWheelAxis);
+			loadWheelR.set(-LoadWheelAxis);//flipped for comp
 		}
 		if (GamepadLBumper) {
 
-			shooterWheelL.set(-1);
+			shooterWheelL.set(1); //flipped for comp
 			shooterWheelR.set(1);
 
 		} else {
@@ -214,12 +215,12 @@ public class Shooter {
 
 	public void setLoadWheels(double speed) {
 		//sets the speed of the load wheels
-		loadWheelL.set(-speed);
+		loadWheelL.set(speed);//flipped for comp
 
 		if (speed < 0) {
 			loadWheelR.set(0);
 		} else {
-			loadWheelR.set(speed);
+			loadWheelR.set(-speed);//flipped for comp
 		}
 	}
 	
