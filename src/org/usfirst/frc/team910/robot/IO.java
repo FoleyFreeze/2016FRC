@@ -9,6 +9,7 @@ public class IO {
 	public static final int LEFT_DRIVE_B_ENCODER = 3;
 	public static final int RIGHT_DRIVE_A_ENCODER = 0;
 	public static final int RIGHT_DRIVE_B_ENCODER = 1;
+	public static final int SHOOTER_BALL_SENSOR = 4;	
 
 	public static final int GATHERER = 4;
 	public static final int GATHER_ARM = 3;
@@ -37,7 +38,8 @@ public class IO {
 	public static final int PORT = 9;
 	public static final int SALLYPORT = 11;
 	public static final int FLIPPY_DE_LOS_FLOPPIES = 8;
-	public static final int DRAWBRIDGE = 7;
+	//public static final int DRAWBRIDGE = 7;
+	public static final int LR_JOG_BTN = 7;
 	public static final int LAYUP = 4;
 	public static final int STOW = 2;
 	public static final int FAR_SHOT = 3;
@@ -51,12 +53,12 @@ public class IO {
 	public static final int FLIP_CONTROLS = 17;
 	
 	// l-joy
-
+	public static final int AIM_CAMERA = 6;
 	
 	// r-joy
 	public static final int COMPASS_POWER_THROTTLE = 2;
 	public static final int ZERO_YAW = 3;
-	public static final int AIM_CAMERA = 2;
+	
 
 	// drivetrain calibrations
 	public static final double[] COMPASS_ANGLE = { 15, 15, 30, 40, 40 };

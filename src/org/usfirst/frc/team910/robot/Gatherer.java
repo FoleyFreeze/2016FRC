@@ -20,7 +20,7 @@ public class Gatherer {
 		autoAndback(false);
 		gatherArm.enableBrakeMode(true);
 		gatherArm.configPeakOutputVoltage(7.0, -3.0);
-		gatherArm.setPID(30, 0.05, 0.0);
+		gatherArm.setPID(20, 0.05, 0.0); //used to be 30 , 0.05
 		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		autoAndback(false);
 	}
@@ -52,6 +52,10 @@ public class Gatherer {
 			gatherArm.set(position);
 		}*/
 		gatherArm.set(position);
+		
+		if(gatherArm.getPosition() > BoulderController.GATHER_STOW_POS){
+			gatherArm.ClearIaccum();
+		}
 	}
 
 	public void aquireShooterPosition(double position) {

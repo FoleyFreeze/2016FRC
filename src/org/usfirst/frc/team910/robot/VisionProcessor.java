@@ -21,7 +21,7 @@ public class VisionProcessor {
 	Timer time;
 
 	// constants
-	NIVision.Range HUE_RANGE = new NIVision.Range(0, 255);
+	NIVision.Range HUE_RANGE = new NIVision.Range(60,140); //for green led
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
 	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150);
 	double VIEW_ANGLE = 60; // msft hd 3000

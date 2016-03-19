@@ -122,7 +122,7 @@ public class Auton {
 				case 1:
 					drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
 					//drive for 7ft or 3 seconds
-					if (time.get() >= 3 || drive.getDistance() > 160) {
+					if (time.get() >= 3.25 || drive.getDistance() > 170) {
 						autonstate = 2;
 					}
 					break;
@@ -135,14 +135,15 @@ public class Auton {
 	}
 	
 	public void runAuto(){
-		autoSelected = (String) chooser.getSelected();
+		//autoSelected = (String) chooser.getSelected();
 		// autoSelected = SmartDashboard.getString("Auto Selector",
 		// defaultAuto);
-		System.out.println("Auto selected: " + autoSelected);
+		//System.out.println("Auto selected: " + autoSelected);
 
 		switch (autoSelected) {
 		case defaultAuto:
-			emptyAuto();
+			//emptyAuto();
+			justDriveAuto(); //comment out if no drive
 			break;
 
 		case crossCamShootAuto:
@@ -150,7 +151,12 @@ public class Auton {
 			break;
 		
 		case justDriveAuto:
-			justDriveAuto();
+			justDriveAuto();//comment out if no drive
+			break;
+			
+		default:
+			//emptyAuto();
+			justDriveAuto();//comment out if no drive
 			break;
 		}
 	}

@@ -15,7 +15,7 @@ public class Shooter {
 
 	double jogoffset = 0;
 
-	double JOGNUMBER = 15;
+	double JOGNUMBER = 5;
 
 	double CLOSESHOT = 1000;
 
@@ -62,8 +62,9 @@ public class Shooter {
 		
 		shooterArm.changeControlMode(TalonControlMode.Position);
 		//shooterArm.setProfile(0);
-		shooterArm.setPID(8, 0, 0);
+		shooterArm.setPID(8, 0, 0);//flipped for comp bot
 		shooterArm.setInverted(true);//flipped for comp bot
+		shooterArm.reverseOutput(true);//flipped for comp bot
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
 		shooterArm.setAllowableClosedLoopErr(5);
@@ -76,11 +77,12 @@ public class Shooter {
 		if (!manualControl) {
 
 			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
+			shooterArm.setInverted(true); //flipped for comp bot
 
 		} else {
 
 			shooterArm.changeControlMode(TalonControlMode.Position);
-			shooterArm.setInverted(true); //flipped for comp bot
+			shooterArm.reverseOutput(true);//flipped for comp bot
 		}
 
 	}
@@ -89,7 +91,7 @@ public class Shooter {
 	
 	private void setMotorPosition(double position) {
 		//Sets save points where the shooter should not pass, including positions near the floor and celing, respectively
-		final double CEIL = BoulderController.SHOOTER_MAX_HEIGHT;
+		final double CEIL = BoulderController.SHOOTER_MAX_HEIGHT + 25;
 		final double FLOOR = 0;
 		if (position < FLOOR) {
 			shooterArm.set(FLOOR);
@@ -178,12 +180,12 @@ public class Shooter {
 			YAxisGamepadRight /= 2;
 		}
 		shooterArm.set(YAxisGamepadRight); //flipped for comp bot
-		loadWheelL.set(LoadWheelAxis);//flipped for comp
+		loadWheelR.set(-LoadWheelAxis);//flipped for comp
 
 		if (LoadWheelAxis < 0) {
-			loadWheelR.set(0);
+			loadWheelL.set(0);
 		} else {
-			loadWheelR.set(-LoadWheelAxis);//flipped for comp
+			loadWheelL.set(LoadWheelAxis);//flipped for comp
 		}
 		if (GamepadLBumper) {
 
@@ -215,12 +217,12 @@ public class Shooter {
 
 	public void setLoadWheels(double speed) {
 		//sets the speed of the load wheels
-		loadWheelL.set(speed);//flipped for comp
+		loadWheelR.set(-speed);//flipped for comp
 
 		if (speed < 0) {
-			loadWheelR.set(0);
+			loadWheelL.set(0);
 		} else {
-			loadWheelR.set(-speed);//flipped for comp
+			loadWheelL.set(speed);//flipped for comp
 		}
 	}
 	

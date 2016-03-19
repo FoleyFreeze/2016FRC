@@ -123,16 +123,16 @@ public class DriveTrain {
 		} else {
 
 			intdiff = intlevalue - intrevalue;
-			SmartDashboard.putNumber("init diff", intdiff);
+			//SmartDashboard.putNumber("init diff", intdiff);
 
 			levalue = lEncoder.getDistance();
 			revalue = rEncoder.getDistance();
 
 			currentdiff = levalue - revalue;
-			SmartDashboard.putNumber("curr diff", currentdiff);
+			//SmartDashboard.putNumber("curr diff", currentdiff);
 
 			gooddiff = currentdiff - intdiff;
-			SmartDashboard.putNumber("good diff", gooddiff);
+			//SmartDashboard.putNumber("good diff", gooddiff);
 
 			adj = gooddiff * .25; //Drive Straight P value; applying full power after 4 inches. pretty agressive
 
@@ -240,11 +240,11 @@ public class DriveTrain {
 		double adj;
 		double inverse = 1;
 
-		SmartDashboard.putNumber("targetAngle", targetAngle);
+		//SmartDashboard.putNumber("targetAngle", targetAngle);
 
 		boolean closeInvert = false;
 
-		if (Math.abs(targetAngle) == 90) {
+		if (Math.abs(targetAngle) != 900) {
 			double targetDiff = Math.abs(currentYAW - targetAngle);
 			if (targetDiff > 180) {
 				targetDiff = -(targetDiff - 360);
@@ -265,7 +265,7 @@ public class DriveTrain {
 
 		diff = currentYAW - targetAngle;
 
-		SmartDashboard.putNumber("preAdjDiff", diff);
+		//SmartDashboard.putNumber("preAdjDiff", diff);
 
 		if (Math.abs(diff) > 360) {
 			if (diff > 0)
@@ -280,28 +280,29 @@ public class DriveTrain {
 			diff = 360 + diff;
 		}
 
-		SmartDashboard.putNumber("adjustedDiff", diff);
-		SmartDashboard.putNumber("power", power);
-		SmartDashboard.putNumber("inverse", inverse);
+		//SmartDashboard.putNumber("adjustedDiff", diff);
+		//SmartDashboard.putNumber("power", power);
+		//SmartDashboard.putNumber("inverse", inverse);
 
 		double turnAngle = IO.lookup(IO.COMPASS_ANGLE, IO.POWER_AXIS, Math.abs(power));
-		SmartDashboard.putNumber("turnAngle", turnAngle);
+		//SmartDashboard.putNumber("turnAngle", turnAngle);
 
 		if (diff > turnAngle) {
 			tankDrive(-power, power);
 		} else if (diff < -turnAngle) {
 			tankDrive(power, -power);
 		} else {
-			adj = diff * .02; //compass drive P value (for driving straight) pretty low, but only increase if necessary
-			SmartDashboard.putNumber("adjustment", adj);
+			adj = diff * .05; // was .02   compass drive P value (for driving straight) pretty low, but only increase if necessary
+			//SmartDashboard.putNumber("adjustment", adj);
 
 			// power = power * inverse;
 			double lnew = power * inverse - adj;
 			double rnew = power * inverse + adj;
 
-			if (Math.abs(lnew) > power) {
-				lnew /= Math.abs(lnew);
-				rnew /= Math.abs(lnew);
+			double max = Math.max(Math.abs(lnew), Math.abs(rnew));
+			if (max > power) {
+				lnew /= max;
+				rnew /= max;
 				lnew *= power;
 				rnew *= power;
 			}

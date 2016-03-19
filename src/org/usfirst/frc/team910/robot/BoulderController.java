@@ -1,5 +1,6 @@
 package org.usfirst.frc.team910.robot;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
@@ -10,22 +11,22 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class BoulderController {
 
 	// shooter positions (high to low)			//commented numbers are prac bot
-	static double SHOOTER_MAX_HEIGHT = 748; //830; //against hard stop
+	static double SHOOTER_MAX_HEIGHT = 751; //830; //against hard stop
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 1;// 586;
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 5; 
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT + 10;  //used to be 0 now its plus, so its a bit scary
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 30;
-	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 85; 
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 45; //85; 
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 431; 
-	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 448; 
+	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 468; //was 448
 
 	// gatherer positions (low to high)
-	double GATHER_FULLDOWN_POS = 248; //626; //resting on the ground
+	static double GATHER_FULLDOWN_POS = 480; //248; //626; //resting on the ground
 	double GATHER_LOAD_SHOOTER_POS = GATHER_FULLDOWN_POS + 15;
 	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 86;
-	double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 271;
+	static double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 271;
 	
 	// defense positions
-	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 470;
+	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; //was 470
 	double GATHER_LOWBAR_POS = GATHER_FULLDOWN_POS;
 	double SHOOTER_PORT_POS = SHOOTER_LAYUP_POS;
 	double GATHER_PORT_POS = GATHER_FULLDOWN_POS;
@@ -44,6 +45,8 @@ public class BoulderController {
 	double GATHER_LOW = GATHER_FULLDOWN_POS;
 	double SHOOTER_HIGH = SHOOTER_PRELOAD_POS + 140;
 	double SHOOTER_LOW = SHOOTER_LOAD_POS;
+	
+	DigitalInput ballSensor;
 
 	Shooter shooter;
 	Gatherer gatherer;
@@ -57,6 +60,7 @@ public class BoulderController {
 		gatherer = new Gatherer();
 		time = new Timer();
 		time.start();
+		ballSensor = new DigitalInput(IO.SHOOTER_BALL_SENSOR);
 	}
 
 	int button = -1;
@@ -77,6 +81,7 @@ public class BoulderController {
 		else if (driverstation.getRawButton(IO.GATHER)){
 			gatherState = 1;
 			button = 3;
+			primeState = 0;
 		} else if (driverstation.getRawButton(IO.LOWBAR)) {
 			button = 7;
 		} else if (driverstation.getRawButton(IO.PORT)) {
@@ -85,8 +90,8 @@ public class BoulderController {
 			button = 4;
 		else if (driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES)) {
 			button = 5;
-		} else if (driverstation.getRawButton(IO.DRAWBRIDGE)) {
-			button = 6;
+		//} else if (driverstation.getRawButton(IO.DRAWBRIDGE)) {
+		//	button = 6;
 		}
 
 		if (button == 0) {
@@ -119,7 +124,7 @@ public class BoulderController {
 			flippyFloppies(driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES));
 			gatherState = 1;
 		} else if (button == 6) {
-			drawbridge(driverstation.getRawButton(IO.DRAWBRIDGE));
+			//drawbridge(driverstation.getRawButton(IO.DRAWBRIDGE));
 			gatherState = 1;
 		} else if (button == 7) {
 			lowBar(driverstation.getRawButton(IO.LOWBAR));
@@ -130,7 +135,7 @@ public class BoulderController {
 		}
 
 		if (driverstation.getRawButton(IO.PRIME)) {
-			shooter.prime();
+			prime();
 		} else {
 			shooter.shooterWheelL.set(0);
 			shooter.shooterWheelR.set(0);
@@ -139,6 +144,7 @@ public class BoulderController {
 		if (driverstation.getRawButton(IO.FIRE)) {
 			prevFire = true;
 			shooter.fire();
+			primeState = 0;
 		}
 		else if(prevFire){
 			prevFire = false;
@@ -230,15 +236,24 @@ public class BoulderController {
 			shooter.gotoPosition(SHOOTER_LOAD_POS);
 			shooter.setLoadWheels(1);
 			if (time.get() >= 2.0 /*|| checkForLoadCurrent()*/) {
-				gatherState = 5;
+				gatherState = 45;
 				time.reset();
 			}
 			break;
+			
+		case 45:
+			shooter.setLoadWheels(-0.4);
+			gatherer.gatherwheel(0);
+			if(time.get() > 0.3){
+				gatherState = 5;
+			}
 
 		case 5: // back the ball up slightly
-			shooter.setLoadWheels(-0.7);
+			//shooter.setLoadWheels(-0.7);
+			shooter.setLoadWheels(-0.4);
 			gatherer.gatherwheel(0);									//Turn off gatherer wheel
-			if (time.get() >= 0.42) {//was .35
+			//if (time.get() >= 0.22) {//was .42
+			if(!ballSensor.get() || time.get() > 0.35){
 				gatherState = 6;
 				time.reset();
 			}
@@ -333,5 +348,46 @@ public class BoulderController {
 	public boolean checkForLoadCurrent() {
 		double curr = pdp.getCurrent(IO.LOAD_WHEEL_L) + pdp.getCurrent(IO.LOAD_WHEEL_R);
 		return curr > 5;
+	}
+	
+	int primeState = 0;
+	
+	public void prime(){
+		/*switch(primeState){
+		case 0:
+			time.reset();
+			primeState = 1;
+			break;
+			
+		case 1:
+			shooter.setLoadWheels(0.5);
+			if(time.get() > 0.3){
+				primeState = 2;
+				time.reset();
+			}
+			break;
+		
+		case 2:
+			//shooter.setLoadWheels(-0.7);
+			shooter.setLoadWheels(-0.4);
+			//if (time.get() >= 0.22) {//was .42
+			if(!ballSensor.get() || time.get() > 2){
+				primeState = 3;
+				time.reset();
+			}
+			break;
+			
+		case 3:
+			shooter.setLoadWheels(0);
+			shooter.prime();
+			primeState = 4;
+			break;
+			
+		case 4:
+			shooter.prime();
+			break;
+		}*/
+		shooter.prime();
+	
 	}
 }

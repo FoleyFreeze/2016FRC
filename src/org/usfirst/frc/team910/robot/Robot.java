@@ -25,7 +25,10 @@ public class Robot extends IterativeRobot {
 	 * used for any initialization code.
 	 */
 	static final boolean TEST = false;
-
+	
+	double JOGNUMBER_DEG = 0.5;
+	double lr_jog_deg = 0;
+	
 	DriveTrain drive;
 	BoulderController BC;
 
@@ -92,6 +95,9 @@ public class Robot extends IterativeRobot {
 		auton.chooser.addObject("JustDriveAuto", auton.justDriveAuto);
 		SmartDashboard.putData("Auto choices", auton.chooser);
 		
+		
+		auton.autoSelected = (String) auton.chooser.getSelected();
+		SmartDashboard.putString("Auto", auton.autoSelected);
 	}
 
 	/**
@@ -140,6 +146,7 @@ public class Robot extends IterativeRobot {
 		 * }
 		 */
 
+		//comment out to disable auton
 		auton.runAuto();
 		ringOfFire.set(true);
 		irSensor.set(true);
@@ -148,25 +155,33 @@ public class Robot extends IterativeRobot {
 
 	// called when disabled
 	public void disabledPeriodic() {
-		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
+		//SmartDashboard.putNumber("navX Pitch", navX.getPitch());
 		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
-		SmartDashboard.putNumber("navX Roll", navX.getRoll());
-		SmartDashboard.putNumber("navX X", navX.getRawGyroX());
-		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
-		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
-		SmartDashboard.putNumber("Distance", dSensor.getVoltage());
-		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
-		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
-		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
+		//SmartDashboard.putNumber("navX Roll", navX.getRoll());
+		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
+		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
+		//SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
+		//SmartDashboard.putNumber("Distance", dSensor.getVoltage());
+		//SmartDashboard.putNumber("accel X", navX.getRawAccelX());
+		//SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
+		//SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
 		SmartDashboard.putNumber("gather pot",BC.gatherer.gatherArm.getPosition());
-		SmartDashboard.putString("Auto", (String) auton.chooser.getSelected());
+		auton.autoSelected = (String) auton.chooser.getSelected();
+		SmartDashboard.putString("Auto", auton.autoSelected);
 		SmartDashboard.putNumber("shooter pot",BC.shooter.shooterArm.getPosition());
 		SmartDashboard.putNumber("shooter CLE", BC.shooter.shooterArm.getClosedLoopError());
 		
 		SmartDashboard.putNumber("gather CLE",BC.gatherer.gatherArm.getClosedLoopError());
 		SmartDashboard.putNumber("gather setpt", BC.gatherer.gatherArm.getSetpoint());
 		
-		vp.disabled();
+		SmartDashboard.putBoolean("ballSensor", BC.ballSensor.get());
+		
+		//vp.disabled();
+		
+		if(lJoy.getRawButton(11)){
+			vp.run();
+		}
+		
 	}
 
 	/**
@@ -227,13 +242,13 @@ public class Robot extends IterativeRobot {
 		}
 		previousMode = automaticMode;
 
-		boolean flipControls = rJoy.getRawButton(IO.FLIP_CONTROLS);
+		boolean flipControls = driveBoard.getRawButton(IO.FLIP_CONTROLS);
 
 		double YAxisLeft = -lJoy.getY();
 		double YAxisRight = -rJoy.getY();
 
-		if (flipControls != prevFlipControls)
-			BetterCameraServer.switchCamera();
+		//if (flipControls != prevFlipControls)
+			//BetterCameraServer.switchCamera();
 
 		if (flipControls) {
 
@@ -246,14 +261,20 @@ public class Robot extends IterativeRobot {
 		}
 		prevFlipControls = flipControls;
 
-		BC.shooter.jog(GamePad.getRawButton(IO.JOG_SHOOTER_UP),
-		 GamePad.getRawButton(IO.JOG_SHOOTER_DOWN));
+		//allow jog up and down
+		if(driveBoard.getRawButton(IO.LR_JOG_BTN)){
+			jog(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
+					driveBoard.getRawButton(IO.JOG_SHOOTER_DOWN));
+		} else {
+			BC.shooter.jog(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
+						driveBoard.getRawButton(IO.JOG_SHOOTER_DOWN));
+		}
 
 		int angle = WASDToAngle(driveBoard.getRawButton(IO.WASD_W), driveBoard.getRawButton(IO.WASD_A),
 				driveBoard.getRawButton(IO.WASD_S), driveBoard.getRawButton(IO.WASD_D));
 
 		//auto camera aim
-		if(rJoy.getRawButton(IO.AIM_CAMERA) && navX.isConnected()){
+		if(lJoy.getRawButton(IO.AIM_CAMERA) && navX.isConnected()){
 			switch(cameraState){
 			case 0:
 				vp.run();
@@ -264,8 +285,8 @@ public class Robot extends IterativeRobot {
 				}
 				break;
 			case 1:
-				drive.shooterAlign(cameraAngle, navX.getYaw());
-				SmartDashboard.putNumber("cameraAngle", cameraAngle);
+				drive.shooterAlign(cameraAngle + lr_jog_deg, navX.getYaw());
+				SmartDashboard.putNumber("cameraAngle", cameraAngle - navX.getYaw());
 				SmartDashboard.putBoolean("goodTarget", vp.goodTarget);
 				break;
 			}
@@ -281,16 +302,16 @@ public class Robot extends IterativeRobot {
 		}
 
 		SmartDashboard.putNumber("wasd angle", angle);
-		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
+		//SmartDashboard.putNumber("navX Pitch", navX.getPitch());
 		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
-		SmartDashboard.putNumber("navX Roll", navX.getRoll());
-		SmartDashboard.putNumber("navX X", navX.getRawGyroX());
-		SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
-		SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
+		//SmartDashboard.putNumber("navX Roll", navX.getRoll());
+		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
+		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
+		//SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
 		//SmartDashboard.putNumber("Distance", dSensor.getVoltage());
-		SmartDashboard.putNumber("accel X", navX.getRawAccelX());
-		SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
-		SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
+		//SmartDashboard.putNumber("accel X", navX.getRawAccelX());
+		//SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
+		//SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
 		// SmartDashboard.putNumber("avgAccel", getAvgAccel());
 
 		SmartDashboard.putNumber("pdp 3 g-arm", pdp.getCurrent(3));
@@ -305,6 +326,8 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("gather pot",BC.gatherer.gatherArm.getPosition());
 		SmartDashboard.putNumber("gather CLE",BC.gatherer.gatherArm.getClosedLoopError());
 		SmartDashboard.putNumber("gather setpt", BC.gatherer.gatherArm.getSetpoint());
+		
+		SmartDashboard.putBoolean("ballSensor", BC.ballSensor.get());
 		
 		SmartDashboard.putNumber("cycle time", time.get());
 		time.reset();
@@ -359,5 +382,22 @@ public class Robot extends IterativeRobot {
 			accel += accelArray[i];
 		}
 		return accel / accelArray.length;
+	}
+	
+	boolean prevJogUp = false;
+	boolean prevJogDown = false;
+	
+	public void jog(boolean jogUp, boolean jogDown) {
+		// Adds a static amount to the shooter's position, up or down
+		if (jogUp && !prevJogUp) {
+
+			lr_jog_deg += JOGNUMBER_DEG;
+		} else if (jogDown && !prevJogDown) {
+
+			lr_jog_deg -= JOGNUMBER_DEG;
+		}
+
+		prevJogUp = jogUp;
+		prevJogDown = jogDown;
 	}
 }
