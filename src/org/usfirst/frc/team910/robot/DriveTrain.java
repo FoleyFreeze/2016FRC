@@ -232,12 +232,33 @@ public class DriveTrain {
 
 	}
 
-	public void compassDrive(double power, double currentYAW, boolean firstYAW, double targetAngle) {
+	double cmpsPrevPower = 0;
+	
+	public void compassDrive(double actualPower, double currentYAW, boolean firstYAW, double targetAngle) {
 		/*
 		 * Compass drive uses field-oriented drive to drive in straight lines
 		 * using the "WASD" buttons pushing the left button causes the robot to drive left, the right to move right, and so on.
 		 * Each button is set to an angle that the robot turns. 
 		 */
+		
+		//double actualPower = 0;
+		/*if (power > 0) {// for positive powers
+			if (power > prevL + MAX_RAMP_RATE) {// if increasing power,
+													// slowly ramp
+				actualPower = prevL + MAX_RAMP_RATE;
+			} else {// if decreasing power, just do it
+				actualPower = power;
+			}
+		} else {// for negative powers
+			if (power < prevL - MAX_RAMP_RATE) {// if increasing negative
+													// power, slowly ramp
+				actualPower = prevL - MAX_RAMP_RATE;
+			} else {// if decreasing power, just do it
+				actualPower = power;
+			}
+		}*/
+		
+		
 		double diff;
 		double adj;
 		double inverse = 1;
@@ -262,8 +283,8 @@ public class DriveTrain {
 			inverse = 1;
 		}
 
-		if (Math.abs(power) > 1)
-			power = power / Math.abs(power);
+		if (Math.abs(actualPower) > 1)
+			actualPower = actualPower / Math.abs(actualPower);
 
 		diff = currentYAW - targetAngle;
 
@@ -286,27 +307,27 @@ public class DriveTrain {
 		//SmartDashboard.putNumber("power", power);
 		//SmartDashboard.putNumber("inverse", inverse);
 
-		double turnAngle = IO.lookup(IO.COMPASS_ANGLE, IO.POWER_AXIS, Math.abs(power));
+		double turnAngle = IO.lookup(IO.COMPASS_ANGLE, IO.POWER_AXIS, Math.abs(actualPower));
 		//SmartDashboard.putNumber("turnAngle", turnAngle);
 
 		if (diff > turnAngle) {
-			tankDrive(-power, power);
+			tankDrive(-actualPower, actualPower);
 		} else if (diff < -turnAngle) {
-			tankDrive(power, -power);
+			tankDrive(actualPower, -actualPower);
 		} else {
 			adj = diff * .05; // was .02   compass drive P value (for driving straight) pretty low, but only increase if necessary
 			//SmartDashboard.putNumber("adjustment", adj);
 
 			// power = power * inverse;
-			double lnew = power * inverse - adj;
-			double rnew = power * inverse + adj;
+			double lnew = actualPower * inverse - adj;
+			double rnew = actualPower * inverse + adj;
 
 			double max = Math.max(Math.abs(lnew), Math.abs(rnew));
-			if (max > power) {
+			if (max > actualPower) {
 				lnew /= max;
 				rnew /= max;
-				lnew *= power;
-				rnew *= power;
+				lnew *= actualPower;
+				rnew *= actualPower;
 			}
 
 			tankDrive(lnew, rnew);
