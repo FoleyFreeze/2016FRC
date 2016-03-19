@@ -148,6 +148,8 @@ public class DriveTrain {
 
 	public void run(double yAxisLeft, double yAxisRight, double pov, boolean sDrive, boolean dBrake,
 			boolean compassDrive, double rThrottle) {
+		
+		SmartDashboard.putNumber("Compass Power", rThrottle);
 
 		// ramp rate limiting left side
 		double driveL;

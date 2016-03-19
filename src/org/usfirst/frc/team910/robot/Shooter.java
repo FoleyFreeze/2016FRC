@@ -72,9 +72,9 @@ public class Shooter {
 		autoAndback(false);
 	}
 
-	public void autoAndback(boolean manualControl) {
+	public void autoAndback(boolean autoControl) {
 
-		if (!manualControl) {
+		if (!autoControl) {
 
 			shooterArm.changeControlMode(TalonControlMode.PercentVbus);
 			shooterArm.setInverted(true); //flipped for comp bot

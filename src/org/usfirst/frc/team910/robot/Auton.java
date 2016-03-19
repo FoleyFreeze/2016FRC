@@ -121,6 +121,8 @@ public class Auton {
 
 				case 1:
 					drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+					bc.gatherer.autoAndback(false);
+					bc.gatherer.gatherArm.set(0.2);
 					//drive for 7ft or 3 seconds
 					if (time.get() >= 3.25 || drive.getDistance() > 170) {
 						autonstate = 2;
@@ -129,9 +131,63 @@ public class Auton {
 
 				case 2:
 					drive.tankDrive(0.0, 0.0);
+					bc.gatherer.autoAndback(false);
+					bc.gatherer.gatherArm.set(0);
 					time.reset();
 					break;
 				}
+	}
+	
+	public void lowBarAuto(){
+		switch (autonstate) {
+		
+		
+		case 0:
+			time.start();
+			time.reset();
+			navX.zeroYaw();
+			drive.resetEncoders();
+			autonstate = 1;
+			break;
+
+		case 1: //bring the gatherer down
+			bc.gatherer.autoAndback(true);
+			bc.gatherer.gatherArm.set(bc.GATHER_LOWBAR_POS);
+			if(time.get() > 1.5){
+				autonstate = 2;
+				time.reset();
+			}
+			break;
+			
+		case 2: //bring the shooter down
+			bc.shooter.autoAndback(true);
+			bc.shooter.shooterArm.set(bc.SHOOTER_LOWBAR_POS);
+			if(time.get() > 1.5){
+				autonstate = 3;
+				time.reset();
+			}
+			break;
+			
+		case 3:
+			bc.shooter.autoAndback(false);
+			bc.gatherer.autoAndback(false);
+			autonstate = 4;
+			time.reset();
+			break;
+			
+		case 4:
+			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			//drive for 7ft or 3 seconds
+			if (time.get() >= 3.25 || drive.getDistance() > 170) {
+				autonstate = 5;
+			}
+			break;
+
+		case 5:
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			break;
+		}
 	}
 	
 	public void runAuto(){
@@ -140,7 +196,7 @@ public class Auton {
 		// defaultAuto);
 		//System.out.println("Auto selected: " + autoSelected);
 
-		switch (autoSelected) {
+		/*switch (autoSelected) {
 		case defaultAuto:
 			//emptyAuto();
 			justDriveAuto(); //comment out if no drive
@@ -158,7 +214,11 @@ public class Auton {
 			//emptyAuto();
 			justDriveAuto();//comment out if no drive
 			break;
-		}
+		}*/
+		
+		//emptyAuto();
+		//justDriveAuto();
+		lowBarAuto();
 	}
 	
 	

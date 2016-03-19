@@ -103,6 +103,7 @@ public class VisionProcessor {
 				switchFrames = true;
 			}
 		
+			try{
 			NIVision.IMAQdxGrab(session, frame, buffid);//used to be 1, but that crashes in auton
 			
 						
@@ -185,9 +186,12 @@ public class VisionProcessor {
 			// time.reset();
 	
 			// draw image to driver station
-			CameraServer.getInstance().setImage(frame);
+			//CameraServer.getInstance().setImage(frame);
 			// CameraServer.getInstance().setImage(binaryFrame);
 			//frame.free();
+			} catch (Exception e){
+				time.reset();
+			}
 		}
 	}
 

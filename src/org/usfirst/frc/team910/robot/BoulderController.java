@@ -84,8 +84,8 @@ public class BoulderController {
 			primeState = 0;
 		} else if (driverstation.getRawButton(IO.LOWBAR)) {
 			button = 7;
-		} else if (driverstation.getRawButton(IO.PORT)) {
-			button = 8;
+		//} else if (driverstation.getRawButton(IO.PORT)) {
+		//	button = 8;
 		} else if (driverstation.getRawButton(IO.SALLYPORT))
 			button = 4;
 		else if (driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES)) {
@@ -127,7 +127,7 @@ public class BoulderController {
 			//drawbridge(driverstation.getRawButton(IO.DRAWBRIDGE));
 			gatherState = 1;
 		} else if (button == 7) {
-			lowBar(driverstation.getRawButton(IO.LOWBAR));
+			lowBar(driverstation.getRawButton(IO.LOWBAR), driverstation.getRawButton(IO.PORT));
 			gatherState = 1;
 		} else if (button == 8) {
 			portcullis(driverstation.getRawButton(IO.PORT));
@@ -279,11 +279,18 @@ public class BoulderController {
 
 	}
 
-	public void lowBar(boolean lowBar) {
+	public void lowBar(boolean lowBar, boolean port) {
 		// folds shooter down and gatherer as low as possible to go under low
 		// bar
-		shooter.gotoPosition(SHOOTER_LOWBAR_POS);
-		gatherer.gotoPosition(GATHER_LOWBAR_POS);
+		if (lowBar){
+			if (port){
+				shooter.gotoPosition(SHOOTER_LAYUP_POS);
+				gatherer.gotoPosition(GATHER_LOWBAR_POS);
+			}  else {
+				shooter.gotoPosition(SHOOTER_LOWBAR_POS);
+				gatherer.gotoPosition(GATHER_LOWBAR_POS);
+			}
+		}
 		gatherer.gatherwheel(0);
 	}
 

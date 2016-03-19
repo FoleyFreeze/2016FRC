@@ -3,6 +3,7 @@ package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.AnalogInput;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -34,6 +35,7 @@ public class Robot extends IterativeRobot {
 
 	Solenoid ringOfFire;
 	Solenoid irSensor;
+	Solenoid blueLights;
 	
 	Joystick rJoy;
 	Joystick lJoy;
@@ -54,7 +56,8 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 		ringOfFire = new Solenoid(3);
 		irSensor = new Solenoid(4);
-
+		blueLights = new Solenoid(0);
+		
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 		pdp = new PowerDistributionPanel();
 		
@@ -72,7 +75,7 @@ public class Robot extends IterativeRobot {
 
 		// setup things for camera switching
 		//BetterCameraServer.init("cam0", "cam1");
-		// CameraServer.getInstance().startAutomaticCapture("cam0");
+		//CameraServer.getInstance().startAutomaticCapture("cam2");
 		time.start();
 
 		
@@ -150,6 +153,7 @@ public class Robot extends IterativeRobot {
 		auton.runAuto();
 		ringOfFire.set(true);
 		irSensor.set(true);
+		blueLights.set(true);
 
 	}
 
@@ -198,6 +202,7 @@ public class Robot extends IterativeRobot {
 	
 	public void teleopPeriodic() {
 
+		blueLights.set(true);
 		ringOfFire.set(true);
 		irSensor.set(true);
 		/* Controls all teleop operations, including the automatic gatherer and shooter positions,
