@@ -123,18 +123,19 @@ public class DriveTrain {
 		} else {
 
 			intdiff = intlevalue - intrevalue;
-			//SmartDashboard.putNumber("init diff", intdiff);
+			// SmartDashboard.putNumber("init diff", intdiff);
 
 			levalue = lEncoder.getDistance();
 			revalue = rEncoder.getDistance();
 
 			currentdiff = levalue - revalue;
-			//SmartDashboard.putNumber("curr diff", currentdiff);
+			// SmartDashboard.putNumber("curr diff", currentdiff);
 
 			gooddiff = currentdiff - intdiff;
-			//SmartDashboard.putNumber("good diff", gooddiff);
+			// SmartDashboard.putNumber("good diff", gooddiff);
 
-			adj = gooddiff * .25; //Drive Straight P value; applying full power after 4 inches. pretty agressive
+			adj = gooddiff * .25; // Drive Straight P value; applying full power
+									// after 4 inches. pretty agressive
 
 			double lnew = lpower - adj;
 			double rnew = lpower + adj;
@@ -148,7 +149,7 @@ public class DriveTrain {
 
 	public void run(double yAxisLeft, double yAxisRight, double pov, boolean sDrive, boolean dBrake,
 			boolean compassDrive, double rThrottle) {
-		
+
 		SmartDashboard.putNumber("Compass Power", rThrottle);
 
 		// ramp rate limiting left side
@@ -233,37 +234,38 @@ public class DriveTrain {
 	}
 
 	double cmpsPrevPower = 0;
-	
-	public void compassDrive(double actualPower, double currentYAW, boolean firstYAW, double targetAngle) {
+
+	public void compassDrive(double power, double currentYAW, boolean firstYAW, double targetAngle) {
 		/*
 		 * Compass drive uses field-oriented drive to drive in straight lines
-		 * using the "WASD" buttons pushing the left button causes the robot to drive left, the right to move right, and so on.
-		 * Each button is set to an angle that the robot turns. 
+		 * using the "WASD" buttons pushing the left button causes the robot to
+		 * drive left, the right to move right, and so on. Each button is set to
+		 * an angle that the robot turns.
 		 */
-		
-		//double actualPower = 0;
-		/*if (power > 0) {// for positive powers
-			if (power > prevL + MAX_RAMP_RATE) {// if increasing power,
-													// slowly ramp
+
+		double actualPower = 0;
+		if (power > 0) {// for positive powers
+			if (power > cmpsPrevPower + MAX_RAMP_RATE) {// if increasing power,
+				// slowly ramp
 				actualPower = prevL + MAX_RAMP_RATE;
 			} else {// if decreasing power, just do it
 				actualPower = power;
 			}
 		} else {// for negative powers
-			if (power < prevL - MAX_RAMP_RATE) {// if increasing negative
-													// power, slowly ramp
-				actualPower = prevL - MAX_RAMP_RATE;
+			if (power < cmpsPrevPower - MAX_RAMP_RATE) {// if increasing
+														// negative
+				// power, slowly ramp
+				actualPower = cmpsPrevPower - MAX_RAMP_RATE;
 			} else {// if decreasing power, just do it
 				actualPower = power;
 			}
-		}*/
-		
-		
+		}
+
 		double diff;
 		double adj;
 		double inverse = 1;
 
-		//SmartDashboard.putNumber("targetAngle", targetAngle);
+		// SmartDashboard.putNumber("targetAngle", targetAngle);
 
 		boolean closeInvert = false;
 
@@ -288,7 +290,7 @@ public class DriveTrain {
 
 		diff = currentYAW - targetAngle;
 
-		//SmartDashboard.putNumber("preAdjDiff", diff);
+		// SmartDashboard.putNumber("preAdjDiff", diff);
 
 		if (Math.abs(diff) > 360) {
 			if (diff > 0)
@@ -303,20 +305,22 @@ public class DriveTrain {
 			diff = 360 + diff;
 		}
 
-		//SmartDashboard.putNumber("adjustedDiff", diff);
-		//SmartDashboard.putNumber("power", power);
-		//SmartDashboard.putNumber("inverse", inverse);
+		// SmartDashboard.putNumber("adjustedDiff", diff);
+		// SmartDashboard.putNumber("power", power);
+		// SmartDashboard.putNumber("inverse", inverse);
 
 		double turnAngle = IO.lookup(IO.COMPASS_ANGLE, IO.POWER_AXIS, Math.abs(actualPower));
-		//SmartDashboard.putNumber("turnAngle", turnAngle);
+		// SmartDashboard.putNumber("turnAngle", turnAngle);
 
 		if (diff > turnAngle) {
 			tankDrive(-actualPower, actualPower);
 		} else if (diff < -turnAngle) {
 			tankDrive(actualPower, -actualPower);
 		} else {
-			adj = diff * .05; // was .02   compass drive P value (for driving straight) pretty low, but only increase if necessary
-			//SmartDashboard.putNumber("adjustment", adj);
+			adj = diff * .05; // was .02 compass drive P value (for driving
+								// straight) pretty low, but only increase if
+								// necessary
+			// SmartDashboard.putNumber("adjustment", adj);
 
 			// power = power * inverse;
 			double lnew = actualPower * inverse - adj;
@@ -369,14 +373,16 @@ public class DriveTrain {
 
 		double slowPower;
 
-		slowPower = diff * 0.15; //align to goal (vision) P value; could be increased by .05 or so
+		slowPower = diff * 0.15; // align to goal (vision) P value; could be
+									// increased by .05 or so
 
-		if(slowPower > 0.35){  //max power levels, consider increasing if no movement at large angles
+		if (slowPower > 0.35) { // max power levels, consider increasing if no
+								// movement at large angles
 			slowPower = 0.35;
-		} else if(slowPower < -0.35){
+		} else if (slowPower < -0.35) {
 			slowPower = -0.35;
 		}
-		
+
 		tankDrive(slowPower, -slowPower);
 
 	}

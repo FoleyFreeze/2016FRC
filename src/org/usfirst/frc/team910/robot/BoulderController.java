@@ -253,7 +253,7 @@ public class BoulderController {
 			shooter.setLoadWheels(-0.4);
 			gatherer.gatherwheel(0);									//Turn off gatherer wheel
 			//if (time.get() >= 0.22) {//was .42
-			if(!ballSensor.get() || time.get() > 0.35){
+			if(!ballSensor.get() || time.get() > 0.35 + .05){
 				gatherState = 6;
 				time.reset();
 			}
