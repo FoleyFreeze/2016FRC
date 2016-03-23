@@ -35,7 +35,7 @@ public class IO {
 	public static final int JOG_SHOOTER_UP = 15 ;
 	public static final int JOG_SHOOTER_DOWN = 14;
 	public static final int LOWBAR = 6;
-	public static final int PORT = 9;
+	public static final int PORT = 9; //now does first half low bar
 	public static final int SALLYPORT = 11;
 	public static final int FLIPPY_DE_LOS_FLOPPIES = 8;
 	//public static final int DRAWBRIDGE = 7;

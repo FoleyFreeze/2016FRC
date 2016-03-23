@@ -235,7 +235,7 @@ public class BoulderController {
 		case 4: // load the ball into the shooter
 			shooter.gotoPosition(SHOOTER_LOAD_POS);
 			shooter.setLoadWheels(1);
-			if (time.get() >= 2.0 /*|| checkForLoadCurrent()*/) {
+			if (time.get() >= 1.0 /*|| checkForLoadCurrent()*/) { //was 2.0
 				gatherState = 45;
 				time.reset();
 			}
@@ -251,9 +251,16 @@ public class BoulderController {
 		case 5: // back the ball up slightly
 			//shooter.setLoadWheels(-0.7);
 			shooter.setLoadWheels(-0.4);
-			gatherer.gatherwheel(0);									//Turn off gatherer wheel
 			//if (time.get() >= 0.22) {//was .42
-			if(!ballSensor.get() || time.get() > 0.35 + .05){
+			if(!ballSensor.get() || time.get() > 0.35){
+				gatherState = 55;
+				time.reset();
+			}
+			break;
+			
+		case 55:
+			shooter.setLoadWheels(-0.4);
+			if(time.get() > 0.05){
 				gatherState = 6;
 				time.reset();
 			}
@@ -394,7 +401,7 @@ public class BoulderController {
 			shooter.prime();
 			break;
 		}*/
-		shooter.prime();
+		shooter.prime(1);
 	
 	}
 }

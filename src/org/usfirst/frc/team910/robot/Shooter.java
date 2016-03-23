@@ -14,12 +14,8 @@ public class Shooter {
 	CANTalon loadWheelR;
 
 	double jogoffset = 0;
-
-	double shooterjogoffset = 0;
 	
 	double JOGNUMBER = 5;
-	
-	double SHOOTERJOGNUMBER = 0;
 	
 	double CLOSESHOT = 1000;
 
@@ -146,8 +142,9 @@ public class Shooter {
 	}
 
 	int primeState;
+	double prevShooter = 0.0;
 
-	public void prime(double shooterSpeed, double prevShoter, boolean shooterjogUp, boolean shooterjogDown) {
+	public void prime(double shooterSpeed) {
 		/*switch (primeState) {
 		case 1:
 			loadWheelL.set(loadWheelL.getPosition() - REVERSE);
@@ -165,44 +162,31 @@ public class Shooter {
 			shooterWheelL.set(FAST);
 			break;
 		}*/
-		shooterWheelL.set(1);//flipped for comp
-		shooterWheelR.set(1);
+		//shooterWheelL.set(1);//flipped for comp
+		//shooterWheelR.set(1);
 		double driveShooter;
 		if (shooterSpeed > 0) {// for positive powers
-			if (shooterSpeed > prevShoter + MAX_RAMP_RATE) {// if increasing power,
+			if (shooterSpeed > prevShooter + MAX_RAMP_RATE) {// if increasing power,
 													// slowly ramp
-				driveShooter = prevShoter + MAX_RAMP_RATE;
-				shooterWheelL.set(driveShooter);
+				driveShooter = prevShooter + MAX_RAMP_RATE;
 			} else {// if decreasing power, just do it
 				driveShooter = shooterSpeed;
-				shooterWheelL.set(driveShooter);
 			}	
 		} else {// for negative powers
-			if (shooterSpeed < prevShoter - MAX_RAMP_RATE) {// if increasing negative
+			if (shooterSpeed < prevShooter - MAX_RAMP_RATE) {// if increasing negative
 													// power, slowly ramp
-				driveShooter = prevShoter - MAX_RAMP_RATE;
-				shooterWheelL.set(driveShooter);
+				driveShooter = prevShooter - MAX_RAMP_RATE;
 			} else {// if decreasing power, just do it
 				driveShooter = shooterSpeed;
-				shooterWheelL.set(driveShooter);
 			}
-			boolean prevshooterjogUp = false;
-			boolean prevshooterjogDown = false;
-				if (shooterjogUp && !prevshooterjogUp) {
-
-					shooterjogoffset += SHOOTERJOGNUMBER;
-				} else if (shooterjogDown && !prevshooterjogDown) {
-
-					shooterjogoffset -= SHOOTERJOGNUMBER;
-				}
-
-			prevshooterjogUp = shooterjogUp;
-			prevshooterjogDown = shooterjogDown;
 				
-				
-				
-			}
 		}
+		
+		prevShooter = driveShooter;
+		shooterWheelL.set(driveShooter);
+		shooterWheelR.set(driveShooter);
+		
+	}
 	
 
 	public void fire() {
@@ -297,5 +281,5 @@ public class Shooter {
 			}
 		}
 	}
-	public void shooterRamp()
+	
 }
