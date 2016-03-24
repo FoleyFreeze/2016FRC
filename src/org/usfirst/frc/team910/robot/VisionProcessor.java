@@ -25,6 +25,8 @@ public class VisionProcessor {
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
 	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150);
 	double VIEW_ANGLE = 60; // msft hd 3000
+	double DEG_PER_PIX = 0.06975; //for cropped, if scaled, use 0.0854
+	double REAL_TARGET_HEIGHT = 14; //target height is 1' 2''
 	double RES_Y = 480;
 	double RES_X = 640;
 	int WHITE_BALANCE = 4000; // 3000 - 5300ish
@@ -256,6 +258,16 @@ public class VisionProcessor {
 			SmartDashboard.putNumber("camAngle",angle);
 			
 			return angle;
+		} else {
+			return 0;
+		}
+	}
+	
+	public double getDistance(){
+		if(goodTarget){
+			double angle = bestRect.height * DEG_PER_PIX;
+			double distance = REAL_TARGET_HEIGHT / Math.tan(angle);
+			return distance;
 		} else {
 			return 0;
 		}

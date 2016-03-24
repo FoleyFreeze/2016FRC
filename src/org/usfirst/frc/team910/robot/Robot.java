@@ -292,6 +292,7 @@ public class Robot extends IterativeRobot {
 			case 1:
 				drive.shooterAlign(cameraAngle + lr_jog_deg, navX.getYaw());
 				SmartDashboard.putNumber("cameraAngle", cameraAngle - navX.getYaw());
+				SmartDashboard.putNumber("targetDistance", vp.getDistance());
 				SmartDashboard.putBoolean("goodTarget", vp.goodTarget);
 				break;
 			}
