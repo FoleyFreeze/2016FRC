@@ -10,20 +10,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BoulderController {
 
-	// shooter positions (high to low)			//commented numbers are prac bot
-	static double SHOOTER_MAX_HEIGHT = 751; //830; //against hard stop
+	// shooter positions (high to low)			
+	static double SHOOTER_MAX_HEIGHT = 872; //shooting from 859 on 3/24
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 1;// 586;
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT + 10;  //used to be 0 now its plus, so its a bit scary
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 0;  
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 30;
-	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 45; //85; 
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 85; //45; 
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 431; 
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 468; //was 448
 
 	// gatherer positions (low to high)
-	static double GATHER_FULLDOWN_POS = 480; //248; //626; //resting on the ground
+	static double GATHER_FULLDOWN_POS = 617;
 	double GATHER_LOAD_SHOOTER_POS = GATHER_FULLDOWN_POS + 15;
 	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 86;
-	static double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 271;
+	static double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 333; //271
 	
 	// defense positions
 	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; //was 470

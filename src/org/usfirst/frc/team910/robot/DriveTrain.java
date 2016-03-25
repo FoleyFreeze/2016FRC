@@ -146,11 +146,12 @@ public class DriveTrain {
 	boolean previousDbrake = false;
 	boolean previousSdrive = false;
 	boolean previousCdrive = false;
+	double prevCompassDir = 0;
+	
+	double prevEncoderCt = 0;
 
 	public void run(double yAxisLeft, double yAxisRight, double pov, boolean sDrive, boolean dBrake,
 			boolean compassDrive, double rThrottle) {
-
-		SmartDashboard.putNumber("Compass Power", rThrottle);
 
 		// ramp rate limiting left side
 		double driveL;
@@ -185,6 +186,7 @@ public class DriveTrain {
 			}
 		}
 
+		boolean compassDriveOn = pov != -5000;
 		if (dBrake) {
 			// Dynamic Braking Function//
 			dynamicBraking(!previousDbrake);
@@ -202,21 +204,67 @@ public class DriveTrain {
 			previousCdrive = false;
 			prevT = 0;
 
-		} else if (pov != -5000 && navX.isConnected()) {
+		} else if (compassDriveOn && navX.isConnected()) {
 			rThrottle = (-rThrottle + 1) / 2;
 			double power;
+			
 			if (rThrottle > prevT + MAX_RAMP_RATE) {// if increasing power,
 													// slowly ramp
 				power = prevT + MAX_RAMP_RATE;
 			} else {// if decreasing power, just do it
 				power = rThrottle;
 			}
+			SmartDashboard.putNumber("Compass Power", power);
+			
 			// Compass Drive Function//
 			compassDrive(power, navX.getYaw(), !previousCdrive, pov);
 			prevT = power;
 			previousCdrive = true;
 			previousDbrake = false;
 			previousSdrive = false;
+			prevCompassDir = pov;
+			
+		} else if (previousCdrive && navX.isConnected()){
+			previousCdrive = false;
+			/* commenting this out for now, because if it doesnt work it will be scary (robot driving itself)
+			
+			//slow down compass drive after the button is released
+			double invert = 0;
+			if(prevCompassLpwr > 0 && prevCompassRpwr > 0){ //we were moving forward
+				invert = 1;
+			} else if (prevCompassLpwr < 0 && prevCompassRpwr < 0){ //we were moving backwards
+				invert = -1;
+			} else { // we were turning
+				invert = 0; //this causes the last if to eval as 0, thus ending this program
+			}
+			
+			//angle difference
+			double dirDiff = navX.getYaw() - prevCompassDir;
+			
+			//prevent wrap around
+			if (dirDiff > 180) {
+				dirDiff = -360 + dirDiff;
+			} else if (dirDiff < -180) {
+				dirDiff = 360 + dirDiff;
+			}
+			
+			//fix potentially inverted directions
+			if (dirDiff > 90){
+				dirDiff -= 180;
+			} else if (dirDiff < -90){
+				dirDiff += 180;
+			}
+			
+			double drivePowerL = 0.2 * invert - dirDiff * 0.05;
+			double drivePowerR = 0.2 * invert + dirDiff * 0.05;
+			tankDrive(drivePowerL,drivePowerR);
+			
+			//if the encoders are moving in the opposite direction, we have stopped coasting and are done
+			if ((prevEncoderCt - getDistance()) * invert > 0){
+				previousCdrive = false;
+			}
+			prevEncoderCt = getDistance();
+			*/
 		}
 
 		else {// just drive
@@ -234,8 +282,10 @@ public class DriveTrain {
 	}
 
 	double cmpsPrevPower = 0;
+	double prevCompassLpwr = 0;
+	double prevCompassRpwr = 0;
 
-	public void compassDrive(double power, double currentYAW, boolean firstYAW, double targetAngle) {
+	public void compassDrive(double actualPower, double currentYAW, boolean firstYAW, double targetAngle) {
 		/*
 		 * Compass drive uses field-oriented drive to drive in straight lines
 		 * using the "WASD" buttons pushing the left button causes the robot to
@@ -243,8 +293,8 @@ public class DriveTrain {
 		 * an angle that the robot turns.
 		 */
 
-		double actualPower = 0;
-		if (power > 0) {// for positive powers
+		//double actualPower = 0;
+		/*if (power > 0) {// for positive powers
 			if (power > cmpsPrevPower + MAX_RAMP_RATE) {// if increasing power,
 				// slowly ramp
 				actualPower = prevL + MAX_RAMP_RATE;
@@ -259,7 +309,7 @@ public class DriveTrain {
 			} else {// if decreasing power, just do it
 				actualPower = power;
 			}
-		}
+		}*/
 
 		double diff;
 		double adj;
@@ -269,7 +319,7 @@ public class DriveTrain {
 
 		boolean closeInvert = false;
 
-		if (Math.abs(targetAngle) != 900) {
+		if (Math.abs(targetAngle) == 90) {
 			double targetDiff = Math.abs(currentYAW - targetAngle);
 			if (targetDiff > 180) {
 				targetDiff = -(targetDiff - 360);
@@ -327,7 +377,10 @@ public class DriveTrain {
 			double rnew = actualPower * inverse + adj;
 
 			double max = Math.max(Math.abs(lnew), Math.abs(rnew));
-			if (max > actualPower) {
+			if (max == 0){
+				lnew = 0;
+				rnew = 0;
+			} else if (max > actualPower) {
 				lnew /= max;
 				rnew /= max;
 				lnew *= actualPower;
@@ -335,7 +388,9 @@ public class DriveTrain {
 			}
 
 			tankDrive(lnew, rnew);
-
+			prevCompassLpwr = lnew;
+			prevCompassRpwr = rnew;
+			prevEncoderCt = getDistance();
 		}
 
 	}

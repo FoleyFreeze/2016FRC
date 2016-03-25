@@ -36,8 +36,12 @@ public class Gatherer {
 			gatherArm.changeControlMode(TalonControlMode.Position);
 
 		}
+		
+		
 
 	}
+	
+	boolean prevVoltSwitch = false;
 
 	public void gotoPosition(double position) {
 
@@ -55,6 +59,19 @@ public class Gatherer {
 		
 		if(gatherArm.getPosition() > BoulderController.GATHER_STOW_POS){
 			gatherArm.ClearIaccum();
+		}
+		
+		//switch the maximum voltage at the top end to allow smoother movement
+		if(gatherArm.getPosition() > BoulderController.GATHER_STOW_POS - 80){
+			//if(!prevVoltSwitch){
+				gatherArm.configPeakOutputVoltage(2.0, -5.0);
+			//}
+			//prevVoltSwitch = true;
+		} else {
+			//if(prevVoltSwitch){
+				gatherArm.configPeakOutputVoltage(7.0, -3.0);
+			//}
+			//prevVoltSwitch = false;
 		}
 	}
 

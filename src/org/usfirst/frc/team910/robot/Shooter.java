@@ -70,7 +70,7 @@ public class Shooter {
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
 		shooterArm.setAllowableClosedLoopErr(5);
-		shooterArm.configNominalOutputVoltage(1.5, -1.5);
+		shooterArm.configNominalOutputVoltage(1.0, -1.0);
 		autoAndback(false);
 	}
 
@@ -93,7 +93,7 @@ public class Shooter {
 	
 	private void setMotorPosition(double position) {
 		//Sets save points where the shooter should not pass, including positions near the floor and celing, respectively
-		final double CEIL = BoulderController.SHOOTER_MAX_HEIGHT + 25;
+		final double CEIL = BoulderController.SHOOTER_MAX_HEIGHT;
 		final double FLOOR = 0;
 		if (position < FLOOR) {
 			shooterArm.set(FLOOR);
@@ -111,7 +111,7 @@ public class Shooter {
 			prevVoltSwitch = true;
 		} else {
 			if(prevVoltSwitch){
-				shooterArm.configNominalOutputVoltage(3.0, -3.0);
+				shooterArm.configNominalOutputVoltage(1.0, -1.0);
 			}
 			prevVoltSwitch = false;
 		}
