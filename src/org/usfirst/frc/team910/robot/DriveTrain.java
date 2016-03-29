@@ -225,8 +225,10 @@ public class DriveTrain {
 			prevCompassDir = pov;
 			
 		} else if (previousCdrive && navX.isConnected()){
-			previousCdrive = false;
-			/* commenting this out for now, because if it doesnt work it will be scary (robot driving itself)
+			//previousCdrive = false;
+			// commenting this out for now, because if it doesnt work it will be scary (robot driving itself)
+			double BRAKE_POWER = 0.03; 
+			
 			
 			//slow down compass drive after the button is released
 			double invert = 0;
@@ -255,16 +257,38 @@ public class DriveTrain {
 				dirDiff += 180;
 			}
 			
-			double drivePowerL = 0.2 * invert - dirDiff * 0.05;
-			double drivePowerR = 0.2 * invert + dirDiff * 0.05;
+			double drivePowerL = -BRAKE_POWER * invert - dirDiff * 0.05;
+			double drivePowerR = -BRAKE_POWER * invert + dirDiff * 0.05;
+			
+			//normalize
+			double max = Math.max(Math.abs(drivePowerL), Math.abs(drivePowerR));
+			if (max == 0){
+				drivePowerL = 0;
+				drivePowerR = 0;
+			} else if (max > BRAKE_POWER) {
+				drivePowerL /= max;
+				drivePowerR /= max;
+				drivePowerL *= BRAKE_POWER;
+				drivePowerR *= BRAKE_POWER;
+			}
+			
 			tankDrive(drivePowerL,drivePowerR);
+			//SmartDashboard.putNumber("lnew", drivePowerL);
+			//SmartDashboard.putNumber("rnew", drivePowerR);
 			
 			//if the encoders are moving in the opposite direction, we have stopped coasting and are done
 			if ((prevEncoderCt - getDistance()) * invert > 0){
 				previousCdrive = false;
+			} else {
+				previousCdrive = true;
 			}
+			//SmartDashboard.putNumber("EncDiff", prevEncoderCt - getDistance());
 			prevEncoderCt = getDistance();
-			*/
+			//SmartDashboard.putNumber("encAvg",getDistance());
+			
+			previousDbrake = false;
+			previousSdrive = false;
+			prevT = 0;
 		}
 
 		else {// just drive
@@ -279,6 +303,7 @@ public class DriveTrain {
 		SmartDashboard.putNumber("L Encoder", lEncoder.getDistance());
 		SmartDashboard.putNumber("R Encoder", rEncoder.getDistance());
 
+		//SmartDashboard.putBoolean("preC", previousCdrive);
 	}
 
 	double cmpsPrevPower = 0;
@@ -409,6 +434,14 @@ public class DriveTrain {
 
 	public void shooterAlign(double cameraAngle, double botAngle) {
 		// Moves shooter to the camera's position
+		double P_VAL, MAX_PWR;
+		if(IO.COMP){
+			P_VAL = 0.15;
+			MAX_PWR = 0.35;
+		} else {
+			P_VAL = 0.1;
+			MAX_PWR = 0.25;
+		}
 		double diff;
 
 		diff = cameraAngle - botAngle;
@@ -428,14 +461,14 @@ public class DriveTrain {
 
 		double slowPower;
 
-		slowPower = diff * 0.15; // align to goal (vision) P value; could be
+		slowPower = diff * P_VAL; // align to goal (vision) P value; could be
 									// increased by .05 or so
 
-		if (slowPower > 0.35) { // max power levels, consider increasing if no
+		if (slowPower > MAX_PWR) { // max power levels, consider increasing if no
 								// movement at large angles
-			slowPower = 0.35;
-		} else if (slowPower < -0.35) {
-			slowPower = -0.35;
+			slowPower = MAX_PWR;
+		} else if (slowPower < -MAX_PWR) {
+			slowPower = -MAX_PWR;
 		}
 
 		tankDrive(slowPower, -slowPower);

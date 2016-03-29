@@ -62,9 +62,9 @@ public class Gatherer {
 		}
 		
 		//switch the maximum voltage at the top end to allow smoother movement
-		if(gatherArm.getPosition() > BoulderController.GATHER_STOW_POS - 80){
+		if(gatherArm.getPosition() > BoulderController.GATHER_STOW_POS + 30){
 			//if(!prevVoltSwitch){
-				gatherArm.configPeakOutputVoltage(2.0, -5.0);
+				gatherArm.configPeakOutputVoltage(2.0, -3.0);
 			//}
 			//prevVoltSwitch = true;
 		} else {

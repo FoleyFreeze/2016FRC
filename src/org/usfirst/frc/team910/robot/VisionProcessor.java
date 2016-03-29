@@ -21,11 +21,12 @@ public class VisionProcessor {
 	Timer time;
 
 	// constants
-	NIVision.Range HUE_RANGE = new NIVision.Range(60,140); //for green led
+	NIVision.Range COMP_HUE_RANGE = new NIVision.Range(60,140); //for green led
+	NIVision.Range PRAC_HUE_RANGE = new NIVision.Range(0,255); //for white led
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
 	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150);
 	double VIEW_ANGLE = 60; // msft hd 3000
-	double DEG_PER_PIX = 0.06975; //for cropped, if scaled, use 0.0854
+	double DEG_PER_PIX = 0.0854; //for cropped 0.06975, if scaled, use 0.0854
 	double REAL_TARGET_HEIGHT = 14; //target height is 1' 2''
 	double RES_Y = 480;
 	double RES_X = 640;
@@ -108,9 +109,12 @@ public class VisionProcessor {
 			try{
 			NIVision.IMAQdxGrab(session, frame, buffid);//used to be 1, but that crashes in auton
 			
-						
-			NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, HUE_RANGE, SAT_RANGE, VAL_RANGE);
-	
+			if(IO.COMP){
+				NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, COMP_HUE_RANGE, SAT_RANGE, VAL_RANGE);
+			} else {
+				NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, PRAC_HUE_RANGE, SAT_RANGE, VAL_RANGE);
+			}
+			
 			// total number of particles
 			int numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
 			SmartDashboard.putNumber("Masked particles", numParticles);
@@ -128,7 +132,7 @@ public class VisionProcessor {
 			// search the targets for the best one, then see if it is good enough
 			double smallestScore = 999;
 			int bestParticle = 0;
-			if (numParticles < 20 && numParticles > 0) {
+			//if (numParticles < 20 && numParticles > 0) {
 				for (int i = 0; i < numParticles; i++) {
 					double score = scoreParticle(i, frame);
 					if (score < smallestScore) {
@@ -136,7 +140,7 @@ public class VisionProcessor {
 						smallestScore = score;
 					}
 				}
-			}
+			//}
 	
 			// display best particle data
 			if (smallestScore < TARGET_SCORE) {
@@ -188,11 +192,14 @@ public class VisionProcessor {
 			// time.reset();
 	
 			// draw image to driver station
-			//CameraServer.getInstance().setImage(frame);
+			CameraServer.getInstance().setImage(frame);
 			// CameraServer.getInstance().setImage(binaryFrame);
 			//frame.free();
 			} catch (Exception e){
+				//e.printStackTrace();
 				time.reset();
+				goodTarget = false;
+				SmartDashboard.putBoolean("goodTarget", goodTarget);
 			}
 		}
 	}
@@ -253,8 +260,8 @@ public class VisionProcessor {
 			double center = bestRect.left + (bestRect.width/2);
 			double DDistance = center - (RES_X/2);
 			double angle = DDistance / RES_X * VIEW_ANGLE;
-			SmartDashboard.putNumber("targetCenter",center);
-			SmartDashboard.putNumber("targetDist",DDistance);
+			//SmartDashboard.putNumber("targetCenter",center);
+			//SmartDashboard.putNumber("targetDist",DDistance);
 			SmartDashboard.putNumber("camAngle",angle);
 			
 			return angle;
@@ -266,7 +273,9 @@ public class VisionProcessor {
 	public double getDistance(){
 		if(goodTarget){
 			double angle = bestRect.height * DEG_PER_PIX;
-			double distance = REAL_TARGET_HEIGHT / Math.tan(angle);
+			SmartDashboard.putNumber("windowHeight", bestRect.height);
+			double distance = REAL_TARGET_HEIGHT / Math.tan(angle / 180 * Math.PI);
+			SmartDashboard.putNumber("targetDistance", distance);
 			return distance;
 		} else {
 			return 0;

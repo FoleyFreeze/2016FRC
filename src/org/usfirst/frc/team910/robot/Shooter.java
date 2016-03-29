@@ -3,6 +3,7 @@ package org.usfirst.frc.team910.robot;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -12,10 +13,6 @@ public class Shooter {
 	CANTalon shooterArm;
 	CANTalon loadWheelL;
 	CANTalon loadWheelR;
-
-	double jogoffset = 0;
-	
-	double JOGNUMBER = 5;
 	
 	double CLOSESHOT = 1000;
 
@@ -37,7 +34,7 @@ public class Shooter {
 
 	double SAFETYDISTANCE = 25;
 	
-	double MAX_RAMP_RATE = 0.03; // one second 0 to 1 ramp
+	double MAX_RAMP_RATE = 0.02; // 1.5 second 0 to 1 ramp
 	
 	PowerDistributionPanel pdp;
 	Timer time = new Timer();
@@ -69,8 +66,8 @@ public class Shooter {
 		shooterArm.reverseOutput(true);//flipped for comp bot
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
-		shooterArm.setAllowableClosedLoopErr(5);
-		shooterArm.configNominalOutputVoltage(1.0, -1.0);
+		shooterArm.setAllowableClosedLoopErr(2); //3.28 was 5
+		shooterArm.configNominalOutputVoltage(1.0, -1.0);//3.28 was 1,-1
 		autoAndback(false);
 	}
 
@@ -129,7 +126,10 @@ public class Shooter {
 		} else {
 			setMotorPosition(position + jogoffset);
 		}*/
-		setMotorPosition(position + jogoffset);
+		setMotorPosition(position/* + jogoffset*/);
+		
+		SmartDashboard.putNumber("***********ShooterPosition", position); 	//3.28 MrC
+
 	}
 
 	public double getPosition() {
@@ -145,26 +145,17 @@ public class Shooter {
 	double prevShooter = 0.0;
 
 	public void prime(double shooterSpeed) {
-		/*switch (primeState) {
-		case 1:
-			loadWheelL.set(loadWheelL.getPosition() - REVERSE);
-			primeState = 2;
-			break;
-
-		case 2:
-			if (loadWheelL.getPosition() < loadWheelL.getSetpoint()) {
-				primeState = 3;
-			}
-			break;
-
-		case 3:
-
-			shooterWheelL.set(FAST);
-			break;
-		}*/
-		//shooterWheelL.set(1);//flipped for comp
-		//shooterWheelR.set(1);
-		double driveShooter;
+		
+		double shooterPower = IO.lookup(IO.MOTOR_POWERS, IO.DISTANCE_AXIS, Robot.vp.getDistance());
+		SmartDashboard.putNumber("lookupPower", shooterPower);
+		if(Robot.vp.getDistance() == 0){
+			shooterPower = shooterSpeed;
+		}
+		shooterSpeed = shooterPower;
+		
+		double driveShooter = shooterSpeed;
+		
+		/*
 		if (shooterSpeed > 0) {// for positive powers
 			if (shooterSpeed > prevShooter + MAX_RAMP_RATE) {// if increasing power,
 													// slowly ramp
@@ -180,7 +171,7 @@ public class Shooter {
 				driveShooter = shooterSpeed;
 			}
 				
-		}
+		}*/
 		
 		prevShooter = driveShooter;
 		shooterWheelL.set(driveShooter);
@@ -202,9 +193,10 @@ public class Shooter {
 
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {
 		//the gamepad's right joy can manually change the shooters position, the left bumper activates the shooter at full speed
-		if (YAxisGamepadRight < 0) {
-			YAxisGamepadRight /= 2;
-		}
+		
+		//dont allow full power in manual mode
+		YAxisGamepadRight /= 1.5;
+		
 		shooterArm.set(YAxisGamepadRight); //flipped for comp bot
 		loadWheelR.set(-LoadWheelAxis);//flipped for comp
 
@@ -215,7 +207,7 @@ public class Shooter {
 		}
 		if (GamepadLBumper) {
 
-			shooterWheelL.set(1); //flipped for comp
+			shooterWheelL.set(1); 
 			shooterWheelR.set(1);
 
 		} else {
@@ -224,32 +216,12 @@ public class Shooter {
 		}
 	}
 
-	boolean prevJogUp = false;
-	boolean prevJogDown = false;
 
-	public void jog(boolean jogUp, boolean jogDown) {
-		// Adds a static amount to the shooter's position, up or down
-		if (jogUp && !prevJogUp) {
-
-			jogoffset += JOGNUMBER;
-		} else if (jogDown && !prevJogDown) {
-
-			jogoffset -= JOGNUMBER;
-		}
-
-		prevJogUp = jogUp;
-		prevJogDown = jogDown;
-	}
 
 	public void setLoadWheels(double speed) {
 		//sets the speed of the load wheels
 		loadWheelR.set(-speed);//flipped for comp
-
-		if (speed < 0) {
-			loadWheelL.set(0);
-		} else {
-			loadWheelL.set(speed);//flipped for comp
-		}
+		loadWheelL.set(speed);//flipped for comp
 	}
 	
 	double AMP_THRESHOLD = 20;

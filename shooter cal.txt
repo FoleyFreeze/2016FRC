@@ -1,0 +1,79 @@
+STOW position g = 842  s = 525
+
+cam dist 149
+
+
+
+
+arm layup angle 65 level 58 on batter
+
+
+
+just past batter, 80 in plane, 85diag, 91from cam
+
+
+farther back, 88 from cam, 81 diag, 52 in plane, angle 75
+
+in plane 98, angle 75 , power .711
+
+inplane 110,angle 75,
+
+
+
+
+
+
+
+
+
+
+dist	power	angle	enc
+82	0.6	75	832 low low
+85	0.6	74	835 low-mid
+86	0.6	72	827 low
+
+91	0.6		839 mid
+97	0.616	80	855 low
+102	0.638		838 low
+102	0.638		842 mid
+
+106	0.63	80	859 low
+112	0.648		859 low
+
+115	0.6	80deg	855 low
+115	0.6	80	857 low
+115	0.63	80	855 low-mid
+
+124	0.656		855 low
+124	0.660		862 mid
+
+131	0.664		857 mid-low
+144	0.672		857 really low
+144	0.678		859 mid
+
+
+
+124	0.613	80	858
+128	0.622	80	860
+135	0.642	80deg	858
+146	0.67	80deg	857
+156	0.66	76	851
+156	0.66	80	858
+158	0.66	80	858
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

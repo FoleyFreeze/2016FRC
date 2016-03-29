@@ -61,6 +61,16 @@ public class Robot extends IterativeRobot {
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 		pdp = new PowerDistributionPanel();
 		
+		//init the vision codes
+		try{
+			vp.setup();
+			visionWorking = true;
+		} catch (Exception e){
+			visionWorking = false;
+		}
+		SmartDashboard.putBoolean("visionStatus", visionWorking);
+		
+		
 		drive = new DriveTrain(navX);
 		BC = new BoulderController(pdp);
 
@@ -80,14 +90,6 @@ public class Robot extends IterativeRobot {
 
 		
 		
-		//init the vision codes
-		try{
-			vp.setup();
-			visionWorking = true;
-		} catch (Exception e){
-			visionWorking = false;
-		}
-		SmartDashboard.putBoolean("visionStatus", visionWorking);
 		
 		//setup the autons
 		auton = new Auton(navX, drive, BC, visionWorking);
@@ -271,7 +273,7 @@ public class Robot extends IterativeRobot {
 			jog(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
 					driveBoard.getRawButton(IO.JOG_SHOOTER_DOWN));
 		} else {
-			BC.shooter.jog(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
+			BC.jog(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
 						driveBoard.getRawButton(IO.JOG_SHOOTER_DOWN));
 		}
 
@@ -287,15 +289,23 @@ public class Robot extends IterativeRobot {
 				if(vp.goodTarget){
 					cameraAngle = vp.getAngle() + navX.getYaw();
 					cameraState = 1;
+					vp.getDistance();
 				}
 				break;
 			case 1:
 				drive.shooterAlign(cameraAngle + lr_jog_deg, navX.getYaw());
 				SmartDashboard.putNumber("cameraAngle", cameraAngle - navX.getYaw());
-				SmartDashboard.putNumber("targetDistance", vp.getDistance());
 				SmartDashboard.putBoolean("goodTarget", vp.goodTarget);
+				double dist = vp.getDistance();
+				if(dist == 0){
+					BC.visionAngleOffset = 0;
+				} else {
+					BC.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS, vp.getDistance());
+				}
+				
 				break;
 			}
+			vp.getDistance();
 			
 		} else { //if camera is not auto aiming then allow driving 
 			drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(),

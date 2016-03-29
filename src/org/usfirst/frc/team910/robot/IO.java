@@ -1,6 +1,9 @@
 package org.usfirst.frc.team910.robot;
 
 public class IO {
+	//running the competition bot
+	public static final boolean COMP = false;
+	
 	// inputs
 	public static final int LEFT_DRIVE_MOTOR = 1;
 	public static final int RIGHT_DRIVE_MOTOR = 0;
@@ -63,6 +66,11 @@ public class IO {
 	// drivetrain calibrations
 	public static final double[] COMPASS_ANGLE = { 15, 15, 30, 40, 40 };
 	public static final double[] POWER_AXIS = { 0.0, 0.2, 0.6, 0.9, 1.0 };
+	
+	// camera distance cals
+	public static final double[] DISTANCE_AXIS = { 70, 80, 94, 100, 110, 120, 150, 160 };
+	public static final double[] MOTOR_POWERS = { 0.6, 0.6, 0.6, 0.635, 0.645, 0.655, 0.685, 0.685};
+	public static final double[] SHOOTER_ANGLE = { -27, -26, -22, -20, 0, 0, 0, 0, 0 };
 
 	public static double lookup(double[] values, double[] axis, double input) {
 		int index = axis.length - 1;
