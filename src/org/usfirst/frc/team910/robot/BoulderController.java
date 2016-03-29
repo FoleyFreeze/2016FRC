@@ -48,6 +48,7 @@ public class BoulderController {
 
 	DigitalInput ballSensor;
 
+	DriveTrain drive;
 	Shooter shooter;
 	Gatherer gatherer;
 	Timer time;
@@ -321,19 +322,22 @@ public class BoulderController {
 	int chevalState = 0;
 
 	public void flippyFloppies(boolean flippyBtn) {
+		
+		double prevgath = gatherer.getPosition();
+		
 		switch (chevalState) {
 		case 0:
 			time.start();
 			time.reset();
 			// navX.zeroYaw();
-			// drive.resetEncoders();
+			//drive.resetEncoders();
 			chevalState = 1;
 			break;
 
 		case 1:
 			gatherer.gotoPosition(GATHER_FLIPPY_FLOPPIES_POS);
 
-			chevalState = 2;
+			chevalState = 3;																			//skipped meaningless state James 3/29
 			time.reset();
 			break;
 		case 2:
@@ -348,12 +352,16 @@ public class BoulderController {
 			time.reset();
 			break;
 		case 4:
-			// drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
-
-			chevalState = 5;
+			//drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			// drive for 7ft or 3 seconds
+			//if (time.get() >= 3.25 || drive.getDistance() > 170) {
+				chevalState = 6;
+		//	}
 			time.reset();
 			break;
 		case 5:
+			gatherer.gotoPosition(prevgath);
+		case 6:
 			// drive.tankDrive(0.0, 0.0);
 			time.reset();
 			break;
