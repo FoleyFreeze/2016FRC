@@ -146,11 +146,12 @@ public class DriveTrain {
 	boolean previousDbrake = false;
 	boolean previousSdrive = false;
 	boolean previousCdrive = false;
+	double prevCompassDir = 0;
+	
+	double prevEncoderCt = 0;
 
 	public void run(double yAxisLeft, double yAxisRight, double pov, boolean sDrive, boolean dBrake,
 			boolean compassDrive, double rThrottle) {
-
-		SmartDashboard.putNumber("Compass Power", rThrottle);
 
 		// ramp rate limiting left side
 		double driveL;
@@ -185,6 +186,7 @@ public class DriveTrain {
 			}
 		}
 
+		boolean compassDriveOn = pov != -5000;
 		if (dBrake) {
 			// Dynamic Braking Function//
 			dynamicBraking(!previousDbrake);
@@ -202,22 +204,24 @@ public class DriveTrain {
 			previousCdrive = false;
 			prevT = 0;
 
-		} else if (pov != -5000 && navX.isConnected()) {
+		} else if (compassDriveOn && navX.isConnected()) {
 			rThrottle = (-rThrottle + 1) / 2;
 			double power;
+			
 			if (rThrottle > prevT + MAX_RAMP_RATE) {// if increasing power,
 													// slowly ramp
 				power = prevT + MAX_RAMP_RATE;
 			} else {// if decreasing power, just do it
 				power = rThrottle;
 			}
+			SmartDashboard.putNumber("Compass Power", power);
+			
 			// Compass Drive Function//
 			compassDrive(power, navX.getYaw(), !previousCdrive, pov);
 			prevT = power;
 			previousCdrive = true;
 			previousDbrake = false;
 			previousSdrive = false;
-<<<<<<< HEAD
 			prevCompassDir = pov;
 			
 		} else if (previousCdrive && navX.isConnected()){
@@ -285,8 +289,6 @@ public class DriveTrain {
 			previousDbrake = false;
 			previousSdrive = false;
 			prevT = 0;
-=======
->>>>>>> parent of 4c396d9... changed pids and setpoints to match new and improved arms and gatherer.  Also made compass drive smoother
 		}
 
 		else {// just drive
@@ -305,8 +307,10 @@ public class DriveTrain {
 	}
 
 	double cmpsPrevPower = 0;
+	double prevCompassLpwr = 0;
+	double prevCompassRpwr = 0;
 
-	public void compassDrive(double power, double currentYAW, boolean firstYAW, double targetAngle) {
+	public void compassDrive(double actualPower, double currentYAW, boolean firstYAW, double targetAngle) {
 		/*
 		 * Compass drive uses field-oriented drive to drive in straight lines
 		 * using the "WASD" buttons pushing the left button causes the robot to
@@ -314,8 +318,8 @@ public class DriveTrain {
 		 * an angle that the robot turns.
 		 */
 
-		double actualPower = 0;
-		if (power > 0) {// for positive powers
+		//double actualPower = 0;
+		/*if (power > 0) {// for positive powers
 			if (power > cmpsPrevPower + MAX_RAMP_RATE) {// if increasing power,
 				// slowly ramp
 				actualPower = prevL + MAX_RAMP_RATE;
@@ -330,7 +334,7 @@ public class DriveTrain {
 			} else {// if decreasing power, just do it
 				actualPower = power;
 			}
-		}
+		}*/
 
 		double diff;
 		double adj;
@@ -340,7 +344,7 @@ public class DriveTrain {
 
 		boolean closeInvert = false;
 
-		if (Math.abs(targetAngle) != 900) {
+		if (Math.abs(targetAngle) == 90) {
 			double targetDiff = Math.abs(currentYAW - targetAngle);
 			if (targetDiff > 180) {
 				targetDiff = -(targetDiff - 360);
@@ -398,7 +402,10 @@ public class DriveTrain {
 			double rnew = actualPower * inverse + adj;
 
 			double max = Math.max(Math.abs(lnew), Math.abs(rnew));
-			if (max > actualPower) {
+			if (max == 0){
+				lnew = 0;
+				rnew = 0;
+			} else if (max > actualPower) {
 				lnew /= max;
 				rnew /= max;
 				lnew *= actualPower;
@@ -406,7 +413,9 @@ public class DriveTrain {
 			}
 
 			tankDrive(lnew, rnew);
-
+			prevCompassLpwr = lnew;
+			prevCompassRpwr = rnew;
+			prevEncoderCt = getDistance();
 		}
 
 	}

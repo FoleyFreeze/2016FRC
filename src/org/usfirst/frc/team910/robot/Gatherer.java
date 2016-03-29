@@ -36,8 +36,12 @@ public class Gatherer {
 			gatherArm.changeControlMode(TalonControlMode.Position);
 
 		}
+		
+		
 
 	}
+	
+	boolean prevVoltSwitch = false;
 
 	public void gotoPosition(double position) {
 
@@ -56,7 +60,6 @@ public class Gatherer {
 		if(gatherArm.getPosition() > BoulderController.GATHER_STOW_POS){
 			gatherArm.ClearIaccum();
 		}
-<<<<<<< HEAD
 		
 		//switch the maximum voltage at the top end to allow smoother movement
 		if(gatherArm.getPosition() > BoulderController.GATHER_STOW_POS + 30){
@@ -70,8 +73,6 @@ public class Gatherer {
 			//}
 			//prevVoltSwitch = false;
 		}
-=======
->>>>>>> parent of 4c396d9... changed pids and setpoints to match new and improved arms and gatherer.  Also made compass drive smoother
 	}
 
 	public void aquireShooterPosition(double position) {
