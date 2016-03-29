@@ -66,8 +66,13 @@ public class Shooter {
 		shooterArm.reverseOutput(true);//flipped for comp bot
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
+<<<<<<< HEAD
 		shooterArm.setAllowableClosedLoopErr(2); //3.28 was 5
 		shooterArm.configNominalOutputVoltage(1.0, -1.0);//3.28 was 1,-1
+=======
+		shooterArm.setAllowableClosedLoopErr(5);
+		shooterArm.configNominalOutputVoltage(1.5, -1.5);
+>>>>>>> parent of 4c396d9... changed pids and setpoints to match new and improved arms and gatherer.  Also made compass drive smoother
 		autoAndback(false);
 	}
 
@@ -90,7 +95,7 @@ public class Shooter {
 	
 	private void setMotorPosition(double position) {
 		//Sets save points where the shooter should not pass, including positions near the floor and celing, respectively
-		final double CEIL = BoulderController.SHOOTER_MAX_HEIGHT;
+		final double CEIL = BoulderController.SHOOTER_MAX_HEIGHT + 25;
 		final double FLOOR = 0;
 		if (position < FLOOR) {
 			shooterArm.set(FLOOR);
@@ -108,7 +113,7 @@ public class Shooter {
 			prevVoltSwitch = true;
 		} else {
 			if(prevVoltSwitch){
-				shooterArm.configNominalOutputVoltage(1.0, -1.0);
+				shooterArm.configNominalOutputVoltage(3.0, -3.0);
 			}
 			prevVoltSwitch = false;
 		}

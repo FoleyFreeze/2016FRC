@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class BoulderController {
 
+<<<<<<< HEAD
 	// shooter positions (high to low)
 	static double SHOOTER_MAX_HEIGHT = 872; // shooting from 859 on 3.24
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; // 3.28
@@ -18,15 +19,31 @@ public class BoulderController {
 	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 85; // 45;
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 452; // 3.28 was 431
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 468; // was 448
+=======
+	// shooter positions (high to low)			//commented numbers are prac bot
+	static double SHOOTER_MAX_HEIGHT = 751; //830; //against hard stop
+	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 1;// 586;
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT + 10;  //used to be 0 now its plus, so its a bit scary
+	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 30;
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 45; //85; 
+	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 431; 
+	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 468; //was 448
+>>>>>>> parent of 4c396d9... changed pids and setpoints to match new and improved arms and gatherer.  Also made compass drive smoother
 
 	// gatherer positions (low to high)
-	static double GATHER_FULLDOWN_POS = 617;
+	static double GATHER_FULLDOWN_POS = 480; //248; //626; //resting on the ground
 	double GATHER_LOAD_SHOOTER_POS = GATHER_FULLDOWN_POS + 15;
+<<<<<<< HEAD
 	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 100; // 3.28 was 86
 	static double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 225; // 3.28 was 333
 	double GATHER_LAYUP_POS = GATHER_FULLDOWN_POS + 333;// 3.28
 	double GATHER_FARSHOT_POS = GATHER_FULLDOWN_POS + 333;// 3.28
 
+=======
+	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 86;
+	static double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 271;
+	
+>>>>>>> parent of 4c396d9... changed pids and setpoints to match new and improved arms and gatherer.  Also made compass drive smoother
 	// defense positions
 	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; // was 470
 	double GATHER_LOWBAR_POS = GATHER_FULLDOWN_POS;
