@@ -54,6 +54,7 @@ public class BoulderController {
 
 	DigitalInput ballSensor;
 
+	DriveTrain drive;
 	Shooter shooter;
 	Gatherer gatherer;
 	Timer time;
@@ -232,6 +233,7 @@ public class BoulderController {
 			shooter.gotoPosition(SHOOTER_PRELOAD_POS);
 			shooter.setLoadWheels(1);
 
+
 			if (/*Math.abs(shooter.shooterArm.getClosedLoopError()) < 7 && */time.get() > 0.7) {
 				gatherState = 4;
 				time.reset();
@@ -372,17 +374,54 @@ public class BoulderController {
 		gatherer.gatherwheel(0);
 	}
 
+	int chevalState = 0;
+
 	public void flippyFloppies(boolean flippyBtn) {
-		// moves gatherer to Cheval de Frise Position
-		// If the button is active, move the shooter down, otherwise shooter
-		// goes up
-		gatherer.gotoPosition(GATHER_FLIPPY_FLOPPIES_POS);
-		if (flippyBtn) {
-			shooter.gotoPosition(SHOOTER_FLIPPY_FLOPPIES_DOWN);
-		} else {
-			shooter.gotoPosition(SHOOTER_FLIPPY_FLOPPIES_UP);
+		
+		double prevgath = gatherer.getPosition();
+		
+		switch (chevalState) {
+		case 0:
+			time.start();
+			time.reset();
+			// navX.zeroYaw();
+			//drive.resetEncoders();
+			chevalState = 1;
+			break;
+
+		case 1:
+			gatherer.gotoPosition(GATHER_FLIPPY_FLOPPIES_POS);
+
+			chevalState = 3;																			//skipped meaningless state James 3/29
+			time.reset();
+			break;
+		case 2:
+			// drive.compassDrive(0.6, SPECIFIED_DISTANCE, false, 0.0);
+
+			chevalState = 3;
+			time.reset();
+			break;
+		case 3:
+			gatherer.gotoPosition(GATHER_FULLDOWN_POS);
+			chevalState = 4;
+			time.reset();
+			break;
+		case 4:
+			//drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			// drive for 7ft or 3 seconds
+			//if (time.get() >= 3.25 || drive.getDistance() > 170) {
+				chevalState = 6;
+		//	}
+			time.reset();
+			break;
+		case 5:
+			gatherer.gotoPosition(prevgath);
+		case 6:
+			// drive.tankDrive(0.0, 0.0);
+			time.reset();
+			break;
 		}
-		gatherer.gatherwheel(0);
+
 	}
 
 	public void drawbridge(boolean drawbridgeBtn) {
