@@ -2,7 +2,7 @@ package org.usfirst.frc.team910.robot;
 
 public class IO {
 	//running the competition bot
-	public static final boolean COMP = false;
+	public static final boolean COMP = true;
 	
 	// inputs
 	public static final int LEFT_DRIVE_MOTOR = 1;
@@ -78,7 +78,8 @@ public class IO {
 	
 	// camera distance cals
 	public static final double[] DISTANCE_AXIS = { 70, 80, 94, 100, 110, 120, 150, 160 };
-	public static final double[] MOTOR_POWERS = { 0.6, 0.6, 0.6, 0.635, 0.645, 0.655, 0.685, 0.685};
+	//public static final double[] MOTOR_POWERS = { 0.6, 0.6, 0.6, 0.635, 0.645, 0.655, 0.685, 0.685}; prac bot
+	public static final double[] MOTOR_POWERS = { 0.565, 0.565, 0.565, 0.60, 0.61, 0.62, 0.65, 0.65};
 	public static final double[] SHOOTER_ANGLE = { -27, -26, -22, -20, 0, 0, 0, 0, 0 };
 
 	public static double lookup(double[] values, double[] axis, double input) {
