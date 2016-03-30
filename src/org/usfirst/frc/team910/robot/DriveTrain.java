@@ -146,12 +146,18 @@ public class DriveTrain {
 	boolean previousDbrake = false;
 	boolean previousSdrive = false;
 	boolean previousCdrive = false;
+	boolean previousUdrive = false;
+	double uDriveTargetAngle = 0;
 	double prevCompassDir = 0;
 	
 	double prevEncoderCt = 0;
 
 	public void run(double yAxisLeft, double yAxisRight, double pov, boolean sDrive, boolean dBrake,
-			boolean compassDrive, double rThrottle) {
+			boolean compassDrive, double rThrottle, boolean doA180) {
+		
+		if(BoulderController.chevalState != 0){
+			return;
+		}
 
 		// ramp rate limiting left side
 		double driveL;
@@ -193,6 +199,7 @@ public class DriveTrain {
 			previousDbrake = true;
 			previousSdrive = false;
 			previousCdrive = false;
+			previousUdrive = false;
 			prevT = 0;
 		}
 
@@ -202,8 +209,29 @@ public class DriveTrain {
 			previousDbrake = false;
 			previousSdrive = true;
 			previousCdrive = false;
+			previousUdrive = false;
 			prevT = 0;
 
+		} else if (doA180) {
+			
+			//if first run, figure out the target angle
+			if(!previousUdrive) {
+				previousUdrive = true;
+				
+				if(Math.abs(navX.getYaw()) < 90){
+					uDriveTargetAngle = 180;
+				} else {
+					uDriveTargetAngle = 0;
+				}
+			}
+			
+			shooterAlign(uDriveTargetAngle, navX.getYaw(), true);
+			
+			previousDbrake = false;
+			previousSdrive = false;
+			previousCdrive = false;
+			prevT = 0;
+			
 		} else if (compassDriveOn && navX.isConnected()) {
 			rThrottle = (-rThrottle + 1) / 2;
 			double power;
@@ -222,6 +250,7 @@ public class DriveTrain {
 			previousCdrive = true;
 			previousDbrake = false;
 			previousSdrive = false;
+			previousUdrive = false;
 			prevCompassDir = pov;
 			
 		} else if (previousCdrive && navX.isConnected()){
@@ -277,7 +306,7 @@ public class DriveTrain {
 			//SmartDashboard.putNumber("rnew", drivePowerR);
 			
 			//if the encoders are moving in the opposite direction, we have stopped coasting and are done
-			if ((prevEncoderCt - getDistance()) * invert > 0){
+			if ((prevEncoderCt - getDistance()) * invert >= 0){
 				previousCdrive = false;
 			} else {
 				previousCdrive = true;
@@ -288,6 +317,7 @@ public class DriveTrain {
 			
 			previousDbrake = false;
 			previousSdrive = false;
+			previousUdrive = false;
 			prevT = 0;
 		}
 
@@ -297,6 +327,7 @@ public class DriveTrain {
 			previousDbrake = false;
 			previousSdrive = false;
 			previousCdrive = false;
+			previousUdrive = false;
 			prevT = 0;
 		}
 
@@ -318,24 +349,6 @@ public class DriveTrain {
 		 * an angle that the robot turns.
 		 */
 
-		//double actualPower = 0;
-		/*if (power > 0) {// for positive powers
-			if (power > cmpsPrevPower + MAX_RAMP_RATE) {// if increasing power,
-				// slowly ramp
-				actualPower = prevL + MAX_RAMP_RATE;
-			} else {// if decreasing power, just do it
-				actualPower = power;
-			}
-		} else {// for negative powers
-			if (power < cmpsPrevPower - MAX_RAMP_RATE) {// if increasing
-														// negative
-				// power, slowly ramp
-				actualPower = cmpsPrevPower - MAX_RAMP_RATE;
-			} else {// if decreasing power, just do it
-				actualPower = power;
-			}
-		}*/
-
 		double diff;
 		double adj;
 		double inverse = 1;
@@ -344,16 +357,16 @@ public class DriveTrain {
 
 		boolean closeInvert = false;
 
-		if (Math.abs(targetAngle) == 90) {
-			double targetDiff = Math.abs(currentYAW - targetAngle);
-			if (targetDiff > 180) {
-				targetDiff = -(targetDiff - 360);
-			}
-			double oppositeDiff = Math.abs(targetDiff - 180);
-			closeInvert = oppositeDiff < targetDiff;
+		//if (Math.abs(targetAngle) == 90) {
+		double targetDiff = Math.abs(currentYAW - targetAngle);
+		if (targetDiff > 180) {
+			targetDiff = -(targetDiff - 360);
 		}
+		double oppositeDiff = Math.abs(targetDiff - 180);
+		closeInvert = oppositeDiff < targetDiff;
+		//}
 
-		if (targetAngle > 134 || targetAngle < -134 || closeInvert) {
+		if (/*targetAngle > 134 || targetAngle < -134 || */closeInvert) {
 			targetAngle = targetAngle + 180;
 			inverse = -1;
 		} else {
@@ -432,7 +445,7 @@ public class DriveTrain {
 		return c;
 	}
 
-	public void shooterAlign(double cameraAngle, double botAngle) {
+	public void shooterAlign(double cameraAngle, double botAngle, boolean farTurn) {
 		// Moves shooter to the camera's position
 		double P_VAL, MAX_PWR;
 		if(IO.COMP){
@@ -442,6 +455,13 @@ public class DriveTrain {
 			P_VAL = 0.1;
 			MAX_PWR = 0.25;
 		}
+		
+		//if we are using this for uTurns
+		if(farTurn){
+			P_VAL = 0.05;
+			MAX_PWR = 0.5;
+		}
+		
 		double diff;
 
 		diff = cameraAngle - botAngle;

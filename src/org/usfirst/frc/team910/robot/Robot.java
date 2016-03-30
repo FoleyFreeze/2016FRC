@@ -72,7 +72,7 @@ public class Robot extends IterativeRobot {
 		
 		
 		drive = new DriveTrain(navX);
-		BC = new BoulderController(pdp);
+		BC = new BoulderController(pdp, drive);
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 
@@ -93,7 +93,7 @@ public class Robot extends IterativeRobot {
 		
 		//setup the autons
 		auton = new Auton(navX, drive, BC, visionWorking);
-		
+		/*
 		auton.chooser = new SendableChooser();
 		auton.chooser.addDefault("DoNothing Auto", auton.defaultAuto);
 		auton.chooser.addObject("CrossCamShootAuto", auton.crossCamShootAuto);
@@ -103,6 +103,7 @@ public class Robot extends IterativeRobot {
 		
 		auton.autoSelected = (String) auton.chooser.getSelected();
 		SmartDashboard.putString("Auto", auton.autoSelected);
+		*/
 	}
 
 	/**
@@ -172,8 +173,8 @@ public class Robot extends IterativeRobot {
 		//SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		//SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
 		SmartDashboard.putNumber("gather pot",BC.gatherer.gatherArm.getPosition());
-		auton.autoSelected = (String) auton.chooser.getSelected();
-		SmartDashboard.putString("Auto", auton.autoSelected);
+		//auton.autoSelected = (String) auton.chooser.getSelected();
+		//SmartDashboard.putString("Auto", auton.autoSelected);
 		SmartDashboard.putNumber("shooter pot",BC.shooter.shooterArm.getPosition());
 		SmartDashboard.putNumber("shooter CLE", BC.shooter.shooterArm.getClosedLoopError());
 		
@@ -184,10 +185,11 @@ public class Robot extends IterativeRobot {
 		
 		//vp.disabled();
 		
-		if(lJoy.getRawButton(11)){
+		if(rJoy.getRawButton(7)){
 			vp.run();
 		}
 		
+		auton.selectAuto(lJoy);
 	}
 
 	/**
@@ -240,7 +242,8 @@ public class Robot extends IterativeRobot {
 				BC.gatherer.autoAndback(automaticMode);
 				BC.shooter.autoAndback(automaticMode);
 				BC.gatherState = 1;
-				BC.button = -1;
+				BC.buttonState = -1;
+				BoulderController.chevalState = 0;
 			//}
 			// call manual position functions
 			BC.gatherer.manualGather(-GamePad.getRawAxis(1) * 0.5, GamePad.getRawButton(1),GamePad.getRawButton(2));
@@ -293,7 +296,7 @@ public class Robot extends IterativeRobot {
 				}
 				break;
 			case 1:
-				drive.shooterAlign(cameraAngle + lr_jog_deg, navX.getYaw());
+				drive.shooterAlign(cameraAngle + lr_jog_deg, navX.getYaw(), false);
 				SmartDashboard.putNumber("cameraAngle", cameraAngle - navX.getYaw());
 				SmartDashboard.putBoolean("goodTarget", vp.goodTarget);
 				double dist = vp.getDistance();
@@ -309,7 +312,7 @@ public class Robot extends IterativeRobot {
 			
 		} else { //if camera is not auto aiming then allow driving 
 			drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(),
-					rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE), rJoy.getThrottle());
+					rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE), rJoy.getThrottle(), rJoy.getRawButton(IO.DO_A_180_BTN));
 			cameraState = 0;
 		}
 		

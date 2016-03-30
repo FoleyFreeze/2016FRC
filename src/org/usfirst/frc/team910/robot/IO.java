@@ -58,9 +58,18 @@ public class IO {
 	// l-joy
 	public static final int AIM_CAMERA = 6;
 	
+	//l-joy auton selections
+	public static final int AUTON_INC_SLOT = 12;
+	public static final int AUTON_DEC_SLOT = 11;
+	public static final int AUTON_INC_DEF = 10;
+	public static final int AUTON_DEC_DEF = 9;
+	public static final int AUTON_INC_EXTRA = 8;
+	public static final int AUTON_DEC_EXTRA = 7;
+	
 	// r-joy
 	public static final int COMPASS_POWER_THROTTLE = 2;
 	public static final int ZERO_YAW = 3;
+	public static final int DO_A_180_BTN = 11;
 	
 
 	// drivetrain calibrations

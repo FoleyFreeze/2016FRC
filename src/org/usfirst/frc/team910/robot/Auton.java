@@ -2,6 +2,7 @@ package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -12,12 +13,21 @@ public class Auton {
 	BoulderController bc;
 	boolean visionWorking = false;
 
+	/*
 	final String defaultAuto = "Do Nothing";
 	final String crossCamShootAuto = "Cross, Camera, Shoot";
 	final String justDriveAuto = "Just Drive Fwd";
 	String autoSelected;
 	SendableChooser chooser;
-
+	*/
+	
+	String[] stationSelection = { "0 Do Nothing" , "1 Low Bar", "2nd Def", "3rd Def", "4th Def", "5th Def" };
+	int stationIndex = 0;
+	String[] defenseType = { "0 Drive Over", "1 Portcullis", "2 Cheval" };
+	int defenseIndex = 0;
+	String[] extraCredit = { "0 None", "1 No Shooting", "2 Spy Box" };
+	int extraIndex = 0;
+	
 	public Auton(AHRS navX, DriveTrain drive, BoulderController bc, boolean visionWorking) {
 		this.navX = navX;
 		this.drive = drive;
@@ -28,6 +38,68 @@ public class Auton {
 	Timer time = new Timer();
 	int autonstate = 0;
 	double cameraAngle = 0;
+	
+	boolean prevStationInc = false;
+	boolean prevStationDec = false;
+	boolean prevDefenseInc = false;
+	boolean prevDefenseDec = false;
+	boolean prevExtraInc = false;
+	boolean prevExtraDec = false;
+	
+	public void selectAuto(Joystick joy) {
+		if (joy.getRawButton(IO.AUTON_INC_SLOT)){
+			if (!prevStationInc) stationIndex++;
+			prevStationInc = true;
+		} else {
+			prevStationInc = false;
+		}
+		
+		if (joy.getRawButton(IO.AUTON_DEC_SLOT)){
+			if (!prevStationDec) stationIndex--;
+			prevStationDec = true;
+		} else {
+			prevStationDec = false;
+		}
+		
+		if (joy.getRawButton(IO.AUTON_INC_DEF)){
+			if (!prevDefenseInc) defenseIndex++;
+			prevDefenseInc = true;
+		} else {
+			prevDefenseInc = false;
+		}
+		
+		if (joy.getRawButton(IO.AUTON_DEC_DEF)){
+			if (!prevDefenseDec) defenseIndex--;
+			prevDefenseDec = true;
+		} else {
+			prevDefenseDec = false;
+		}
+		
+		if (joy.getRawButton(IO.AUTON_INC_EXTRA)){
+			if (!prevExtraInc) extraIndex++;
+			prevExtraInc = true;
+		} else {
+			prevExtraInc = false;
+		}
+		
+		if (joy.getRawButton(IO.AUTON_DEC_EXTRA)){
+			if (!prevExtraDec) extraIndex--;
+			prevExtraDec = true;
+		} else {
+			prevExtraDec = false;
+		}
+		
+		if(stationIndex < 0) stationIndex = 0;
+		if(stationIndex >= stationSelection.length) stationIndex = stationSelection.length - 1;
+		if(defenseIndex < 0) defenseIndex = 0;
+		if(defenseIndex >= defenseType.length) defenseIndex = defenseType.length - 1;
+		if(extraIndex < 0) extraIndex = 0;
+		if(extraIndex >= extraCredit.length) extraIndex = extraCredit.length - 1;
+		
+		SmartDashboard.putString("Auton Station", stationSelection[stationIndex]);
+		SmartDashboard.putString("Auton Defense", defenseType[defenseIndex]);
+		SmartDashboard.putString("Auton Extra", extraCredit[extraIndex]);
+	}
 
 	public void emptyAuto() {
 
@@ -74,7 +146,7 @@ public class Auton {
 			break;
 
 		case 4:// once target is found, turn to face it
-			drive.shooterAlign(cameraAngle, navX.getYaw());
+			drive.shooterAlign(cameraAngle, navX.getYaw(), false);
 			SmartDashboard.putNumber("cameraAngle", cameraAngle);
 			SmartDashboard.putBoolean("goodTarget", Robot.vp.goodTarget);
 			if (time.get() > 2) {

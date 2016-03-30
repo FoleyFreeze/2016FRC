@@ -61,16 +61,17 @@ public class BoulderController {
 
 	PowerDistributionPanel pdp;
 
-	public BoulderController(PowerDistributionPanel pdp) {
+	public BoulderController(PowerDistributionPanel pdp, DriveTrain drive) {
 		this.pdp = pdp;
 		shooter = new Shooter(pdp);
 		gatherer = new Gatherer();
 		time = new Timer();
 		time.start();
 		ballSensor = new DigitalInput(IO.SHOOTER_BALL_SENSOR);
+		this.drive = drive;
 	}
 
-	int button = -1;
+	int buttonState = -1;
 
 	boolean prevFire = false;
 
@@ -80,65 +81,75 @@ public class BoulderController {
 		shooter.aquireGatherPosition(gathertoshoot(gatherer.getPosition()));
 
 		if (driverstation.getRawButton(IO.LAYUP))
-			button = 0;
+			buttonState = 0;
 		else if (driverstation.getRawButton(IO.STOW))
-			button = 1;
+			buttonState = 1;
 		else if (driverstation.getRawButton(IO.FAR_SHOT))
-			button = 2;
+			buttonState = 2;
 		else if (driverstation.getRawButton(IO.GATHER)) {
 			gatherState = 1;
-			button = 3;
+			buttonState = 3;
 			primeState = 0;
 		} else if (driverstation.getRawButton(IO.LOWBAR)) {
-			button = 7;
+			buttonState = 7;
 			// } else if (driverstation.getRawButton(IO.PORT)) {
 			// button = 8;
 		} else if (driverstation.getRawButton(IO.SALLYPORT))
-			button = 4;
+			buttonState = 4;
 		else if (driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES)) {
-			button = 5;
+			flippyFloppies();
+			buttonState = 5;
 			// } else if (driverstation.getRawButton(IO.DRAWBRIDGE)) {
 			// button = 6;
+		} else {
+			chevalState = 0;
 		}
 
-		if (button == 0) {
+		if (buttonState == 0) {
 			// set positions to lay up on gatherer and shooter arms//
 			layup();
 			gatherState = 1;
+			chevalState = 0;
 		}
 
-		else if (button == 1) {
+		else if (buttonState == 1) {
 			// set positions to stow on gatherer and shooter arms//
 			stow();
 			gatherState = 1;
+			chevalState = 0;
 		}
 
-		else if (button == 2) {
+		else if (buttonState == 2) {
 			// set positions to far shot on gatherer and shooter arms//
 			farShot();
 			gatherState = 1;
+			chevalState = 0;
 		}
 
-		else if (button == 3) {
+		else if (buttonState == 3) {
 			// set positions to gather on gatherer and shooter arms//
 			gather();
+			chevalState = 0;
 		}
 
-		else if (button == 4) {
+		else if (buttonState == 4) {
 			sallyPort(driverstation.getRawButton(IO.SALLYPORT));
 			gatherState = 1;
-		} else if (button == 5) {
-			flippyFloppies(driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES));
+			chevalState = 0;
+		} else if (buttonState == 5) {
 			gatherState = 1;
-		} else if (button == 6) {
+		} else if (buttonState == 6) {
 			// drawbridge(driverstation.getRawButton(IO.DRAWBRIDGE));
 			gatherState = 1;
-		} else if (button == 7) {
+			chevalState = 0;
+		} else if (buttonState == 7) {
 			lowBar(driverstation.getRawButton(IO.LOWBAR), driverstation.getRawButton(IO.PORT));
 			gatherState = 1;
-		} else if (button == 8) {
+			chevalState = 0;
+		} else if (buttonState == 8) {
 			portcullis(driverstation.getRawButton(IO.PORT));
 			gatherState = 1;
+			chevalState = 0;
 		}
 
 		if (driverstation.getRawButton(IO.PRIME)) {
@@ -374,50 +385,50 @@ public class BoulderController {
 		gatherer.gatherwheel(0);
 	}
 
-	int chevalState = 0;
+	static int chevalState = 0;
 
-	public void flippyFloppies(boolean flippyBtn) {
+	public void flippyFloppies() {
 		
-		double prevgath = gatherer.getPosition();
+		SmartDashboard.putNumber("chevalState", chevalState);
 		
 		switch (chevalState) {
 		case 0:
-			time.start();
 			time.reset();
-			// navX.zeroYaw();
-			//drive.resetEncoders();
+			drive.resetEncoders();
 			chevalState = 1;
 			break;
-
+	
 		case 1:
-			gatherer.gotoPosition(GATHER_FLIPPY_FLOPPIES_POS);
+			//drive.compassDrive(0.3, drive.navX.getYaw(), false, 180.0);
 
-			chevalState = 3;																			//skipped meaningless state James 3/29
-			time.reset();
+			if (time.get() > 0.5 || Math.abs(drive.getDistance()) > 4){
+				chevalState = 2;
+				time.reset();
+				drive.tankDrive(0, 0);
+			}
 			break;
+			
 		case 2:
-			// drive.compassDrive(0.6, SPECIFIED_DISTANCE, false, 0.0);
-
-			chevalState = 3;
-			time.reset();
-			break;
-		case 3:
 			gatherer.gotoPosition(GATHER_FULLDOWN_POS);
+			
+			if (time.get() > 2) {
+				chevalState = 3;
+				time.reset();
+			}
+			break;
+			
+		case 3:
+			drive.compassDrive(0.6, drive.navX.getYaw(), false, 0.0);
+			
+			if (time.get() > .75){
 			chevalState = 4;
 			time.reset();
+			}
 			break;
+		
 		case 4:
-			//drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
-			// drive for 7ft or 3 seconds
-			//if (time.get() >= 3.25 || drive.getDistance() > 170) {
-				chevalState = 6;
-		//	}
-			time.reset();
-			break;
-		case 5:
-			gatherer.gotoPosition(prevgath);
-		case 6:
-			// drive.tankDrive(0.0, 0.0);
+			drive.compassDrive(0.4, drive.navX.getYaw(), false, 0.0);
+			gatherer.gotoPosition(GATHER_LAYUP_POS);;
 			time.reset();
 			break;
 		}
@@ -461,12 +472,12 @@ public class BoulderController {
 
 	public void prime() {
 
-		if (button == 0) { // layup
-			shooter.prime(0);
-		} else if (button == 2) { // farshot
-			shooter.prime(0);
+		if (buttonState == 0) { // layup
+			shooter.prime(0.6);
+		} else if (buttonState == 2) { // farshot
+			shooter.prime(0.68);
 		} else {
-			shooter.prime(0);
+			shooter.prime(0.68);
 		}
 
 	}
