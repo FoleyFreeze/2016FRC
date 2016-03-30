@@ -10,6 +10,7 @@ public class Auton {
 	AHRS navX;
 	DriveTrain drive;
 	BoulderController bc;
+	Shooter shoot;										//Added for shooter auton, Steven C, 3/30
 	boolean visionWorking = false;
 
 	final String defaultAuto = "Do Nothing";
@@ -188,7 +189,30 @@ public class Auton {
 		}
 	}
 
-	
+	public void straightShootAuto(){			//WIP, Steven C, 3/30
+		switch (autonstate) {
+		case 0:
+			time.start();
+			time.reset();
+			navX.zeroYaw();
+			drive.resetEncoders();
+			autonstate = 1;
+			break;
+		case 1:
+			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			bc.gatherer.autoAndback(false);
+			bc.gatherer.gatherArm.set(0.2);
+			if (time.get() >= 3.25 || drive.getDistance() > 170){
+				autonstate = 2;
+			}
+			break;
+		case 2:
+			drive.tankDrive(0.0, 0.0);
+			shoot.fire();
+			time.reset();
+			break;
+		}	
+	}
 
 	public void runAuto() {
 		// autoSelected = (String) chooser.getSelected();
