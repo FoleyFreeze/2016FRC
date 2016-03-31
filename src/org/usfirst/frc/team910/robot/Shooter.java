@@ -128,7 +128,7 @@ public class Shooter {
 		}*/
 		setMotorPosition(position/* + jogoffset*/);
 		
-		SmartDashboard.putNumber("***********ShooterPosition", position); 	//3.28 MrC
+		//SmartDashboard.putNumber("***********ShooterPosition", position); 	//3.28 MrC
 
 	}
 

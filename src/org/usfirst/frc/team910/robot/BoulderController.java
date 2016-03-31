@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class BoulderController {
 
 	// shooter positions (high to low)
-	static double SHOOTER_MAX_HEIGHT = 872; // shooting from 859 on 3.24
+	static double SHOOTER_MAX_HEIGHT = 844 + 18; // Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; // 3.28
 	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 17;
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;
@@ -248,26 +248,28 @@ public class BoulderController {
 			if (/*Math.abs(shooter.shooterArm.getClosedLoopError()) < 7 && */time.get() > 0.7) {
 				gatherState = 4;
 				time.reset();
+				shooter.gotoPosition(SHOOTER_LOAD_POS);
 			}
 			break;
-		case 4: // load the ball into the shooter
+			
+		/*case 4: // load the ball into the shooter
 			shooter.gotoPosition(SHOOTER_LOAD_POS);
 			shooter.setLoadWheels(1);
 			if (IO.COMP) {
-				if (time.get() >= 1.0 /* || checkForLoadCurrent() */) { // was
+				if (time.get() >= 1.0 /* || checkForLoadCurrent() /) { // was
 																		// 2.0
 					gatherState = 45;
 					time.reset();
 				}
 			} else {
-				if (time.get() >= 2.0 /* || checkForLoadCurrent() */) { // was
+				if (time.get() >= 2.0 /* || checkForLoadCurrent() /) { // was
 																		// 2.0
 					gatherState = 45;
 					time.reset();
 				}
 			}
 			break;
-
+			
 		case 45:
 			if (IO.COMP) {
 				shooter.setLoadWheels(-0.4);
@@ -282,7 +284,7 @@ public class BoulderController {
 					gatherState = 5;
 				}
 			}
-
+			*/
 		case 5: // back the ball up slightly
 			if (IO.COMP) {
 				shooter.setLoadWheels(-0.4);
@@ -291,8 +293,8 @@ public class BoulderController {
 					time.reset();
 				}
 			} else {
-				shooter.setLoadWheels(-0.6);
-				if (/* !ballSensor.get() || */ time.get() > 0.15) {
+				shooter.setLoadWheels(1.0);	
+				if (ballSensor.get() /*||  time.get() > 0.2*/) {   //was .15  3.30 MrC
 					gatherState = 55;
 					time.reset();
 				}
@@ -307,7 +309,7 @@ public class BoulderController {
 					time.reset();
 				}
 			} else {
-				shooter.setLoadWheels(-0.6);
+				shooter.setLoadWheels(0.6);
 				if (time.get() > 0.05) {
 					gatherState = 6;
 					time.reset();

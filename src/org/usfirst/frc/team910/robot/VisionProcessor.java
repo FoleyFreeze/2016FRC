@@ -201,11 +201,15 @@ public class VisionProcessor {
 				goodTarget = false;
 				SmartDashboard.putBoolean("goodTarget", goodTarget);
 				
-				System.out.println("Vision Crash, Resetting... " + Timer.getFPGATimestamp());
+				System.out.println("Vision Crash, Resetting... (session=)" + session + ", " + Timer.getFPGATimestamp());
 				
 				//reset camera on a crash
-				NIVision.IMAQdxCloseCamera(session);
-				this.setup();
+				//NIVision.IMAQdxCloseCamera(session);	//3.30 MrC
+				NIVision.IMAQdxResetCamera("cam1", 1);	//3.30 MrC
+				
+				System.out.println("Camera Reset, doing SETUP " + Timer.getFPGATimestamp());
+				
+				//this.setup();
 				
 				System.out.println("Vision Cam Reset Done " + Timer.getFPGATimestamp());
 			}

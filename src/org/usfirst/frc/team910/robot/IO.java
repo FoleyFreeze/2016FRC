@@ -77,9 +77,9 @@ public class IO {
 	public static final double[] POWER_AXIS = { 0.0, 0.2, 0.6, 0.9, 1.0 };
 	
 	// camera distance cals
-	public static final double[] DISTANCE_AXIS = { 70, 80, 94, 100, 110, 120, 150, 160 };
-	public static final double[] MOTOR_POWERS = { 0.6, 0.6, 0.6, 0.635, 0.645, 0.655, 0.685, 0.685};
-	public static final double[] SHOOTER_ANGLE = { -27, -26, -22, -20, 0, 0, 0, 0, 0 };
+	public static final double[] DISTANCE_AXIS = {  70,   80,   94,    100,    110,    120,    150,    160 };
+	public static final double[] MOTOR_POWERS = {  0.63,  0.63,  0.63,  0.635,  0.645,  0.655,  0.685,  0.685 };	//was .6,.6,.6,.635
+	public static final double[] SHOOTER_ANGLE = { -29,  -27,  -22,    -20,      0,      0,      0,      0 };	//was -27,-26,-22,-20  3.30 MrC
 
 	public static double lookup(double[] values, double[] axis, double input) {
 		int index = axis.length - 1;
