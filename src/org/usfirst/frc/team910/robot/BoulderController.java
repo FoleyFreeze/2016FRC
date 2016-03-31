@@ -11,21 +11,24 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class BoulderController {
 
 	// shooter positions (high to low)
-	static double SHOOTER_MAX_HEIGHT = 844 + 18; // Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
+	//static double SHOOTER_MAX_HEIGHT = 844 + 18; // Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
+	static double SHOOTER_MAX_HEIGHT = 760; //COMP BOT 83 degrees is 760 
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; // 3.28
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 17;
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 7; //was -17 for prac
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;
 	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 85; // 45;
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 452; // 3.28 was 431
-	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 468; // was 448
+	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 473; // was 468 for prac bot
 
 	// gatherer positions (low to high)
-	static double GATHER_FULLDOWN_POS = 617;
-	double GATHER_LOAD_SHOOTER_POS = GATHER_FULLDOWN_POS + 15;
-	double GATHER_INTAKE_POS = GATHER_FULLDOWN_POS + 100; // 3.28 was 86
-	static double GATHER_STOW_POS = GATHER_FULLDOWN_POS + 225; // 3.28 was 333
-	double GATHER_LAYUP_POS = GATHER_FULLDOWN_POS + 333;// 3.28
-	double GATHER_FARSHOT_POS = GATHER_FULLDOWN_POS + 333;// 3.28
+	//static double GATHER_FULLDOWN_POS = 617; //PRACTICE
+	static double GATHER_FULLDOWN_POS = 475; //COMP BOT
+	static double GATHER_SETPOINT_POS = 469;
+	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 12;
+	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; // 3.28 was 86 3.30 was 100
+	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; // 3.28 was 333
+	double GATHER_LAYUP_POS = GATHER_SETPOINT_POS + 333;// 3.28
+	double GATHER_FARSHOT_POS = GATHER_SETPOINT_POS + 333;// 3.28
 
 	// defense positions
 	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; // was 470
@@ -230,10 +233,10 @@ public class BoulderController {
 			break;
 
 		case 2: // ball is under gatherer, move gatherer down to pick up ball
-			gatherer.gatherArm.configPeakOutputVoltage(7.0, -6.0);
+			gatherer.gatherArm.configPeakOutputVoltage(7.0, -4.0);
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
 			gatherer.gatherwheel(-1);
-			if (Math.abs(gatherer.gatherArm.getClosedLoopError()) < 3) {
+			if (Math.abs(gatherer.gatherArm.getClosedLoopError()) < 4) {
 				gatherer.gatherArm.configPeakOutputVoltage(7.0, -3.0);
 				gatherState = 3;
 				time.reset();
@@ -246,9 +249,13 @@ public class BoulderController {
 
 
 			if (/*Math.abs(shooter.shooterArm.getClosedLoopError()) < 7 && */time.get() > 0.7) {
-				gatherState = 4;
+				gatherState = 5;
 				time.reset();
 				shooter.gotoPosition(SHOOTER_LOAD_POS);
+			} else if(ballSensor.get()){
+				gatherState = 6;
+				time.reset();
+				gatherer.gatherwheel(0);
 			}
 			break;
 			
@@ -286,10 +293,11 @@ public class BoulderController {
 			}
 			*/
 		case 5: // back the ball up slightly
+			gatherer.gatherwheel(0);
 			if (IO.COMP) {
-				shooter.setLoadWheels(-0.4);
-				if (!ballSensor.get() || time.get() > 0.35) {
-					gatherState = 55;
+				shooter.setLoadWheels(0.6);
+				if (ballSensor.get() /*|| time.get() > 0.35*/) {
+					gatherState = 6;
 					time.reset();
 				}
 			} else {
@@ -300,7 +308,7 @@ public class BoulderController {
 				}
 			}
 			break;
-
+			
 		case 55:
 			if (IO.COMP) {
 				shooter.setLoadWheels(-0.4);
@@ -316,7 +324,7 @@ public class BoulderController {
 				}
 			}
 			break;
-
+			
 		case 6: // go to shooting position
 			shooter.setLoadWheels(0);
 			shooter.gotoPosition(SHOOTER_STOW_POS + 50);

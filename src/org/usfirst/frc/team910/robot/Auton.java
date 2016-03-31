@@ -11,7 +11,6 @@ public class Auton {
 	AHRS navX;
 	DriveTrain drive;
 	BoulderController bc;
-	Shooter shoot;										//Added for shooter auton, Steven C, 3/30
 	boolean visionWorking = false;
 
 	/*
@@ -280,33 +279,344 @@ public class Auton {
 			break;
 		case 2:
 			drive.tankDrive(0.0, 0.0);
-			shoot.fire();
+			bc.shooter.fire();
 			time.reset();
 			break;
 		}	
 	}
-
+	
+	boolean collapse = false;
+	boolean doA180 = false;
+	boolean driving = false; 
+	double driveDistance = 0;
+	double driveTime = 0;
+	boolean doCheval = false;
+	boolean crossDrive = false;
+	double crossDistance = 0;
+	double crossTime = 0;
+	boolean alignDrive = false;
+	double alignAngle = 0;
+	boolean cameraAlign = false;
+	boolean shooting = false;
+	
 	public void runAuto() {
-		// autoSelected = (String) chooser.getSelected();
-		// autoSelected = SmartDashboard.getString("Auto Selector",
-		// defaultAuto);
-		// System.out.println("Auto selected: " + autoSelected);
-
-		/*
-		 * switch (autoSelected) { case defaultAuto: //emptyAuto();
-		 * justDriveAuto(); //comment out if no drive break;
-		 * 
-		 * case crossCamShootAuto: crossCamShootAuto(); break;
-		 * 
-		 * case justDriveAuto: justDriveAuto();//comment out if no drive break;
-		 * 
-		 * default: //emptyAuto(); justDriveAuto();//comment out if no drive
-		 * break; }
-		 */
 
 		// emptyAuto();
 		// justDriveAuto();
-		lowBarAuto();
+		//lowBarAuto();
+		
+		//stationIndex;
+		//defenseIndex;
+		//extraIndex;
+		
+		switch(stationIndex){
+		case 0: //do nothing so exit before anything happens
+			return;
+			
+		case 1:
+			collapse = true;
+			driving = true;
+			
+			break;
+			
+		case 2:
+			collapse = false;
+			break;
+			
+		case 3:
+			collapse = false;
+			break;
+			
+		case 4:
+			collapse = false;
+			break;
+			
+		case 5:
+			collapse = false;
+			break;
+		}
+		
+		switch(defenseIndex){
+		case 0:
+			break;
+			
+		case 1:
+			
+			break;
+			
+		case 2:
+			
+			break;
+		}
+		
+		switch(extraIndex){
+		case 0:
+			break;
+			
+		case 1:
+			
+			break;
+			
+		case 2:
+			
+			break;
+		}
+		
+		runFancyAuto();
+		
+	}
+	
+	boolean repeatAlign = false;
+	
+	public void runFancyAuto(){
+		switch(autonstate){
+		case 0:
+			time.start();
+			time.reset();
+			navX.zeroYaw();
+			drive.resetEncoders();
+			if(collapse){
+				autonstate = 11;
+			} else {
+				autonstate = 20;
+			}
+			break;
+
+		//collapse section
+		case 11: // bring the gatherer down
+			bc.gatherer.autoAndback(true);
+			bc.gatherer.gatherArm.set(bc.GATHER_LOWBAR_POS);
+			if (time.get() > 1.5) {
+				autonstate = 12;
+				time.reset();
+			}
+			break;
+
+		case 12: // bring the shooter down
+			bc.shooter.autoAndback(true);
+			bc.shooter.shooterArm.set(bc.SHOOTER_LOWBAR_POS);
+			if (time.get() > 1.5) {
+				autonstate = 13;
+				time.reset();
+			}
+			break;
+
+		case 13:
+			bc.shooter.autoAndback(false);
+			bc.gatherer.autoAndback(false);
+			autonstate = 20;
+			time.reset();
+			break;
+			
+		//do a barrel roll section
+		case 20:
+			if(doA180){
+				autonstate = 21;
+			} else {
+				autonstate = 30;
+			}
+			break;
+
+		//drive section
+		case 30:
+			drive.resetEncoders();
+			time.reset();
+			if(driving){
+				autonstate = 31;
+			} else {
+				autonstate = 40;
+			}
+			break;
+			
+		case 31:
+			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			// drive for some distance or for some time
+			if (time.get() >= driveTime || drive.getDistance() > driveDistance) {
+				autonstate = 32;
+			}
+			break;
+
+		case 32:
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			autonstate = 40;
+			break;
+			
+		//cheval section
+		case 40:
+			if(doCheval){
+				autonstate = 41;
+			} else {
+				autonstate = 50;
+			}
+			break;
+			
+		//cross drive section
+		case 50:
+			drive.resetEncoders();
+			time.reset();
+			if(crossDrive){
+				autonstate = 51;
+			} else {
+				autonstate = 60;
+			}
+			break;
+			
+		case 51:
+			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			// drive for some distance or for some time
+			if (time.get() >= crossTime || drive.getDistance() > crossDistance) {
+				autonstate = 52;
+			}
+			break;
+
+		case 52:
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			autonstate = 60;
+			break;
+			
+		//align drive section
+		case 60:
+			time.reset();
+			if(alignDrive){
+				autonstate = 61;
+			} else {
+				autonstate = 65;
+			}
+			break;
+			
+		//put gatherer and shooter in shooting position
+		case 65:
+			time.reset();
+			if(shooting && collapse){
+				autonstate = 66;
+			} else {
+				autonstate = 70;
+			}
+			break;
+			
+		case 66: //lift shooter first
+			bc.shooter.autoAndback(true);
+			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			if(time.get() > 0.6){
+				autonstate = 67;
+				time.reset();
+			}
+			break;
+			
+		case 67://then gatherer
+			bc.gatherer.autoAndback(true);
+			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
+			if(time.get() > 1){
+				autonstate = 68;
+				time.reset();
+			}
+			break;
+			
+		case 68://then go back to manual mode
+			bc.shooter.autoAndback(false);
+			bc.gatherer.autoAndback(false);
+			autonstate = 70;
+			break;
+			
+		//camera align section
+		case 70:
+			if(cameraAlign){
+				autonstate = 71;
+				repeatAlign = false;
+			} else {
+				autonstate = 80;
+			}
+			break;
+			
+		case 71:// look for camera target
+			Robot.vp.run();
+			bc.shooter.autoAndback(true);
+			bc.gatherer.autoAndback(true);
+			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
+			// keep trying until we get a good image
+			if (Robot.vp.goodTarget) {
+				cameraAngle = Robot.vp.getAngle() + navX.getYaw();
+				autonstate = 72;
+				time.reset();
+			}
+			break;
+
+		case 72:// once target is found, turn to face it
+			drive.shooterAlign(cameraAngle, navX.getYaw(), false);
+			SmartDashboard.putNumber("cameraAngle", cameraAngle);
+			SmartDashboard.putBoolean("goodTarget", Robot.vp.goodTarget);
+			double dist = Robot.vp.getDistance();
+			if(dist == 0){
+				bc.visionAngleOffset = 0;
+			} else {
+				bc.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS, dist);
+			}
+			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
+			if (time.get() > 2) {
+				autonstate = 73;
+				time.reset();
+			}
+			break;
+			
+		//do it again for good measure
+		case 73:
+			drive.tankDrive(0, 0);
+			if(repeatAlign){
+				autonstate = 80;
+			} else {
+				autonstate = 71;
+				repeatAlign = true;
+			}
+			break;
+			
+		//shoot things section
+		case 80:
+			if(shooting){
+				autonstate = 81;
+			} else {
+				autonstate = 90;
+			}
+			break;
+			
+		case 81:// prime shooter and stop tank
+			bc.shooter.autoAndback(true);
+			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			bc.prime();
+			if (time.get() > 1) {
+				autonstate = 82;
+				time.reset();
+			}
+			break;
+
+		case 82:// fire
+			bc.shooter.autoAndback(true);
+			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			bc.shooter.fire();
+			if (time.get() > 0.75) {
+				autonstate = 83;
+				time.reset();
+			}
+			break;
+
+		case 83:// stop
+			bc.shooter.autoAndback(false);
+			bc.gatherer.autoAndback(false);
+			bc.shooter.manualShooter(0, false, 0);
+			bc.gatherer.manualGather(0, false, false);
+			autonstate = 90;
+			break;
+			
+		//stop things section
+		case 90:
+			drive.tankDrive(0, 0);
+			bc.shooter.autoAndback(false);
+			bc.gatherer.autoAndback(false);
+			break;
+		}
 	}
 
 }
