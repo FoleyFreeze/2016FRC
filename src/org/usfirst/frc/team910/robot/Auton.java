@@ -21,11 +21,20 @@ public class Auton {
 	SendableChooser chooser;
 	*/
 	
+	//defenses
+	/*
+	 * rough terrain
+	 * 
+	 * moat
+	 * rockwall
+	 * ramparts
+	 */
+	
 	String[] stationSelection = { "0 Do Nothing" , "1 Low Bar", "2nd Def", "3rd Def", "4th Def", "5th Def" };
 	int stationIndex = 0;
-	String[] defenseType = { "0 Drive Over", "1 Portcullis", "2 Cheval" };
+	String[] defenseType = { "0 Drive Over", "1 Rough Terrain", "2 Moat", "3 Rock Wall", "4 Ramparts", "5 Cheval", "6 Portcullis" };
 	int defenseIndex = 0;
-	String[] extraCredit = { "0 None", "1 No Shooting", "2 Spy Box" };
+	String[] extraCredit = { "0 No Modification", "1 No Shooting", "2 Spy Box" };
 	int extraIndex = 0;
 	
 	public Auton(AHRS navX, DriveTrain drive, BoulderController bc, boolean visionWorking) {
@@ -313,52 +322,132 @@ public class Auton {
 		case 0: //do nothing so exit before anything happens
 			return;
 			
-		case 1:
+		case 1: //the lowbar
 			collapse = true;
-			driving = true;
-			
+			doA180 = false;
+			driving = true; 
+			driveDistance = 120;
+			driveTime = 3.0;
+			doCheval = false;
+			crossDrive = false;
+			crossDistance = 0;
+			crossTime = 0;
+			alignDrive = true;
+			alignAngle = -60;
+			cameraAlign = true;
+			shooting = true;
 			break;
 			
 		case 2:
 			collapse = false;
+			doA180 = false;
+			driving = true; 
+			driveDistance = 140;
+			driveTime = 3.0;
+			doCheval = false;
+			crossDrive = false;
+			crossDistance = 0;
+			crossTime = 0;
+			alignDrive = true;
+			alignAngle = -25;
+			cameraAlign = true;
+			shooting = true;
 			break;
 			
 		case 3:
 			collapse = false;
+			doA180 = false;
+			driving = true; 
+			driveDistance = 140;
+			driveTime = 3.0;
+			doCheval = false;
+			crossDrive = false;
+			crossDistance = 0;
+			crossTime = 0;
+			alignDrive = true;
+			alignAngle = 0;
+			cameraAlign = true;
+			shooting = true;
 			break;
 			
 		case 4:
 			collapse = false;
+			doA180 = false;
+			driving = true; 
+			driveDistance = 140;
+			driveTime = 3.0;
+			doCheval = false;
+			crossDrive = false;
+			crossDistance = 0;
+			crossTime = 0;
+			alignDrive = true;
+			alignAngle = 15;
+			cameraAlign = true;
+			shooting = true;
 			break;
 			
 		case 5:
 			collapse = false;
+			doA180 = false;
+			driving = true; 
+			driveDistance = 140;
+			driveTime = 3.0;
+			doCheval = false;
+			crossDrive = false;
+			crossDistance = 0;
+			crossTime = 0;
+			alignDrive = true;
+			alignAngle = 30;
+			cameraAlign = true;
+			shooting = true;
 			break;
 		}
 		
 		switch(defenseIndex){
-		case 0:
+		case 0://default drive case
 			break;
 			
-		case 1:
+		case 1: //rough terrain
+			driveDistance = 140;
+			driveTime = 3.0;
+			break;
+			
+		case 2: //moat
+			driveDistance = 140;
+			driveTime = 3.0;
+			break;
+			
+		case 3: //rock wall
+			driveDistance = 140;
+			driveTime = 3.0;
+			break;
+			
+		case 4: //ramparts
+			driveDistance = 140;
+			driveTime = 3.0;
+			break;
+			
+		case 5://cheval
+			
+			break;
+		
+		case 6://portcullis 
 			
 			break;
 			
-		case 2:
-			
-			break;
 		}
 		
 		switch(extraIndex){
-		case 0:
+		case 0://none
 			break;
 			
-		case 1:
-			
+		case 1://dont shoot
+			shooting = false;
 			break;
 			
-		case 2:
-			
+		case 2://spy box
+			driving = false;
+			crossDrive = false;
 			break;
 		}
 		
@@ -408,7 +497,7 @@ public class Auton {
 			time.reset();
 			break;
 			
-		//do a barrel roll section
+		//do a barrel roll section				!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		case 20:
 			if(doA180){
 				autonstate = 21;
@@ -442,7 +531,7 @@ public class Auton {
 			autonstate = 40;
 			break;
 			
-		//cheval section
+		//cheval section					!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		case 40:
 			if(doCheval){
 				autonstate = 41;
@@ -476,7 +565,7 @@ public class Auton {
 			autonstate = 60;
 			break;
 			
-		//align drive section
+		//align drive section	
 		case 60:
 			time.reset();
 			if(alignDrive){
@@ -484,6 +573,19 @@ public class Auton {
 			} else {
 				autonstate = 65;
 			}
+			break;
+			
+		case 61:
+			drive.shooterAlign(alignAngle, navX.getYaw(), true);
+			double angleDiff = alignAngle - navX.getYaw();
+			if((Math.abs(angleDiff) < 10 && time.get() > 1.5) || time.get() > 4.0){
+				autonstate = 62;
+			}
+			break;
+			
+		case 62:
+			drive.tankDrive(0, 0);
+			autonstate = 65;
 			break;
 			
 		//put gatherer and shooter in shooting position

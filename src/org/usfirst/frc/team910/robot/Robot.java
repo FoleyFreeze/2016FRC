@@ -312,7 +312,7 @@ public class Robot extends IterativeRobot {
 			
 		} else { //if camera is not auto aiming then allow driving 
 			drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(),
-					rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE), rJoy.getThrottle(), rJoy.getRawButton(IO.DO_A_180_BTN));
+					rJoy.getRawButton(IO.COMPASS_POWER_THROTTLE), rJoy.getThrottle(), lJoy.getRawButton(IO.DO_A_180_BTN));
 			cameraState = 0;
 		}
 		
