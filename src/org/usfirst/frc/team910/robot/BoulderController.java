@@ -249,60 +249,67 @@ public class BoulderController {
 
 
 			if (/*Math.abs(shooter.shooterArm.getClosedLoopError()) < 7 && */time.get() > 0.7) {
-				gatherState = 5;
+				gatherState = 4;
 				time.reset();
 				shooter.gotoPosition(SHOOTER_LOAD_POS);
-			} else if(ballSensor.get()){
+			} else if(!ballSensor.get()){
 				gatherState = 6;
 				time.reset();
 				gatherer.gatherwheel(0);
 			}
 			break;
 			
-		/*case 4: // load the ball into the shooter
+		case 4: // load the ball into the shooter
 			shooter.gotoPosition(SHOOTER_LOAD_POS);
 			shooter.setLoadWheels(1);
 			if (IO.COMP) {
-				if (time.get() >= 1.0 /* || checkForLoadCurrent() /) { // was
+				if (time.get() >= 1.0 /* || checkForLoadCurrent() */) { // was
 																		// 2.0
 					gatherState = 45;
 					time.reset();
 				}
 			} else {
-				if (time.get() >= 2.0 /* || checkForLoadCurrent() /) { // was
+				if (time.get() >= 2.0 /* || checkForLoadCurrent() */) { // was
 																		// 2.0
 					gatherState = 45;
 					time.reset();
 				}
+			}
+			if(!ballSensor.get()){
+				gatherState = 6;
+				time.reset();
+				gatherer.gatherwheel(0);
 			}
 			break;
 			
 		case 45:
 			if (IO.COMP) {
-				shooter.setLoadWheels(-0.4);
+				shooter.setLoadWheels(-0.25);
 				gatherer.gatherwheel(0);
-				if (time.get() > 0.3) {
-					gatherState = 5;
+				if (time.get() > 0.4) {
+					gatherState = 6;
 				}
 			} else {
 				shooter.setLoadWheels(-0.6);
 				gatherer.gatherwheel(0);
 				if (time.get() > 0.2) {
-					gatherState = 5;
+					gatherState = 6;
 				}
 			}
-			*/
+			break;
+			
+			/*
 		case 5: // back the ball up slightly
 			gatherer.gatherwheel(0);
 			if (IO.COMP) {
 				shooter.setLoadWheels(0.6);
-				if (ballSensor.get() /*|| time.get() > 0.35*/) {
+				if (ballSensor.get() || time.get() > 0.35) {
 					gatherState = 6;
 					time.reset();
 				}
 			} else {
 				shooter.setLoadWheels(1.0);	
-				if (ballSensor.get() /*||  time.get() > 0.2*/) {   //was .15  3.30 MrC
+				if (/*ballSensor.get() ||  /time.get() > 0.2) {   //was .15  3.30 MrC
 					gatherState = 55;
 					time.reset();
 				}
@@ -324,11 +331,11 @@ public class BoulderController {
 				}
 			}
 			break;
-			
+			*/
 		case 6: // go to shooting position
 			shooter.setLoadWheels(0);
 			shooter.gotoPosition(SHOOTER_STOW_POS + 50);
-			if (time.get() > 0.4) { // 3.28 was 1
+			if (time.get() > 1.0) { // 3.28 was 1
 				gatherState = 7;
 				time.reset();
 			}

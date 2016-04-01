@@ -199,12 +199,8 @@ public class Shooter {
 		
 		shooterArm.set(YAxisGamepadRight); //flipped for comp bot
 		loadWheelR.set(-LoadWheelAxis);//flipped for comp
-
-		if (LoadWheelAxis < 0) {
-			loadWheelL.set(0);
-		} else {
-			loadWheelL.set(LoadWheelAxis);//flipped for comp
-		}
+		loadWheelL.set(LoadWheelAxis);//flipped for comp
+		
 		if (GamepadLBumper) {
 
 			shooterWheelL.set(1); 

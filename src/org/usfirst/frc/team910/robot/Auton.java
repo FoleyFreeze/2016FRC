@@ -296,7 +296,9 @@ public class Auton {
 	
 	boolean collapse = false;
 	boolean doA180 = false;
+	boolean doStow = false;
 	boolean driving = false; 
+	double drivePower = 0;
 	double driveDistance = 0;
 	double driveTime = 0;
 	boolean doCheval = false;
@@ -325,7 +327,9 @@ public class Auton {
 		case 1: //the lowbar
 			collapse = true;
 			doA180 = false;
-			driving = true; 
+			doStow = false;
+			driving = true;
+			drivePower = 0.6;
 			driveDistance = 120;
 			driveTime = 3.0;
 			doCheval = false;
@@ -333,7 +337,7 @@ public class Auton {
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -60;
+			alignAngle = 60;
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -341,7 +345,9 @@ public class Auton {
 		case 2:
 			collapse = false;
 			doA180 = false;
-			driving = true; 
+			doStow = true;
+			driving = true;
+			drivePower = 0.6;
 			driveDistance = 140;
 			driveTime = 3.0;
 			doCheval = false;
@@ -349,7 +355,7 @@ public class Auton {
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -25;
+			alignAngle = 25;
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -357,7 +363,9 @@ public class Auton {
 		case 3:
 			collapse = false;
 			doA180 = false;
+			doStow = true;
 			driving = true; 
+			drivePower = 0.6;
 			driveDistance = 140;
 			driveTime = 3.0;
 			doCheval = false;
@@ -373,7 +381,9 @@ public class Auton {
 		case 4:
 			collapse = false;
 			doA180 = false;
+			doStow = true;
 			driving = true; 
+			drivePower = 0.6;
 			driveDistance = 140;
 			driveTime = 3.0;
 			doCheval = false;
@@ -381,7 +391,7 @@ public class Auton {
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = 15;
+			alignAngle = -15;
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -389,7 +399,9 @@ public class Auton {
 		case 5:
 			collapse = false;
 			doA180 = false;
+			doStow = true;
 			driving = true; 
+			drivePower = 0.6;
 			driveDistance = 140;
 			driveTime = 3.0;
 			doCheval = false;
@@ -397,7 +409,7 @@ public class Auton {
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = 30;
+			alignAngle = -30;
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -408,8 +420,8 @@ public class Auton {
 			break;
 			
 		case 1: //rough terrain
-			driveDistance = 140;
-			driveTime = 3.0;
+			driveDistance = 120; //reduced from 140
+			driveTime = 2.5;
 			break;
 			
 		case 2: //moat
@@ -423,16 +435,20 @@ public class Auton {
 			break;
 			
 		case 4: //ramparts
-			driveDistance = 140;
+			driveDistance = 130;
 			driveTime = 3.0;
 			break;
 			
 		case 5://cheval
-			
-			break;
+			doStow = false;
+			return;   //if you cheval and its not programmed, dont do anyting
 		
 		case 6://portcullis 
-			
+			collapse = true;
+			doStow = false;
+			drivePower = 0.5;
+			driveDistance = 140;
+			driveTime = 3.0;
 			break;
 			
 		}
@@ -446,6 +462,7 @@ public class Auton {
 			break;
 			
 		case 2://spy box
+			doStow = false;
 			driving = false;
 			crossDrive = false;
 			break;
@@ -502,13 +519,61 @@ public class Auton {
 			if(doA180){
 				autonstate = 21;
 			} else {
+				autonstate = 25;
+			}
+			break;
+			
+		//go to stow position section
+		case 25:
+			time.reset();
+			drive.resetEncoders();
+			if(doStow){
+				autonstate = 26;
+			} else {
 				autonstate = 30;
 			}
 			break;
-
+			
+		case 26:
+			bc.gatherer.autoAndback(true);
+			bc.gatherer.gotoPosition(bc.GATHER_STOW_POS + 15);
+			drive.compassDrive(0.25, navX.getYaw(), false, 0.0);
+			if(time.get() > 0.5){
+				autonstate = 27;
+				time.reset();
+			}
+			break;
+			
+		case 27:
+			bc.shooter.autoAndback(true);
+			bc.shooter.gotoPosition(bc.SHOOTER_STOW_POS);
+			if(time.get() > 0.4){
+				autonstate = 28;
+				time.reset();
+			}
+			break;
+			
+		case 28:
+			bc.gatherer.autoAndback(true);
+			bc.gatherer.gotoPosition(bc.GATHER_STOW_POS);
+			if(time.get() > 0.3){
+				autonstate = 29;
+				time.reset();
+			}
+			break;
+			
+		case 29:
+			bc.shooter.autoAndback(false);
+			bc.gatherer.autoAndback(false);
+			bc.shooter.manualShooter(0, false, 0);
+			bc.gatherer.manualGather(0, false, false);
+			drive.tankDrive(0, 0);
+			autonstate = 30;
+			break;
+			
 		//drive section
 		case 30:
-			drive.resetEncoders();
+			//drive.resetEncoders();
 			time.reset();
 			if(driving){
 				autonstate = 31;
@@ -518,7 +583,7 @@ public class Auton {
 			break;
 			
 		case 31:
-			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			drive.compassDrive(drivePower, navX.getYaw(), false, 0.0);
 			// drive for some distance or for some time
 			if (time.get() >= driveTime || drive.getDistance() > driveDistance) {
 				autonstate = 32;
@@ -591,7 +656,7 @@ public class Auton {
 		//put gatherer and shooter in shooting position
 		case 65:
 			time.reset();
-			if(shooting && collapse){
+			if((shooting && collapse) || (shooting && doStow)){
 				autonstate = 66;
 			} else {
 				autonstate = 70;
