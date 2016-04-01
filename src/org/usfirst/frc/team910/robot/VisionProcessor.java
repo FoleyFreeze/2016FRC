@@ -203,15 +203,34 @@ public class VisionProcessor {
 				
 				System.out.println("Vision Crash, Resetting... (session=)" + session + ", " + Timer.getFPGATimestamp());
 				
-				//reset camera on a crash
-				//NIVision.IMAQdxCloseCamera(session);	//3.30 MrC
-				NIVision.IMAQdxResetCamera("cam1", 1);	//3.30 MrC
+				try{
 				
-				System.out.println("Camera Reset, doing SETUP " + Timer.getFPGATimestamp());
-				
-				//this.setup();
-				
-				System.out.println("Vision Cam Reset Done " + Timer.getFPGATimestamp());
+					//reset camera on a crash
+					//NIVision.IMAQdxCloseCamera(session);	//3.30 MrC
+					NIVision.IMAQdxResetCamera("cam1", 1);	//3.30 MrC
+					
+					//System.out.println("Camera Reset Complete " + Timer.getFPGATimestamp());
+					
+					//this.setup();
+					
+					System.out.println("Vision Cam Reset Done " + Timer.getFPGATimestamp());
+					
+				} catch (Exception ex) {
+					
+					try{
+						System.out.println("Camera Reset Crashed, trying close/reopen " + Timer.getFPGATimestamp());
+						
+					NIVision.IMAQdxCloseCamera(session);
+					
+					System.out.println("Camera Close complete " + Timer.getFPGATimestamp());
+					this.setup();
+					
+					System.out.println("Camera Reopen complete " + Timer.getFPGATimestamp());
+					} catch (Exception exc){
+						time.reset();
+						System.out.println("Camera Close/Reopen Crashed.  I GIVE UP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + Timer.getFPGATimestamp());
+					}
+				}
 			}
 		}
 	}
