@@ -20,7 +20,7 @@ public class Gatherer {
 
 		autoAndback(false);
 		gatherArm.enableBrakeMode(true);
-		gatherArm.configPeakOutputVoltage(7.0, -3.0);
+		gatherArm.configPeakOutputVoltage(7.0, -3.5);
 		gatherArm.setPID(20, 0.05, 0.0); //used to be 30 , 0.05
 		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		autoAndback(false);
@@ -65,12 +65,12 @@ public class Gatherer {
 		//switch the maximum voltage at the top end to allow smoother movement
 		if(gatherArm.getPosition() > BoulderController.GATHER_STOW_POS + 30){
 			//if(!prevVoltSwitch){
-				gatherArm.configPeakOutputVoltage(2.0, -3.0);
+				gatherArm.configPeakOutputVoltage(2.0, -3.5);
 			//}
 			//prevVoltSwitch = true;
 		} else {
 			//if(prevVoltSwitch){
-				gatherArm.configPeakOutputVoltage(7.0, -3.0);
+				gatherArm.configPeakOutputVoltage(7.0, -3.5);
 			//}
 			//prevVoltSwitch = false;
 		}

@@ -30,7 +30,7 @@ public class Auton {
 	 * ramparts
 	 */
 	
-	String[] stationSelection = { "0 Do Nothing" , "1 Low Bar", "2nd Def", "3rd Def", "4th Def", "5th Def" };
+	String[] stationSelection = {"-1 ElimAuton (3 Ramparts)", "0 Do Nothing" , "1 Low Bar", "2nd Def", "3rd Def", "4th Def", "5th Def" };
 	int stationIndex = 0;
 	String[] defenseType = { "0 Drive Over", "1 Rough Terrain", "2 Moat", "3 Rock Wall", "4 Ramparts", "5 Cheval", "6 Portcullis" };
 	int defenseIndex = 0;
@@ -98,14 +98,14 @@ public class Auton {
 			prevExtraDec = false;
 		}
 		
-		if(stationIndex < 0) stationIndex = 0;
-		if(stationIndex >= stationSelection.length) stationIndex = stationSelection.length - 1;
+		if(stationIndex < -1) stationIndex = 0;
+		if(stationIndex >= stationSelection.length-1) stationIndex = stationSelection.length - 2;
 		if(defenseIndex < 0) defenseIndex = 0;
 		if(defenseIndex >= defenseType.length) defenseIndex = defenseType.length - 1;
 		if(extraIndex < 0) extraIndex = 0;
 		if(extraIndex >= extraCredit.length) extraIndex = extraCredit.length - 1;
 		
-		SmartDashboard.putString("Auton Station", stationSelection[stationIndex]);
+		SmartDashboard.putString("Auton Station", stationSelection[stationIndex-1]);
 		SmartDashboard.putString("Auton Defense", defenseType[defenseIndex]);
 		SmartDashboard.putString("Auton Extra", extraCredit[extraIndex]);
 	}
@@ -301,6 +301,7 @@ public class Auton {
 	double drivePower = 0;
 	double driveDistance = 0;
 	double driveTime = 0;
+	boolean doElimAuton = false;
 	boolean doCheval = false;
 	boolean crossDrive = false;
 	double crossDistance = 0;
@@ -321,6 +322,25 @@ public class Auton {
 		//extraIndex;
 		
 		switch(stationIndex){
+		case -1: //special elims auton
+			collapse = false;
+			doA180 = false;
+			doStow = true;
+			driving = false; 
+			drivePower = 0.6;
+			driveDistance = 140;
+			driveTime = 3.0;
+			doElimAuton = true;
+			doCheval = false;
+			crossDrive = false;
+			crossDistance = 0;
+			crossTime = 0;
+			alignDrive = true;
+			alignAngle = 0;
+			cameraAlign = true;
+			shooting = true;
+			break;
+			
 		case 0: //do nothing so exit before anything happens
 			Robot.vp.closeCamera();
 			return;
@@ -333,6 +353,7 @@ public class Auton {
 			drivePower = 0.6;
 			driveDistance = 160; // was 120
 			driveTime = 3.2;  // was 3
+			doElimAuton = false;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
@@ -351,6 +372,7 @@ public class Auton {
 			drivePower = 0.6;
 			driveDistance = 160;  // was 140
 			driveTime = 3.2;  // was 3
+			doElimAuton = false;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
@@ -369,6 +391,7 @@ public class Auton {
 			drivePower = 0.6;
 			driveDistance = 140;
 			driveTime = 3.0;
+			doElimAuton = false;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
@@ -387,6 +410,7 @@ public class Auton {
 			drivePower = 0.6;
 			driveDistance = 140;
 			driveTime = 3.0;
+			doElimAuton = false;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
@@ -403,14 +427,15 @@ public class Auton {
 			doStow = true;
 			driving = true; 
 			drivePower = 0.6;
-			driveDistance = 160;  // was 140
-			driveTime = 3.2;  // was 3
+			driveDistance = 190;  // was 140
+			driveTime = 4.0;  // was 3, then 3.2, then 3.6
+			doElimAuton = false;
    			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -40; //was 30
+			alignAngle = -70; //was 30
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -580,7 +605,7 @@ public class Auton {
 			if(driving){
 				autonstate = 31;
 			} else {
-				autonstate = 40;
+				autonstate = 36;
 			}
 			break;
 			
@@ -595,7 +620,21 @@ public class Auton {
 		case 32:
 			drive.tankDrive(0.0, 0.0);
 			time.reset();
-			autonstate = 40;
+			autonstate = 36;
+			break;
+			
+		case 35: //do elim auton section
+			if(doElimAuton){
+				autonstate = 36;
+			} else {
+				autonstate = 40;
+			}
+			break;
+			
+		case 36:
+			if(elimAuton()){
+				autonstate = 40;
+			}
 			break;
 			
 		//cheval section					!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -658,10 +697,26 @@ public class Auton {
 		//put gatherer and shooter in shooting position
 		case 65:
 			time.reset();
-			if((shooting && collapse) || (shooting && doStow)){
+			if(shooting && collapse){
+				autonstate = 100;
+			} else if ( shooting && doStow){
 				autonstate = 66;
 			} else {
 				autonstate = 70;
+			}
+			break;
+			
+		case 100:
+			bc.shooter.autoAndback(true);
+			bc.gatherer.autoAndback(true);
+			bc.regrippingState = 0;
+			autonstate = 101;
+			break;
+			
+		case 101:
+			bc.regrip();
+			if(bc.regrippingState == 8){
+				autonstate = 66;
 			}
 			break;
 			
@@ -687,7 +742,8 @@ public class Auton {
 			bc.shooter.autoAndback(false);
 			bc.gatherer.autoAndback(false);
 			autonstate = 70;
-			break;
+			break;	
+		
 			
 		//camera align section
 		case 70:
@@ -777,7 +833,7 @@ public class Auton {
 			bc.shooter.autoAndback(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			bc.shooter.fire();
-			bc.prime();
+			bc.shooter.prime(0.6, false);
 			if (time.get() > 0.75) {
 				autonstate = 83;
 				time.reset();
@@ -800,6 +856,48 @@ public class Auton {
 			Robot.vp.closeCamera();
 			break;
 		}
+	}
+	
+	int elimAutonState = 0;
+	
+	public boolean elimAuton(){
+		boolean done = false;
+		switch(elimAutonState){
+		//drive section
+		case 0:
+			//drive.resetEncoders();
+			time.reset();
+			elimAutonState = 1;
+			break;
+			
+		case 1:
+			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
+			// drive for some distance or for some time
+			if (time.get() >= 2.0 || drive.getDistance() > 80) {
+				elimAutonState = 2;
+			}
+			break;
+			
+		case 2:
+			drive.compassDrive(0.6, navX.getYaw(), false, -15);
+			// drive for some distance or for some time
+			if (time.get() >= 1.0 || drive.getDistance() > 60) {
+				elimAutonState = 3;
+			}
+			break;
+
+		case 3:
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			elimAutonState = 4;
+			break;
+			
+		case 4:
+			done = true;
+			break;
+		}
+		
+		return done;
 	}
 
 }

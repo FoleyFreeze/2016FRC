@@ -18,8 +18,8 @@ public class VisionProcessor {
 	int session;
 	Image frame1, frame2;
 	Image binaryFrame;
-	Timer time;
-	Timer onlineTime;
+	Timer time = new Timer();
+	Timer onlineTime = new Timer();
 	
 	boolean visionCrashed = false;
 	boolean visionOnline = false;
@@ -62,7 +62,6 @@ public class VisionProcessor {
 			frame1 = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
 			frame2 = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
 			binaryFrame = NIVision.imaqCreateImage(ImageType.IMAGE_U8, 0);
-			time = new Timer();
 			time.start();
 			time.reset();
 	
@@ -164,6 +163,8 @@ public class VisionProcessor {
 			// search the targets for the best one, then see if it is good enough
 			double smallestScore = 999;
 			int bestParticle = 0;
+			int bestWidth = 0;
+			double largestWidth = 0;
 			//if (numParticles < 20 && numParticles > 0) {
 				for (int i = 0; i < numParticles; i++) {
 					double score = scoreParticle(i, frame);
@@ -171,34 +172,42 @@ public class VisionProcessor {
 						bestParticle = i;
 						smallestScore = score;
 					}
+					if (score < TARGET_SCORE){
+						double width = NIVision.imaqMeasureParticle(binaryFrame, i, 0,
+								NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
+						if(width > largestWidth){
+							largestWidth = width;
+							bestWidth = i;
+						}
+					}
 				}
 			//}
 	
 			// display best particle data
 			if (smallestScore < TARGET_SCORE) {
-				double area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0, NIVision.MeasurementType.MT_AREA);
+				double area = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0, NIVision.MeasurementType.MT_AREA);
 	
-				double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
 				double cvh_area_ratio = area / cvh_area;
 	
-				double perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_PERIMETER);
-				double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
 				double perimeter_ratio = perimeter / cvh_perimeter;
 	
-				double com_x = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double com_x = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
-				double com_y = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double com_y = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
-				double top = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double top = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
-				double left = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double left = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
-				double width = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double width = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
-				double height = NIVision.imaqMeasureParticle(binaryFrame, bestParticle, 0,
+				double height = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
 						NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
 				double com_x_ratio = (com_x - left) / width;
 				double com_y_ratio = (com_y - top) / height;

@@ -144,16 +144,16 @@ public class Shooter {
 	int primeState;
 	double prevShooter = 0.0;
 
-	public void prime(double shooterSpeed) {
+	public void prime(double shooterSpeed, boolean layup) {
 		
-		double shooterPower = IO.lookup(IO.MOTOR_POWERS, IO.DISTANCE_AXIS, Robot.vp.getDistance());
-		SmartDashboard.putNumber("lookupPower", shooterPower);
-		if(Robot.vp.getDistance() == 0){
-			shooterPower = shooterSpeed;
+		if(!layup){
+			double shooterPower = IO.lookup(IO.MOTOR_POWERS, IO.DISTANCE_AXIS, Robot.vp.getDistance());
+			SmartDashboard.putNumber("lookupPower", shooterPower);
+			if(Robot.vp.getDistance() == 0){
+				shooterPower = shooterSpeed;
+			}
+			shooterSpeed = shooterPower;
 		}
-		shooterSpeed = shooterPower;
-		
-		double driveShooter = shooterSpeed;
 		
 		/*
 		if (shooterSpeed > 0) {// for positive powers
@@ -173,9 +173,9 @@ public class Shooter {
 				
 		}*/
 		
-		prevShooter = driveShooter;
-		shooterWheelL.set(driveShooter);
-		shooterWheelR.set(driveShooter);
+		prevShooter = shooterSpeed;
+		shooterWheelL.set(shooterSpeed);
+		shooterWheelR.set(shooterSpeed);
 		
 	}
 	
@@ -189,6 +189,11 @@ public class Shooter {
 		loadWheelL.set(1);//flipped for comp
 		loadWheelR.set(-1);//flipped for comp
 
+	}
+	
+	public void backupFire(){
+		loadWheelL.set(-0.3);
+		loadWheelR.set(0.3);
 	}
 
 	public void manualShooter(double YAxisGamepadRight, boolean GamepadLBumper, double LoadWheelAxis) {

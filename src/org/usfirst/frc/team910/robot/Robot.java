@@ -72,7 +72,7 @@ public class Robot extends IterativeRobot {
 
 		driveBoard = new Joystick(IO.DRIVE_BOARD);
 
-		dSensor = new AnalogInput(1);
+		dSensor = new AnalogInput(3);
 
 		// setup things for camera switching
 		//BetterCameraServer.init("cam0", "cam1");
@@ -161,7 +161,7 @@ public class Robot extends IterativeRobot {
 		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		//SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
-		//SmartDashboard.putNumber("Distance", dSensor.getVoltage());
+		SmartDashboard.putNumber("DistanceSensor", dSensor.getVoltage());
 		//SmartDashboard.putNumber("accel X", navX.getRawAccelX());
 		//SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		//SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
@@ -236,6 +236,7 @@ public class Robot extends IterativeRobot {
 				BC.shooter.autoAndback(automaticMode);
 				BC.gatherState = 1;
 				BC.buttonState = -1;
+				BC.regrippingState = 0;
 				BoulderController.chevalState = 0;
 			//}
 			// call manual position functions
@@ -325,7 +326,7 @@ public class Robot extends IterativeRobot {
 		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		//SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
-		//SmartDashboard.putNumber("Distance", dSensor.getVoltage());
+		SmartDashboard.putNumber("DistanceSensor", dSensor.getVoltage());
 		//SmartDashboard.putNumber("accel X", navX.getRawAccelX());
 		//SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		//SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
