@@ -52,6 +52,7 @@ public class Robot extends IterativeRobot {
 	
 	static VisionProcessor vp = new VisionProcessor();
 	boolean visionWorking = false;
+	boolean visionInit = false;
 	
 	public void robotInit() {
 		ringOfFire = new Solenoid(3);
@@ -60,16 +61,6 @@ public class Robot extends IterativeRobot {
 		
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 		pdp = new PowerDistributionPanel();
-		
-		//init the vision codes
-		try{
-			vp.setup();
-			visionWorking = true;
-		} catch (Exception e){
-			visionWorking = false;
-		}
-		SmartDashboard.putBoolean("visionStatus", visionWorking);
-		
 		
 		drive = new DriveTrain(navX);
 		BC = new BoulderController(pdp, drive);
@@ -92,7 +83,7 @@ public class Robot extends IterativeRobot {
 		
 		
 		//setup the autons
-		auton = new Auton(navX, drive, BC, visionWorking);
+		auton = new Auton(navX, drive, BC, true);
 		/*
 		auton.chooser = new SendableChooser();
 		auton.chooser.addDefault("DoNothing Auto", auton.defaultAuto);
@@ -111,7 +102,9 @@ public class Robot extends IterativeRobot {
 	 * 
 	 */
 
-	
+	public void autonomousInit(){
+		vp.setupCamera();
+	}
 
 	public void autonomousPeriodic() {
 		// Drive over defenses
@@ -185,11 +178,11 @@ public class Robot extends IterativeRobot {
 		
 		//vp.disabled();
 		
-		if(rJoy.getRawButton(7)){
-			vp.run();
-		}
-		
 		auton.selectAuto(lJoy);
+		
+		SmartDashboard.putBoolean("CAMERA_CRASHED", vp.visionCrashed);
+		SmartDashboard.putBoolean("CAMERA_RUNNING", vp.visionOnline);
+		SmartDashboard.putNumber("Camera Running Time", vp.onlineTime.get());
 	}
 
 	/**
@@ -286,16 +279,21 @@ public class Robot extends IterativeRobot {
 		//auto camera aim
 		if(lJoy.getRawButton(IO.AIM_CAMERA) && navX.isConnected()){
 			switch(cameraState){
-			case 0:
+			case 0: //start the camera
+				vp.setupCamera();
+				cameraState = 1;
+				break;
+			
+			case 1:
 				vp.run();
 				//keep trying until we get a good image
 				if(vp.goodTarget){
 					cameraAngle = vp.getAngle() + navX.getYaw();
-					cameraState = 1;
+					cameraState = 2;
 					vp.getDistance();
 				}
 				break;
-			case 1:
+			case 2:
 				drive.shooterAlign(cameraAngle + lr_jog_deg, navX.getYaw(), false);
 				SmartDashboard.putNumber("cameraAngle", cameraAngle - navX.getYaw());
 				SmartDashboard.putBoolean("goodTarget", vp.goodTarget);
@@ -349,6 +347,11 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putBoolean("ballSensor", BC.ballSensor.get());
 		
 		SmartDashboard.putNumber("cycle time", time.get());
+		
+		SmartDashboard.putBoolean("CAMERA_CRASHED", vp.visionCrashed);
+		SmartDashboard.putBoolean("CAMERA_RUNNING", vp.visionOnline);
+		SmartDashboard.putNumber("Camera Running Time", vp.onlineTime.get());
+		
 		time.reset();
 	}
 

@@ -165,6 +165,7 @@ public class BoulderController {
 		if (driverstation.getRawButton(IO.FIRE)) {
 			prevFire = true;
 			shooter.fire();
+			Robot.vp.closeCamera();
 			primeState = 0;
 		} else if (prevFire) {
 			prevFire = false;
@@ -245,7 +246,7 @@ public class BoulderController {
 		case 3: // center the ball
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
 			shooter.gotoPosition(SHOOTER_PRELOAD_POS);
-			shooter.setLoadWheels(1);
+			shooter.setLoadWheels(0.65);
 
 
 			if (/*Math.abs(shooter.shooterArm.getClosedLoopError()) < 7 && */time.get() > 0.7) {
@@ -261,7 +262,7 @@ public class BoulderController {
 			
 		case 4: // load the ball into the shooter
 			shooter.gotoPosition(SHOOTER_LOAD_POS);
-			shooter.setLoadWheels(1);
+			shooter.setLoadWheels(0.65);
 			if (IO.COMP) {
 				if (time.get() >= 1.0 /* || checkForLoadCurrent() */) { // was
 																		// 2.0

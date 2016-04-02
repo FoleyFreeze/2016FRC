@@ -19,6 +19,10 @@ public class VisionProcessor {
 	Image frame1, frame2;
 	Image binaryFrame;
 	Timer time;
+	Timer onlineTime;
+	
+	boolean visionCrashed = false;
+	boolean visionOnline = false;
 
 	// constants
 	NIVision.Range COMP_HUE_RANGE = new NIVision.Range(60,140); //for green led
@@ -50,39 +54,65 @@ public class VisionProcessor {
 
 	}
 	
-	public void setup() {
-		frame1 = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
-		frame2 = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
-		binaryFrame = NIVision.imaqCreateImage(ImageType.IMAGE_U8, 0);
-		time = new Timer();
-		time.start();
-		time.reset();
-
-		// setup filter by area criteria
-		criteria[0] = new NIVision.ParticleFilterCriteria2(NIVision.MeasurementType.MT_AREA_BY_IMAGE_AREA, AREA_MIN,
-				AREA_MAX, 0, 0);
-
-		session = NIVision.IMAQdxOpenCamera("cam1", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-
-		// configure settings
-		NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::WhiteBalance::Mode", "Manual");
-		NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::WhiteBalance::Value", WHITE_BALANCE);
-		NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::Exposure::Mode", "Manual");
-		long minv = NIVision.IMAQdxGetAttributeMinimumI64(session, "CameraAttributes::Exposure::Value");
-		long maxv = NIVision.IMAQdxGetAttributeMaximumI64(session, "CameraAttributes::Exposure::Value");
-		long val = minv + (long) (((double) (maxv - minv)) * (((double) EXPOSURE) / 100.0));
-		NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Exposure::Value", val);
-		NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::Brightness::Mode", "Manual");
-		minv = NIVision.IMAQdxGetAttributeMinimumI64(session, "CameraAttributes::Brightness::Value");
-		maxv = NIVision.IMAQdxGetAttributeMaximumI64(session, "CameraAttributes::Brightness::Value");
-		val = minv + (long) (((double) (maxv - minv)) * (((double) BRIGHTNESS) / 100.0));
-		NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Brightness::Value", val);
-
-		//48 should be 640x480 at 30fps
-		NIVision.IMAQdxSetAttributeU32(session, "AcquisitionAttributes::VideoMode", 48);
+	public void setupCamera() {
+		if (visionCrashed || visionOnline) return;
 		
-		NIVision.IMAQdxConfigureGrab(session);
-		NIVision.IMAQdxStartAcquisition(session);
+		try{
+			System.out.println("Vision Setup Start: " + Timer.getFPGATimestamp());
+			frame1 = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
+			frame2 = NIVision.imaqCreateImage(NIVision.ImageType.IMAGE_HSL, 0);
+			binaryFrame = NIVision.imaqCreateImage(ImageType.IMAGE_U8, 0);
+			time = new Timer();
+			time.start();
+			time.reset();
+	
+			// setup filter by area criteria
+			criteria[0] = new NIVision.ParticleFilterCriteria2(NIVision.MeasurementType.MT_AREA_BY_IMAGE_AREA, AREA_MIN,
+					AREA_MAX, 0, 0);
+	
+			session = NIVision.IMAQdxOpenCamera("cam1", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+	
+			// configure settings
+			NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::WhiteBalance::Mode", "Manual");
+			NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::WhiteBalance::Value", WHITE_BALANCE);
+			NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::Exposure::Mode", "Manual");
+			long minv = NIVision.IMAQdxGetAttributeMinimumI64(session, "CameraAttributes::Exposure::Value");
+			long maxv = NIVision.IMAQdxGetAttributeMaximumI64(session, "CameraAttributes::Exposure::Value");
+			long val = minv + (long) (((double) (maxv - minv)) * (((double) EXPOSURE) / 100.0));
+			NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Exposure::Value", val);
+			NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::Brightness::Mode", "Manual");
+			minv = NIVision.IMAQdxGetAttributeMinimumI64(session, "CameraAttributes::Brightness::Value");
+			maxv = NIVision.IMAQdxGetAttributeMaximumI64(session, "CameraAttributes::Brightness::Value");
+			val = minv + (long) (((double) (maxv - minv)) * (((double) BRIGHTNESS) / 100.0));
+			NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Brightness::Value", val);
+	
+			//48 should be 640x480 at 30fps
+			NIVision.IMAQdxSetAttributeU32(session, "AcquisitionAttributes::VideoMode", 48);
+			
+			NIVision.IMAQdxConfigureGrab(session);
+			NIVision.IMAQdxStartAcquisition(session);
+			
+			System.out.println("Vision Setup End: " + Timer.getFPGATimestamp());
+			visionOnline = true;
+			onlineTime.start();
+			onlineTime.reset();
+		} catch (Exception e){
+			System.out.println(e.getMessage() + " at " + Timer.getFPGATimestamp());
+			visionCrashed = true;
+		}
+	}
+	
+	public void closeCamera(){
+		if (visionCrashed || !visionOnline) return;
+		try{
+			System.out.println("Closing Camera Session: " + session + " at Time: " + Timer.getFPGATimestamp());
+			NIVision.IMAQdxCloseCamera(session);
+			visionOnline = false;
+			onlineTime.stop();
+		} catch (Exception e){
+			System.out.println(e.getMessage() + " at " + Timer.getFPGATimestamp());
+			visionCrashed = true;
+		}
 	}
 
 	public void disabled() {
@@ -94,6 +124,8 @@ public class VisionProcessor {
 	int buffid = 1;
 	boolean switchFrames = false;
 	public void run() {
+		if (visionCrashed || !visionOnline) return;
+		
 		if(time.get() > 0.2){
 			time.reset();
 
@@ -107,7 +139,7 @@ public class VisionProcessor {
 			}
 		
 			try{
-			NIVision.IMAQdxGrab(session, frame, buffid);//used to be 1, but that crashes in auton
+			NIVision.IMAQdxGrab(session, frame, buffid);
 			
 			if(IO.COMP){
 				NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, COMP_HUE_RANGE, SAT_RANGE, VAL_RANGE);
@@ -201,38 +233,22 @@ public class VisionProcessor {
 				goodTarget = false;
 				SmartDashboard.putBoolean("goodTarget", goodTarget);
 				
-				System.out.println("Vision Crash, Resetting... (session=)" + session + ", " + Timer.getFPGATimestamp());
+				System.out.println("Vision Crash (session=)" + session + ", " + Timer.getFPGATimestamp());
 				
-				try{
-				
-					//reset camera on a crash
-					//NIVision.IMAQdxCloseCamera(session);	//3.30 MrC
-					NIVision.IMAQdxResetCamera("cam1", 1);	//3.30 MrC
-					
-					//System.out.println("Camera Reset Complete " + Timer.getFPGATimestamp());
-					
-					//this.setup();
-					
-					System.out.println("Vision Cam Reset Done " + Timer.getFPGATimestamp());
-					
-				} catch (Exception ex) {
-					
-					try{
-						System.out.println("Camera Reset Crashed, trying close/reopen " + Timer.getFPGATimestamp());
-						
-					NIVision.IMAQdxCloseCamera(session);
-					
-					System.out.println("Camera Close complete " + Timer.getFPGATimestamp());
-					this.setup();
-					
-					System.out.println("Camera Reopen complete " + Timer.getFPGATimestamp());
-					} catch (Exception exc){
-						time.reset();
-						System.out.println("Camera Close/Reopen Crashed.  I GIVE UP!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + Timer.getFPGATimestamp());
-					}
-				}
+				visionCrashed = true;
 			}
 		}
+	}
+	
+	public void doReset(){
+		if (visionCrashed) return;
+		
+		System.out.println("Resseting Camera Session: " + session + " at Time: " + Timer.getFPGATimestamp());
+		NIVision.IMAQdxCloseCamera(session);
+		
+		setupCamera();
+		
+		System.out.println("Done Resseting Camera, new Session: " + session + " at Time: " + Timer.getFPGATimestamp());
 	}
 
 	// score metrics
@@ -245,6 +261,8 @@ public class VisionProcessor {
 	boolean DRAW_RECT = true;
 
 	public double scoreParticle(int particleIndex, NIVision.Image frame) {
+		if(visionCrashed) return 999;
+		
 		double area = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_AREA);
 
 		double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0,
@@ -287,6 +305,7 @@ public class VisionProcessor {
 	}
 
 	public double getAngle(){
+		if(visionCrashed) return 0;
 		if(goodTarget){
 			double center = bestRect.left + (bestRect.width/2);
 			double DDistance = center - (RES_X/2);
@@ -302,6 +321,7 @@ public class VisionProcessor {
 	}
 	
 	public double getDistance(){
+		if(visionCrashed) return 0;
 		if(goodTarget){
 			double angle = bestRect.height * DEG_PER_PIX;
 			SmartDashboard.putNumber("windowHeight", bestRect.height);

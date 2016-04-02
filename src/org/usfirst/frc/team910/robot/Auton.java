@@ -322,6 +322,7 @@ public class Auton {
 		
 		switch(stationIndex){
 		case 0: //do nothing so exit before anything happens
+			Robot.vp.closeCamera();
 			return;
 			
 		case 1: //the lowbar
@@ -330,14 +331,14 @@ public class Auton {
 			doStow = false;
 			driving = true;
 			drivePower = 0.6;
-			driveDistance = 120;
-			driveTime = 3.0;
+			driveDistance = 160; // was 120
+			driveTime = 3.2;  // was 3
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = 60;
+			alignAngle = 90;  //was 60
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -348,14 +349,14 @@ public class Auton {
 			doStow = true;
 			driving = true;
 			drivePower = 0.6;
-			driveDistance = 140;
-			driveTime = 3.0;
+			driveDistance = 160;  // was 140
+			driveTime = 3.2;  // was 3
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = 25;
+			alignAngle = 45;  // was 25
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -373,7 +374,7 @@ public class Auton {
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = 0;
+			alignAngle = 15;
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -391,7 +392,7 @@ public class Auton {
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -15;
+			alignAngle = -10;
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -402,14 +403,14 @@ public class Auton {
 			doStow = true;
 			driving = true; 
 			drivePower = 0.6;
-			driveDistance = 140;
-			driveTime = 3.0;
-			doCheval = false;
+			driveDistance = 160;  // was 140
+			driveTime = 3.2;  // was 3
+   			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -30;
+			alignAngle = -40; //was 30
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -420,35 +421,36 @@ public class Auton {
 			break;
 			
 		case 1: //rough terrain
-			driveDistance = 120; //reduced from 140
-			driveTime = 2.5;
+			//driveDistance = 120; //reduced from 140
+			//driveTime = 2.5;
 			break;
 			
 		case 2: //moat
-			driveDistance = 140;
-			driveTime = 3.0;
+			//driveDistance = 140;
+			//driveTime = 3.0;
 			break;
 			
 		case 3: //rock wall
-			driveDistance = 140;
-			driveTime = 3.0;
+			//driveDistance = 140;
+			//driveTime = 3.0;
 			break;
 			
 		case 4: //ramparts
-			driveDistance = 130;
-			driveTime = 3.0;
+			//driveDistance = 130;
+			//driveTime = 3.0;
 			break;
 			
 		case 5://cheval
 			doStow = false;
+			Robot.vp.closeCamera();
 			return;   //if you cheval and its not programmed, dont do anyting
 		
 		case 6://portcullis 
 			collapse = true;
 			doStow = false;
 			drivePower = 0.5;
-			driveDistance = 140;
-			driveTime = 3.0;
+			//driveDistance = 140;
+			//driveTime = 3.0;
 			break;
 			
 		}
@@ -472,7 +474,7 @@ public class Auton {
 		
 	}
 	
-	boolean repeatAlign = false;
+	int repeatAlign = 3;
 	
 	public void runFancyAuto(){
 		switch(autonstate){
@@ -689,15 +691,27 @@ public class Auton {
 			
 		//camera align section
 		case 70:
+			time.reset();
 			if(cameraAlign){
 				autonstate = 71;
-				repeatAlign = false;
+				repeatAlign = 3;
 			} else {
 				autonstate = 80;
 			}
 			break;
 			
-		case 71:// look for camera target
+		case 71:
+			bc.shooter.autoAndback(true);
+			bc.gatherer.autoAndback(true);
+			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
+			if(time.get() > 0.75){
+				autonstate = 72;
+				time.reset();
+			}
+			break;
+			
+		case 72:// look for camera target
 			Robot.vp.run();
 			bc.shooter.autoAndback(true);
 			bc.gatherer.autoAndback(true);
@@ -706,12 +720,12 @@ public class Auton {
 			// keep trying until we get a good image
 			if (Robot.vp.goodTarget) {
 				cameraAngle = Robot.vp.getAngle() + navX.getYaw();
-				autonstate = 72;
+				autonstate = 73;
 				time.reset();
 			}
 			break;
 
-		case 72:// once target is found, turn to face it
+		case 73:// once target is found, turn to face it
 			drive.shooterAlign(cameraAngle, navX.getYaw(), false);
 			SmartDashboard.putNumber("cameraAngle", cameraAngle);
 			SmartDashboard.putBoolean("goodTarget", Robot.vp.goodTarget);
@@ -723,20 +737,20 @@ public class Auton {
 			}
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
-			if (time.get() > 2) {
-				autonstate = 73;
+			if (time.get() > 0.66) {
+				autonstate = 74;
 				time.reset();
 			}
 			break;
 			
 		//do it again for good measure
-		case 73:
+		case 74:
 			drive.tankDrive(0, 0);
-			if(repeatAlign){
+			repeatAlign--;
+			if(repeatAlign <= 0){
 				autonstate = 80;
 			} else {
-				autonstate = 71;
-				repeatAlign = true;
+				autonstate = 72;
 			}
 			break;
 			
@@ -763,6 +777,7 @@ public class Auton {
 			bc.shooter.autoAndback(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			bc.shooter.fire();
+			bc.prime();
 			if (time.get() > 0.75) {
 				autonstate = 83;
 				time.reset();
@@ -782,6 +797,7 @@ public class Auton {
 			drive.tankDrive(0, 0);
 			bc.shooter.autoAndback(false);
 			bc.gatherer.autoAndback(false);
+			Robot.vp.closeCamera();
 			break;
 		}
 	}
