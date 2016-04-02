@@ -31,7 +31,7 @@ public class Auton {
 	 */
 	
 	String[] stationSelection = {"-1 ElimAuton (3 Ramparts)", "0 Do Nothing" , "1 Low Bar", "2nd Def", "3rd Def", "4th Def", "5th Def" };
-	int stationIndex = 0;
+	int stationIndex = -1;
 	String[] defenseType = { "0 Drive Over", "1 Rough Terrain", "2 Moat", "3 Rock Wall", "4 Ramparts", "5 Cheval", "6 Portcullis" };
 	int defenseIndex = 0;
 	String[] extraCredit = { "0 No Modification", "1 No Shooting", "2 Spy Box" };
@@ -98,14 +98,14 @@ public class Auton {
 			prevExtraDec = false;
 		}
 		
-		if(stationIndex < -1) stationIndex = 0;
+		if(stationIndex < -1) stationIndex = -1;
 		if(stationIndex >= stationSelection.length-1) stationIndex = stationSelection.length - 2;
 		if(defenseIndex < 0) defenseIndex = 0;
 		if(defenseIndex >= defenseType.length) defenseIndex = defenseType.length - 1;
 		if(extraIndex < 0) extraIndex = 0;
 		if(extraIndex >= extraCredit.length) extraIndex = extraCredit.length - 1;
 		
-		SmartDashboard.putString("Auton Station", stationSelection[stationIndex-1]);
+		SmartDashboard.putString("Auton Station", stationSelection[stationIndex+1]);
 		SmartDashboard.putString("Auton Defense", defenseType[defenseIndex]);
 		SmartDashboard.putString("Auton Extra", extraCredit[extraIndex]);
 	}
@@ -873,16 +873,20 @@ public class Auton {
 		case 1:
 			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
 			// drive for some distance or for some time
-			if (time.get() >= 2.0 || drive.getDistance() > 80) {
+			if (time.get() >= 2.7 || drive.getDistance() > 100) {
 				elimAutonState = 2;
+				time.reset();
+				drive.resetEncoders();
 			}
 			break;
 			
 		case 2:
-			drive.compassDrive(0.6, navX.getYaw(), false, -15);
+			drive.compassDrive(0.6, navX.getYaw(), false, -20);
 			// drive for some distance or for some time
-			if (time.get() >= 1.0 || drive.getDistance() > 60) {
+			if (time.get() >= 2.0 || drive.getDistance() > 90) {
 				elimAutonState = 3;
+				time.reset();
+				drive.resetEncoders();
 			}
 			break;
 

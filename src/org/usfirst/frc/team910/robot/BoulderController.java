@@ -12,7 +12,7 @@ public class BoulderController {
 
 	// shooter positions (high to low)
 	//static double SHOOTER_MAX_HEIGHT = 844 + 18; // Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
-	static double SHOOTER_MAX_HEIGHT = 743; //COMP BOT 83 degrees is 760... now 743 
+	static double SHOOTER_MAX_HEIGHT = 727; //COMP BOT 83 degrees is 760... now 743... now 727 
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; // 3.28
 	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 17; //was -17 for prac
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;
