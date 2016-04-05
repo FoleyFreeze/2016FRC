@@ -18,15 +18,15 @@ public class Gatherer {
 		gatherer = new CANTalon(IO.GATHERER);
 		gatherArm = new CANTalon(IO.GATHER_ARM);
 
-		autoAndback(false);
+		goToPositionControl(false);
 		gatherArm.enableBrakeMode(true);
 		gatherArm.configPeakOutputVoltage(7.0, -3.5);
 		gatherArm.setPID(20, 0.05, 0.0); //used to be 30 , 0.05
 		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
-		autoAndback(false);
+		goToPositionControl(false);
 	}
 
-	public void autoAndback(boolean autoControl) {
+	public void goToPositionControl(boolean autoControl) {
 
 		if (!autoControl) {
 

@@ -36,6 +36,13 @@ public class Auton {
 	String[] extraCredit = { "0 No Modification", "1 No Shooting", "2 Spy Box" };
 	int extraIndex = 0;
 	
+	double maxRoll=0;		//Zero these values and record the highest value we get and output to the driver station
+	double maxPitch=0;
+	double maxPitchAndRoll=0;
+	
+	double zeroedPitch = 0;	// We'll grab their "resting (zeroed)" values in Auton's SelectAuto
+	double zeroedRoll  = 0;
+	
 	public Auton(AHRS navX, DriveTrain drive, BoulderController bc, boolean visionWorking) {
 		this.navX = navX;
 		this.drive = drive;
@@ -55,6 +62,7 @@ public class Auton {
 	boolean prevExtraDec = false;
 	
 	public void selectAuto(Joystick joy) {
+		autonstate = 0;								//Reset to State zero in here
 		if (joy.getRawButton(IO.AUTON_INC_SLOT)){
 			if (!prevStationInc) stationIndex++;
 			prevStationInc = true;
@@ -107,6 +115,13 @@ public class Auton {
 		SmartDashboard.putString("Auton Station", stationSelection[stationIndex]);
 		SmartDashboard.putString("Auton Defense", defenseType[defenseIndex]);
 		SmartDashboard.putString("Auton Extra", extraCredit[extraIndex]);
+		
+		zeroedPitch = navX.getPitch();	//Grab their "resting (zeroed)" values when auton first starts
+		zeroedRoll  = navX.getRoll();
+		
+		SmartDashboard.putNumber("zeroedPitch", zeroedPitch);
+		SmartDashboard.putNumber("zeroedRoll", zeroedRoll);
+		
 	}
 
 	public void emptyAuto() {
@@ -200,7 +215,7 @@ public class Auton {
 
 		case 1:
 			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
-			bc.gatherer.autoAndback(false);
+			bc.gatherer.goToPositionControl(false);
 			bc.gatherer.gatherArm.set(0.2);
 			// drive for 7ft or 3 seconds
 			if (time.get() >= 3.25 || drive.getDistance() > 170) {
@@ -210,7 +225,7 @@ public class Auton {
 
 		case 2:
 			drive.tankDrive(0.0, 0.0);
-			bc.gatherer.autoAndback(false);
+			bc.gatherer.goToPositionControl(false);
 			bc.gatherer.gatherArm.set(0);
 			time.reset();
 			break;
@@ -229,7 +244,7 @@ public class Auton {
 			break;
 
 		case 1: // bring the gatherer down
-			bc.gatherer.autoAndback(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gatherArm.set(bc.GATHER_LOWBAR_POS);
 			if (time.get() > 1.5) {
 				autonstate = 2;
@@ -238,7 +253,7 @@ public class Auton {
 			break;
 
 		case 2: // bring the shooter down
-			bc.shooter.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
 			bc.shooter.shooterArm.set(bc.SHOOTER_LOWBAR_POS);
 			if (time.get() > 1.5) {
 				autonstate = 3;
@@ -247,8 +262,8 @@ public class Auton {
 			break;
 
 		case 3:
-			bc.shooter.autoAndback(false);
-			bc.gatherer.autoAndback(false);
+			bc.shooter.goToPositionControl(false);
+			bc.gatherer.goToPositionControl(false);
 			autonstate = 4;
 			time.reset();
 			break;
@@ -279,7 +294,7 @@ public class Auton {
 			break;
 		case 1:
 			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
-			bc.gatherer.autoAndback(false);
+			bc.gatherer.goToPositionControl(false);
 			bc.gatherer.gatherArm.set(0.2);
 			if (time.get() >= 3.25 || drive.getDistance() > 170){
 				autonstate = 2;
@@ -325,7 +340,7 @@ public class Auton {
 		//defenseIndex;
 		//extraIndex;
 		
-		switch(stationIndex){
+		switch(stationIndex){	//Left Joystick btn 11, 12
 		case 0: //do nothing so exit before anything happens
 			//Robot.vp.closeCamera();
 			return;
@@ -363,17 +378,17 @@ public class Auton {
 			waitForPitch = true;
 			defDriveDistance = 100;  // was 160
 			defDriveTime = 1.75;  // was 3.2
-			turnDrive = true;
+			turnDrive = true; 
 			turnDrivePower = 0.6;
-			turnDriveAngle = 35;
-			turnDriveDistance = 100;
+			turnDriveAngle = 25;
+			turnDriveDistance = 80;
 			turnDriveTime = 1.5;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = 45;  // was 25
+			alignAngle = 0;  // was 25
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -518,13 +533,19 @@ public class Auton {
 	int repeatAlign = 3;
 	
 	public void runFancyAuto(){
+		
+		double currentPitch = Math.abs(navX.getPitch()) - zeroedPitch;	//Get current Pitch and Roll and normalize to zero
+		double currentRoll  = Math.abs(navX.getRoll())  - zeroedRoll;
+		
+		SmartDashboard.putNumber("AutoCase", autonstate);
+
 		switch(autonstate){
-		case 0:
+		case 0:						//Reset Time, Yaw, Encoders 
 			time.start();
 			time.reset();
 			navX.zeroYaw();
 			drive.resetEncoders();
-			if(collapse){
+			if(collapse){			//Going all the way down?
 				autonstate = 11;
 			} else {
 				autonstate = 20;
@@ -533,7 +554,7 @@ public class Auton {
 
 		//collapse section
 		case 11: // bring the gatherer down
-			bc.gatherer.autoAndback(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gatherArm.set(bc.GATHER_LOWBAR_POS);
 			if (time.get() > 1.5) {
 				autonstate = 12;
@@ -542,7 +563,7 @@ public class Auton {
 			break;
 
 		case 12: // bring the shooter down
-			bc.shooter.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
 			bc.shooter.shooterArm.set(bc.SHOOTER_LOWBAR_POS);
 			if (time.get() > 1.5) {
 				autonstate = 13;
@@ -551,8 +572,8 @@ public class Auton {
 			break;
 
 		case 13:
-			bc.shooter.autoAndback(false);
-			bc.gatherer.autoAndback(false);
+			bc.shooter.goToPositionControl(false);
+			bc.gatherer.goToPositionControl(false);
 			autonstate = 20;
 			time.reset();
 			break;
@@ -578,7 +599,7 @@ public class Auton {
 			break;
 			
 		case 26:
-			bc.gatherer.autoAndback(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gotoPosition(bc.GATHER_STOW_POS + 15);
 			drive.compassDrive(0.25, navX.getYaw(), false, 0.0);
 			if(time.get() > 0.5){
@@ -588,7 +609,7 @@ public class Auton {
 			break;
 			
 		case 27:
-			bc.shooter.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_STOW_POS);
 			if(time.get() > 0.4){
 				autonstate = 28;
@@ -597,7 +618,7 @@ public class Auton {
 			break;
 			
 		case 28:
-			bc.gatherer.autoAndback(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gotoPosition(bc.GATHER_STOW_POS);
 			if(time.get() > 0.3){
 				autonstate = 29;
@@ -606,8 +627,8 @@ public class Auton {
 			break;
 			
 		case 29:
-			bc.shooter.autoAndback(false);
-			bc.gatherer.autoAndback(false);
+			bc.shooter.goToPositionControl(false);
+			bc.gatherer.goToPositionControl(false);
 			bc.shooter.manualShooter(0, false, 0);
 			bc.gatherer.manualGather(0, false, false);
 			drive.tankDrive(0, 0);
@@ -629,7 +650,9 @@ public class Auton {
 			}
 			break;
 			
-		case 31: //drive (without defense detection)
+		case 31: //drive (without defense detection)	
+			bc.gatherer.goToPositionControl(false);
+			bc.gatherer.manualGather(0.15, false, false);
 			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);
 			// drive for some distance or for some time
 			if (time.get() >= defDriveTime || drive.getDistance() > defDriveDistance) {
@@ -637,25 +660,48 @@ public class Auton {
 			}
 			break;
 			
-		case 32: //pitch goes non zero
-			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);
-			if(Math.abs(navX.getPitch()) > IO.MAX_FLAT_PITCH){
-				if(time.get() > 0.25) autonstate = 33;
+		case 32: //wait for Pitch and Roll to go NON zero
+			bc.gatherer.goToPositionControl(false);
+			bc.gatherer.manualGather(0.15, false, false);
+
+			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);		//Drive STRAIGHT over defense
+
+			if (currentPitch > maxPitch) {										//Save Max Pitch we achieve
+				maxPitch = currentPitch;
+				SmartDashboard.putNumber("Max Pitch", maxPitch);
+			}
+			if (currentRoll > maxRoll) {										//Save Max Roll we achieve
+				maxRoll = currentRoll;
+				SmartDashboard.putNumber("Max Roll", maxRoll);
+			}
+			if (currentPitch + currentRoll > maxPitchAndRoll) {					//Save Max Pitch AND Roll we achieve
+				maxPitchAndRoll = currentPitch + currentRoll;
+				SmartDashboard.putNumber("maxPitchAndRoll", maxPitchAndRoll);
+			}
+			if(currentPitch + currentRoll > IO.MAX_FLAT_PITCH){	//Did we hit enough angle that we're doing the defense?
+				if(time.get() > 0.1) {											//Were we at that angle LONG enough? Then Go To Next State
+					autonstate = 33;							
+					time.reset();
+				}
 			} else {
-				time.reset();
+				time.reset();													//Time not up yet?  Reset timer and try again
 			}
 			break;
 			
 		case 33: //pitch goes back to zero
+			bc.gatherer.goToPositionControl(false);
+			bc.gatherer.manualGather(0.15, false, false);
 			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);
-			if(Math.abs(navX.getPitch()) < IO.MAX_FLAT_PITCH){
-				if(time.get() > 0.25) autonstate = 34;
+			if(Math.abs(currentPitch + currentRoll) <  15){
+				if(time.get() > 0.2) autonstate = 34;
 			} else {
 				time.reset();
 			}
 			break;
 			
-		case 34:
+		case 34: //stop block
+			bc.gatherer.goToPositionControl(false);
+			bc.gatherer.manualGather(0, false, false);
 			drive.tankDrive(0.0, 0.0);
 			time.reset();
 			autonstate = 35;
@@ -696,8 +742,8 @@ public class Auton {
 			break;
 		
 		case 41:
-			bc.shooter.autoAndback(true);
-			bc.gatherer.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.flippyFloppies();
 			
 			if(bc.chevalState >= 4){
@@ -706,8 +752,8 @@ public class Auton {
 			break;
 			
 		case 42:
-			bc.shooter.autoAndback(false);
-			bc.gatherer.autoAndback(false);
+			bc.shooter.goToPositionControl(false);
+			bc.gatherer.goToPositionControl(false);
 			drive.tankDrive(0.0, 0.0);
 			time.reset();
 			autonstate = 50;
@@ -774,8 +820,8 @@ public class Auton {
 			break;
 			
 		case 100:
-			bc.shooter.autoAndback(true);
-			bc.gatherer.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.regrippingState = 0;
 			autonstate = 101;
 			break;
@@ -788,7 +834,7 @@ public class Auton {
 			break;
 			
 		case 66: //lift shooter first
-			bc.shooter.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			if(time.get() > 0.6){
 				autonstate = 67;
@@ -797,7 +843,7 @@ public class Auton {
 			break;
 			
 		case 67://then gatherer
-			bc.gatherer.autoAndback(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
 			if(time.get() > 1){
 				autonstate = 68;
@@ -806,8 +852,8 @@ public class Auton {
 			break;
 			
 		case 68://then go back to manual mode
-			bc.shooter.autoAndback(false);
-			bc.gatherer.autoAndback(false);
+			bc.shooter.goToPositionControl(false);
+			bc.gatherer.goToPositionControl(false);
 			autonstate = 70;
 			break;	
 		
@@ -824,8 +870,8 @@ public class Auton {
 			break;
 			
 		case 71:
-			bc.shooter.autoAndback(true);
-			bc.gatherer.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
 			if(time.get() > 0.75){
@@ -836,8 +882,8 @@ public class Auton {
 			
 		case 72:// look for camera target
 			Robot.vp.run();
-			bc.shooter.autoAndback(true);
-			bc.gatherer.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
+			bc.gatherer.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
 			// keep trying until we get a good image
@@ -887,7 +933,7 @@ public class Auton {
 			break;
 			
 		case 81:// prime shooter and stop tank
-			bc.shooter.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			bc.prime();
 			if (time.get() > 1) {
@@ -897,7 +943,7 @@ public class Auton {
 			break;
 
 		case 82:// fire
-			bc.shooter.autoAndback(true);
+			bc.shooter.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			bc.shooter.fire();
 			bc.shooter.prime(0.6, false);
@@ -908,8 +954,8 @@ public class Auton {
 			break;
 
 		case 83:// stop
-			bc.shooter.autoAndback(false);
-			bc.gatherer.autoAndback(false);
+			bc.shooter.goToPositionControl(false);
+			bc.gatherer.goToPositionControl(false);
 			bc.shooter.manualShooter(0, false, 0);
 			bc.gatherer.manualGather(0, false, false);
 			autonstate = 90;
@@ -918,11 +964,13 @@ public class Auton {
 		//stop things section
 		case 90:
 			drive.tankDrive(0, 0);
-			bc.shooter.autoAndback(false);
-			bc.gatherer.autoAndback(false);
+			bc.shooter.goToPositionControl(false);
+			bc.gatherer.goToPositionControl(false);
 			Robot.vp.closeCamera();
 			break;
 		}
+		
+		SmartDashboard.putNumber("navX Pitch", navX.getRoll());
 	}
 
 }

@@ -2,7 +2,7 @@ package org.usfirst.frc.team910.robot;
 
 public class IO {
 	//running the competition bot
-	public static final boolean COMP = true;
+	public static final boolean COMP = false;
 	
 	// inputs
 	public static final int LEFT_DRIVE_MOTOR = 1;
@@ -73,7 +73,7 @@ public class IO {
 	public static final int ZERO_YAW = 3;
 	
 	//auton cals
-	public static final double MAX_FLAT_PITCH = 5;
+	public static final double MAX_FLAT_PITCH = 20;
 
 	// drivetrain calibrations
 	public static final double[] COMPASS_ANGLE = { 15, 15, 30, 40, 40 };

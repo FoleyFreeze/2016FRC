@@ -68,10 +68,10 @@ public class Shooter {
 		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
 		shooterArm.setAllowableClosedLoopErr(2); //3.28 was 5
 		shooterArm.configNominalOutputVoltage(1.0, -1.0);//3.28 was 1,-1
-		autoAndback(false);
+		goToPositionControl(false);
 	}
 
-	public void autoAndback(boolean autoControl) {
+	public void goToPositionControl(boolean autoControl) {
 
 		if (!autoControl) {
 

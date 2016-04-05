@@ -155,9 +155,9 @@ public class Robot extends IterativeRobot {
 
 	// called when disabled
 	public void disabledPeriodic() {
-		//SmartDashboard.putNumber("navX Pitch", navX.getPitch());
-		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
-		//SmartDashboard.putNumber("navX Roll", navX.getRoll());
+		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
+		//SmartDashboard.putNumber("navX Yaw", navX.getYaw());
+		SmartDashboard.putNumber("navX Roll", navX.getRoll());
 		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		//SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
@@ -216,8 +216,8 @@ public class Robot extends IterativeRobot {
 
 			//if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
-				BC.gatherer.autoAndback(automaticMode);
-				BC.shooter.autoAndback(automaticMode);
+				BC.gatherer.goToPositionControl(automaticMode);
+				BC.shooter.goToPositionControl(automaticMode);
 			//}
 			
 			BC.runBC(driveBoard);
@@ -235,8 +235,8 @@ public class Robot extends IterativeRobot {
 		else {
 			//if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
 				// Call Mode Switch Function
-				BC.gatherer.autoAndback(automaticMode);
-				BC.shooter.autoAndback(automaticMode);
+				BC.gatherer.goToPositionControl(automaticMode);
+				BC.shooter.goToPositionControl(automaticMode);
 				BC.gatherState = 1;
 				BC.buttonState = -1;
 				BC.regrippingState = 0;
@@ -323,9 +323,9 @@ public class Robot extends IterativeRobot {
 		}
 
 		SmartDashboard.putNumber("wasd angle", angle);
-		//SmartDashboard.putNumber("navX Pitch", navX.getPitch());
-		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
-		//SmartDashboard.putNumber("navX Roll", navX.getRoll());
+		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
+		//SmartDashboard.putNumber("navX Yaw", navX.getYaw());
+		SmartDashboard.putNumber("navX Roll", navX.getRoll());
 		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		//SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
