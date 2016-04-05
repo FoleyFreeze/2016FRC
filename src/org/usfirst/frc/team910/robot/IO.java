@@ -72,6 +72,8 @@ public class IO {
 	public static final int COMPASS_POWER_THROTTLE = 2;
 	public static final int ZERO_YAW = 3;
 	
+	//auton cals
+	public static final double MAX_FLAT_PITCH = 5;
 
 	// drivetrain calibrations
 	public static final double[] COMPASS_ANGLE = { 15, 15, 30, 40, 40 };

@@ -176,6 +176,9 @@ public class Robot extends IterativeRobot {
 		
 		SmartDashboard.putBoolean("ballSensor", BC.ballSensor.get());
 		
+		SmartDashboard.putNumber("LoadWheelL", pdp.getCurrent(IO.SHOOTER_WHEEL_L));
+		SmartDashboard.putNumber("LoadWheelR", pdp.getCurrent(IO.SHOOTER_WHEEL_R));
+		
 		//vp.disabled();
 		
 		auton.selectAuto(lJoy);
@@ -344,6 +347,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("gather pot",BC.gatherer.gatherArm.getPosition());
 		SmartDashboard.putNumber("gather CLE",BC.gatherer.gatherArm.getClosedLoopError());
 		SmartDashboard.putNumber("gather setpt", BC.gatherer.gatherArm.getSetpoint());
+		
+		SmartDashboard.putNumber("LoadWheelL", pdp.getCurrent(IO.SHOOTER_WHEEL_L));
+		SmartDashboard.putNumber("LoadWheelR", pdp.getCurrent(IO.SHOOTER_WHEEL_R));
 		
 		SmartDashboard.putBoolean("ballSensor", BC.ballSensor.get());
 		

@@ -4,7 +4,6 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Auton {
@@ -30,8 +29,8 @@ public class Auton {
 	 * ramparts
 	 */
 	
-	String[] stationSelection = {"-1 ElimAuton (3 Ramparts)", "0 Do Nothing" , "1 Low Bar", "2nd Def", "3rd Def", "4th Def", "5th Def" };
-	int stationIndex = -1;
+	String[] stationSelection = {"0 Do Nothing" , "1 Low Bar", "2nd Def", "3rd Def", "4th Def", "5th Def" };
+	int stationIndex = 0;
 	String[] defenseType = { "0 Drive Over", "1 Rough Terrain", "2 Moat", "3 Rock Wall", "4 Ramparts", "5 Cheval", "6 Portcullis" };
 	int defenseIndex = 0;
 	String[] extraCredit = { "0 No Modification", "1 No Shooting", "2 Spy Box" };
@@ -98,14 +97,14 @@ public class Auton {
 			prevExtraDec = false;
 		}
 		
-		if(stationIndex < -1) stationIndex = -1;
-		if(stationIndex >= stationSelection.length-1) stationIndex = stationSelection.length - 2;
+		if(stationIndex < 0) stationIndex = 0;
+		if(stationIndex >= stationSelection.length) stationIndex = stationSelection.length - 1;
 		if(defenseIndex < 0) defenseIndex = 0;
 		if(defenseIndex >= defenseType.length) defenseIndex = defenseType.length - 1;
 		if(extraIndex < 0) extraIndex = 0;
 		if(extraIndex >= extraCredit.length) extraIndex = extraCredit.length - 1;
 		
-		SmartDashboard.putString("Auton Station", stationSelection[stationIndex+1]);
+		SmartDashboard.putString("Auton Station", stationSelection[stationIndex]);
 		SmartDashboard.putString("Auton Defense", defenseType[defenseIndex]);
 		SmartDashboard.putString("Auton Extra", extraCredit[extraIndex]);
 	}
@@ -297,11 +296,16 @@ public class Auton {
 	boolean collapse = false;
 	boolean doA180 = false;
 	boolean doStow = false;
-	boolean driving = false; 
-	double drivePower = 0;
-	double driveDistance = 0;
-	double driveTime = 0;
-	boolean doElimAuton = false;
+	boolean driving = false;
+	double defDrivePower = 0;
+	boolean waitForPitch = false;
+	double defDriveDistance = 0;
+	double defDriveTime = 0;
+	boolean turnDrive = false;
+	double turnDrivePower = 0;
+	double turnDriveAngle = 0;
+	double turnDriveDistance = 0;
+	double turnDriveTime = 0;
 	boolean doCheval = false;
 	boolean crossDrive = false;
 	double crossDistance = 0;
@@ -322,38 +326,24 @@ public class Auton {
 		//extraIndex;
 		
 		switch(stationIndex){
-		case -1: //special elims auton
-			collapse = false;
-			doA180 = false;
-			doStow = true;
-			driving = false; 
-			drivePower = 0.6;
-			driveDistance = 140;
-			driveTime = 3.0;
-			doElimAuton = true;
-			doCheval = false;
-			crossDrive = false;
-			crossDistance = 0;
-			crossTime = 0;
-			alignDrive = true;
-			alignAngle = 0;
-			cameraAlign = true;
-			shooting = true;
-			break;
-			
 		case 0: //do nothing so exit before anything happens
-			Robot.vp.closeCamera();
+			//Robot.vp.closeCamera();
 			return;
 			
 		case 1: //the lowbar
 			collapse = true;
 			doA180 = false;
-			doStow = false;
+			doStow = false; 
 			driving = true;
-			drivePower = 0.6;
-			driveDistance = 160; // was 120
-			driveTime = 3.2;  // was 3
-			doElimAuton = false;
+			defDrivePower = 0.6;
+			waitForPitch = false;
+			defDriveDistance = 160; 
+			defDriveTime = 3.2;  
+			turnDrive = false;	//rather than drive at an angle, drive really far forward and shoot in the side goal
+			turnDrivePower = 0;
+			turnDriveAngle = 0;
+			turnDriveDistance = 0;
+			turnDriveTime = 0;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
@@ -369,10 +359,15 @@ public class Auton {
 			doA180 = false;
 			doStow = true;
 			driving = true;
-			drivePower = 0.6;
-			driveDistance = 160;  // was 140
-			driveTime = 3.2;  // was 3
-			doElimAuton = false;
+			defDrivePower = 0.6;
+			waitForPitch = true;
+			defDriveDistance = 100;  // was 160
+			defDriveTime = 1.75;  // was 3.2
+			turnDrive = true;
+			turnDrivePower = 0.6;
+			turnDriveAngle = 35;
+			turnDriveDistance = 100;
+			turnDriveTime = 1.5;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
@@ -388,16 +383,21 @@ public class Auton {
 			doA180 = false;
 			doStow = true;
 			driving = true; 
-			drivePower = 0.6;
-			driveDistance = 140;
-			driveTime = 3.0;
-			doElimAuton = false;
+			defDrivePower = 0.6;
+			waitForPitch = true;
+			defDriveDistance = 140; //was 140
+			defDriveTime = 3.0; //was 3.0
+			turnDrive = true;
+			turnDrivePower = 0.6;
+			turnDriveAngle = 20;
+			turnDriveDistance = 100;
+			turnDriveTime = 1.5;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = 15;
+			alignAngle = 0; //was 15
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -407,16 +407,21 @@ public class Auton {
 			doA180 = false;
 			doStow = true;
 			driving = true; 
-			drivePower = 0.6;
-			driveDistance = 140;
-			driveTime = 3.0;
-			doElimAuton = false;
+			defDrivePower = 0.6;
+			waitForPitch = true;
+			defDriveDistance = 100; //was 140
+			defDriveTime = 1.75; //was 3.0
+			turnDrive = true;
+			turnDrivePower = 0.6;
+			turnDriveAngle = -20;
+			turnDriveDistance = 100;
+			turnDriveTime = 1.5;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -10;
+			alignAngle = 0; //-10
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -426,11 +431,16 @@ public class Auton {
 			doA180 = false;
 			doStow = true;
 			driving = true; 
-			drivePower = 0.6;
-			driveDistance = 190;  // was 140
-			driveTime = 4.0;  // was 3, then 3.2, then 3.6
-			doElimAuton = false;
-   			doCheval = false;
+			defDrivePower = 0.6;
+			waitForPitch = true;
+			defDriveDistance = 190;  // was 140
+			defDriveTime = 4.0;  // was 3, then 3.2, then 3.6
+			turnDrive = false;	//rather than drive at an angle, drive really far forward and shoot in the side goal
+			turnDrivePower = 0;
+			turnDriveAngle = 0;
+			turnDriveDistance = 0;
+			turnDriveTime = 0;
+			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
@@ -448,32 +458,38 @@ public class Auton {
 		case 1: //rough terrain
 			//driveDistance = 120; //reduced from 140
 			//driveTime = 2.5;
+			waitForPitch = true;
 			break;
 			
 		case 2: //moat
 			//driveDistance = 140;
 			//driveTime = 3.0;
+			waitForPitch = true;
 			break;
 			
 		case 3: //rock wall
 			//driveDistance = 140;
 			//driveTime = 3.0;
+			waitForPitch = true;
 			break;
 			
 		case 4: //ramparts
 			//driveDistance = 130;
 			//driveTime = 3.0;
+			waitForPitch = true;
 			break;
 			
 		case 5://cheval
 			doStow = false;
-			Robot.vp.closeCamera();
+			waitForPitch = false;
+			//Robot.vp.closeCamera();
 			return;   //if you cheval and its not programmed, dont do anyting
 		
 		case 6://portcullis 
 			collapse = true;
 			doStow = false;
-			drivePower = 0.5;
+			defDrivePower = 0.5;
+			waitForPitch = false;
 			//driveDistance = 140;
 			//driveTime = 3.0;
 			break;
@@ -603,47 +619,98 @@ public class Auton {
 			//drive.resetEncoders();
 			time.reset();
 			if(driving){
-				autonstate = 31;
+				if(waitForPitch){
+					autonstate = 32;
+				} else {
+					autonstate = 31;
+				}
 			} else {
-				autonstate = 36;
+				autonstate = 35;
 			}
 			break;
 			
-		case 31:
-			drive.compassDrive(drivePower, navX.getYaw(), false, 0.0);
+		case 31: //drive (without defense detection)
+			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);
 			// drive for some distance or for some time
-			if (time.get() >= driveTime || drive.getDistance() > driveDistance) {
-				autonstate = 32;
+			if (time.get() >= defDriveTime || drive.getDistance() > defDriveDistance) {
+				autonstate = 34;
+			}
+			break;
+			
+		case 32: //pitch goes non zero
+			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);
+			if(Math.abs(navX.getPitch()) > IO.MAX_FLAT_PITCH){
+				if(time.get() > 0.25) autonstate = 33;
+			} else {
+				time.reset();
+			}
+			break;
+			
+		case 33: //pitch goes back to zero
+			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);
+			if(Math.abs(navX.getPitch()) < IO.MAX_FLAT_PITCH){
+				if(time.get() > 0.25) autonstate = 34;
+			} else {
+				time.reset();
+			}
+			break;
+			
+		case 34:
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			autonstate = 35;
+			break;
+			
+		//turn drive section
+		case 35:
+			//drive.resetEncoders();
+			time.reset();
+			if(turnDrive){
+				autonstate = 36;
+			} else {
+				autonstate = 40;
+			}
+			break;
+			
+		case 36: 
+			drive.compassDrive(turnDrivePower, navX.getYaw(), false, turnDriveAngle);
+			// drive for some distance or for some time
+			if (time.get() >= turnDriveTime || drive.getDistance() > turnDriveDistance) {
+				autonstate = 37;
 			}
 			break;
 
-		case 32:
+		case 37:
 			drive.tankDrive(0.0, 0.0);
 			time.reset();
-			autonstate = 36;
+			autonstate = 40;
 			break;
 			
-		case 35: //do elim auton section
-			if(doElimAuton){
-				autonstate = 36;
-			} else {
-				autonstate = 40;
-			}
-			break;
-			
-		case 36:
-			if(elimAuton()){
-				autonstate = 40;
-			}
-			break;
-			
-		//cheval section					!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//cheval section
 		case 40:
 			if(doCheval){
 				autonstate = 41;
 			} else {
 				autonstate = 50;
 			}
+			break;
+		
+		case 41:
+			bc.shooter.autoAndback(true);
+			bc.gatherer.autoAndback(true);
+			bc.flippyFloppies();
+			
+			if(bc.chevalState >= 4){
+				autonstate = 42;
+			}
+			break;
+			
+		case 42:
+			bc.shooter.autoAndback(false);
+			bc.gatherer.autoAndback(false);
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			autonstate = 50;
 			break;
 			
 		//cross drive section
@@ -856,52 +923,6 @@ public class Auton {
 			Robot.vp.closeCamera();
 			break;
 		}
-	}
-	
-	int elimAutonState = 0;
-	
-	public boolean elimAuton(){
-		boolean done = false;
-		switch(elimAutonState){
-		//drive section
-		case 0:
-			//drive.resetEncoders();
-			time.reset();
-			elimAutonState = 1;
-			break;
-			
-		case 1:
-			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
-			// drive for some distance or for some time
-			if (time.get() >= 2.7 || drive.getDistance() > 100) {
-				elimAutonState = 2;
-				time.reset();
-				drive.resetEncoders();
-			}
-			break;
-			
-		case 2:
-			drive.compassDrive(0.6, navX.getYaw(), false, -20);
-			// drive for some distance or for some time
-			if (time.get() >= 2.0 || drive.getDistance() > 90) {
-				elimAutonState = 3;
-				time.reset();
-				drive.resetEncoders();
-			}
-			break;
-
-		case 3:
-			drive.tankDrive(0.0, 0.0);
-			time.reset();
-			elimAutonState = 4;
-			break;
-			
-		case 4:
-			done = true;
-			break;
-		}
-		
-		return done;
 	}
 
 }
