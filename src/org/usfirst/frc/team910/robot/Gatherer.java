@@ -26,8 +26,8 @@ public class Gatherer {
 		goToPositionControl(false);
 	}
 
-	public void goToPositionControl(boolean autoControl) {
-
+	public void goToPositionControl(boolean autoControl) {  
+		//Enables the premade positions when auto switch is on
 		if (!autoControl) {
 
 			gatherArm.changeControlMode(TalonControlMode.PercentVbus);

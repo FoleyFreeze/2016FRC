@@ -575,7 +575,8 @@ public class BoulderController {
 	static int chevalState = 0;
 
 	public void flippyFloppies() {
-		
+		//drive INTO cheval, let the robot fall off, then press and hold
+		//make sure gatherer is facing defense, this drives in reverse
 		SmartDashboard.putNumber("chevalState", chevalState);
 		
 		switch (chevalState) {
@@ -587,7 +588,7 @@ public class BoulderController {
 	
 		case 1:
 			//drive.compassDrive(0.3, drive.navX.getYaw(), false, 180.0);
-
+			// not in auton so drive into it manually
 			if (time.get() > 0.5 || Math.abs(drive.getDistance()) > 4){
 				chevalState = 2;
 				time.reset();
@@ -595,7 +596,7 @@ public class BoulderController {
 			}
 			break;
 			
-		case 2:
+		case 2: //bring down gatherer to bring down the panel
 			gatherer.gotoPosition(GATHER_FULLDOWN_POS);
 			
 			if (time.get() > 2) {
@@ -604,7 +605,7 @@ public class BoulderController {
 			}
 			break;
 			
-		case 3:
+		case 3: //drive over the cheval
 			drive.compassDrive(0.6, drive.navX.getYaw(), false, 0.0);
 			
 			if (time.get() > .75){
@@ -613,7 +614,7 @@ public class BoulderController {
 			}
 			break;
 		
-		case 4:
+		case 4: //continue driving and put gatherer back up
 			drive.compassDrive(0.4, drive.navX.getYaw(), false, 0.0);
 			gatherer.gotoPosition(GATHER_LAYUP_POS);;
 			time.reset();

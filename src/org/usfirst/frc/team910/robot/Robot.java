@@ -108,7 +108,7 @@ public class Robot extends IterativeRobot {
 	 * 
 	 */
 
-	public void autonomousInit(){
+	public void autonomousInit(){  
 		vp.setupCamera();
 	}
 

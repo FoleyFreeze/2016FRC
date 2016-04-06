@@ -24,7 +24,7 @@ public class DriveTrain {
 
 	double MAX_RAMP_RATE = 0.03; // one second 0 to 1 ramp
 
-	public DriveTrain(AHRS x) {
+	public DriveTrain(AHRS x) { //Assigns all CANTalons and the NavX
 
 		if (Robot.TEST) {
 			LFmCANTalon = new CANTalon(2);
