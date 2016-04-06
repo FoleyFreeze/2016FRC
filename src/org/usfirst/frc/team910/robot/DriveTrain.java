@@ -458,8 +458,13 @@ public class DriveTrain {
 		
 		//if we are using this for uTurns
 		if(farTurn){
-			P_VAL = 0.05;
-			MAX_PWR = 0.5;
+			if(IO.COMP){
+				P_VAL = 0.05;
+				MAX_PWR = 0.5;
+			} else {
+				P_VAL = 0.03;
+				MAX_PWR = 0.35;
+			}
 		}
 		
 		double diff;
@@ -503,7 +508,7 @@ public class DriveTrain {
 
 	public double getDistance() {
 		// Obtains the distance from each encoder
-		return (lEncoder.getDistance() + rEncoder.getDistance()) / 2;
+		return (lEncoder.getDistance());  // + rEncoder.getDistance()) / 2;
 	}
 
 }

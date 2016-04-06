@@ -54,6 +54,8 @@ public class Auton {
 	int autonstate = 0;
 	double cameraAngle = 0;
 	
+	Timer safetytimer = new Timer();
+	
 	boolean prevStationInc = false;
 	boolean prevStationDec = false;
 	boolean prevDefenseInc = false;
@@ -369,7 +371,7 @@ public class Auton {
 			shooting = true;
 			break;
 			
-		case 2:
+		case 2:						//Defense 2
 			collapse = false;
 			doA180 = false;
 			doStow = true;
@@ -380,9 +382,9 @@ public class Auton {
 			defDriveTime = 1.75;  // was 3.2
 			turnDrive = true; 
 			turnDrivePower = 0.6;
-			turnDriveAngle = 25;
-			turnDriveDistance = 80;
-			turnDriveTime = 1.5;
+			turnDriveAngle = 50;
+			turnDriveDistance = 113;		//was 80;
+			turnDriveTime = 2;	//was 2.5;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
@@ -393,31 +395,7 @@ public class Auton {
 			shooting = true;
 			break;
 			
-		case 3:
-			collapse = false;
-			doA180 = false;
-			doStow = true;
-			driving = true; 
-			defDrivePower = 0.6;
-			waitForPitch = true;
-			defDriveDistance = 140; //was 140
-			defDriveTime = 3.0; //was 3.0
-			turnDrive = true;
-			turnDrivePower = 0.6;
-			turnDriveAngle = 20;
-			turnDriveDistance = 100;
-			turnDriveTime = 1.5;
-			doCheval = false;
-			crossDrive = false;
-			crossDistance = 0;
-			crossTime = 0;
-			alignDrive = true;
-			alignAngle = 0; //was 15
-			cameraAlign = true;
-			shooting = true;
-			break;
-			
-		case 4:
+		case 3:						//Defense 3
 			collapse = false;
 			doA180 = false;
 			doStow = true;
@@ -428,8 +406,32 @@ public class Auton {
 			defDriveTime = 1.75; //was 3.0
 			turnDrive = true;
 			turnDrivePower = 0.6;
-			turnDriveAngle = -20;
-			turnDriveDistance = 100;
+			turnDriveAngle = 25;
+			turnDriveDistance = 80;
+			turnDriveTime = 1.5;		//was 2.5
+			doCheval = false;
+			crossDrive = false;
+			crossDistance = 0;
+			crossTime = 0;
+			alignDrive = true;
+			alignAngle = 0; //was 15
+			cameraAlign = true;
+			shooting = true;
+			break;
+			
+		case 4:						//Defense 4
+			collapse = false;
+			doA180 = false;
+			doStow = true;
+			driving = true; 
+			defDrivePower = 0.6;
+			waitForPitch = true;
+			defDriveDistance = 90; //was 100 was 140
+			defDriveTime = 1.75; //was 3.0
+			turnDrive = true;
+			turnDrivePower = 0.55;
+			turnDriveAngle = -12;
+			turnDriveDistance = 55;
 			turnDriveTime = 1.5;
 			doCheval = false;
 			crossDrive = false;
@@ -441,26 +443,26 @@ public class Auton {
 			shooting = true;
 			break;
 			
-		case 5:
+		case 5:						//Defense 5
 			collapse = false;
 			doA180 = false;
 			doStow = true;
 			driving = true; 
 			defDrivePower = 0.6;
 			waitForPitch = true;
-			defDriveDistance = 190;  // was 140
+			defDriveDistance = 90;// SHOULD BE 190;  // was 140
 			defDriveTime = 4.0;  // was 3, then 3.2, then 3.6
-			turnDrive = false;	//rather than drive at an angle, drive really far forward and shoot in the side goal
-			turnDrivePower = 0;
+			turnDrive = true;// was false;	//rather than drive at an angle, drive really far forward and shoot in the side goal
+			turnDrivePower = .6;
 			turnDriveAngle = 0;
-			turnDriveDistance = 0;
-			turnDriveTime = 0;
+			turnDriveDistance = 84; //was 44
+			turnDriveTime = 1.4;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -70; //was 30
+			alignAngle = -80; //was 30
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -532,10 +534,38 @@ public class Auton {
 	
 	int repeatAlign = 3;
 	
+	double time_waiting_for_level = 0;
+	
+	double[] pitchArray = {0,0,0,0,0};
+	
 	public void runFancyAuto(){
 		
-		double currentPitch = Math.abs(navX.getPitch()) - zeroedPitch;	//Get current Pitch and Roll and normalize to zero
-		double currentRoll  = Math.abs(navX.getRoll())  - zeroedRoll;
+		double currentPitch = Math.abs(navX.getPitch() - zeroedPitch);	//Get current Pitch and Roll and normalize to zero
+		double currentRoll  = Math.abs(navX.getRoll()  - zeroedRoll);
+		
+		if (currentPitch > maxPitch) {										//Save Max Pitch we achieve
+			maxPitch = currentPitch;
+			SmartDashboard.putNumber("Max Pitch", maxPitch);
+		}
+		if (currentRoll > maxRoll) {										//Save Max Roll we achieve
+			maxRoll = currentRoll;
+			SmartDashboard.putNumber("Max Roll", maxRoll);
+		}
+		if (currentPitch + currentRoll > maxPitchAndRoll) {					//Save Max Pitch AND Roll we achieve
+			maxPitchAndRoll = currentPitch + currentRoll;
+			SmartDashboard.putNumber("maxPitchAndRoll", maxPitchAndRoll);
+		}
+		
+		double sum = 0;
+		for(int i=pitchArray.length-1; i>0; i--){
+			pitchArray[i] = pitchArray[i-1];
+			sum += pitchArray[i];
+		}
+		pitchArray[0] = currentPitch + currentRoll;
+		sum += pitchArray[0];
+		double averagePitch = sum / pitchArray.length;
+		
+		SmartDashboard.putNumber("averagePitch", averagePitch);
 		
 		SmartDashboard.putNumber("AutoCase", autonstate);
 
@@ -665,23 +695,12 @@ public class Auton {
 			bc.gatherer.manualGather(0.15, false, false);
 
 			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);		//Drive STRAIGHT over defense
-
-			if (currentPitch > maxPitch) {										//Save Max Pitch we achieve
-				maxPitch = currentPitch;
-				SmartDashboard.putNumber("Max Pitch", maxPitch);
-			}
-			if (currentRoll > maxRoll) {										//Save Max Roll we achieve
-				maxRoll = currentRoll;
-				SmartDashboard.putNumber("Max Roll", maxRoll);
-			}
-			if (currentPitch + currentRoll > maxPitchAndRoll) {					//Save Max Pitch AND Roll we achieve
-				maxPitchAndRoll = currentPitch + currentRoll;
-				SmartDashboard.putNumber("maxPitchAndRoll", maxPitchAndRoll);
-			}
-			if(currentPitch + currentRoll > IO.MAX_FLAT_PITCH){	//Did we hit enough angle that we're doing the defense?
+			if(averagePitch > IO.MAX_FLAT_PITCH){	//Did we hit enough angle that we're doing the defense?
 				if(time.get() > 0.1) {											//Were we at that angle LONG enough? Then Go To Next State
 					autonstate = 33;							
 					time.reset();
+					safetytimer.reset();										//Let's track how long we're trying to do the next case!
+					safetytimer.start();
 				}
 			} else {
 				time.reset();													//Time not up yet?  Reset timer and try again
@@ -692,11 +711,20 @@ public class Auton {
 			bc.gatherer.goToPositionControl(false);
 			bc.gatherer.manualGather(0.15, false, false);
 			drive.compassDrive(defDrivePower, navX.getYaw(), false, 0.0);
-			if(Math.abs(currentPitch + currentRoll) <  15){
-				if(time.get() > 0.2) autonstate = 34;
+			
+			if(averagePitch <  10){
+				if(time.get() > 0.4) autonstate = 34;		//was 0.3
+				time.reset();
 			} else {
 				time.reset();
 			}
+			
+			if (safetytimer.get() > 1.5) {
+				SmartDashboard.putNumber("Yikes! safetytimer went off at 33", safetytimer.get());
+				safetytimer.reset();
+				autonstate = 34;								//Safety timer went off - abort and goto next step!
+			}
+			
 			break;
 			
 		case 34: //stop block
@@ -709,7 +737,7 @@ public class Auton {
 			
 		//turn drive section
 		case 35:
-			//drive.resetEncoders();
+			drive.resetEncoders();
 			time.reset();
 			if(turnDrive){
 				autonstate = 36;
@@ -721,9 +749,13 @@ public class Auton {
 		case 36: 
 			drive.compassDrive(turnDrivePower, navX.getYaw(), false, turnDriveAngle);
 			// drive for some distance or for some time
-			if (time.get() >= turnDriveTime || drive.getDistance() > turnDriveDistance) {
+			if (drive.getDistance() > turnDriveDistance) {
 				autonstate = 37;
 			}
+			if (time.get() >= turnDriveTime) {
+				SmartDashboard.putNumber("Yikes! safetytimer went off at 36", time.get());
+			}
+			
 			break;
 
 		case 37:

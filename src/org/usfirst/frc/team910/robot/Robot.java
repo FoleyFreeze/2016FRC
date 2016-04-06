@@ -2,6 +2,8 @@
 package org.usfirst.frc.team910.robot;
 
 import com.kauailabs.navx.frc.AHRS;
+import com.ni.vision.NIVision;
+
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -55,6 +57,8 @@ public class Robot extends IterativeRobot {
 	boolean visionInit = false;
 	
 	public void robotInit() {
+
+		
 		ringOfFire = new Solenoid(3);
 		irSensor = new Solenoid(4);
 		blueLights = new Solenoid(0);
@@ -95,6 +99,8 @@ public class Robot extends IterativeRobot {
 		auton.autoSelected = (String) auton.chooser.getSelected();
 		SmartDashboard.putString("Auto", auton.autoSelected);
 		*/
+		
+		vp.findCamera();
 	}
 
 	/**
@@ -156,7 +162,7 @@ public class Robot extends IterativeRobot {
 	// called when disabled
 	public void disabledPeriodic() {
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
-		//SmartDashboard.putNumber("navX Yaw", navX.getYaw());
+		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
 		SmartDashboard.putNumber("navX Roll", navX.getRoll());
 		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
@@ -324,7 +330,7 @@ public class Robot extends IterativeRobot {
 
 		SmartDashboard.putNumber("wasd angle", angle);
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
-		//SmartDashboard.putNumber("navX Yaw", navX.getYaw());
+		SmartDashboard.putNumber("navX Yaw", navX.getYaw());
 		SmartDashboard.putNumber("navX Roll", navX.getRoll());
 		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());

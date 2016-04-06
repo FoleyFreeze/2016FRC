@@ -50,7 +50,27 @@ public class VisionProcessor {
 	double bestScore = 0;
 	boolean goodTarget = false;
 	
+	String camName = "cam0";
+	
 	VisionProcessor() {
+
+	}
+
+	public void findCamera() {		//Search through all the camera names to find the one plugged into us!
+
+		for (int camNumber = 0; camNumber <=2; camNumber++ ) {		//Try cam0, cam1, cam2, etc.
+			camName = "cam" + camNumber;
+			try {
+				session = NIVision.IMAQdxOpenCamera(camName, NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+				NIVision.IMAQdxCloseCamera(session);				//If cam open worked then close it and release the resources
+				visionCrashed = false;								//If we got this far, we're good!
+				break;												//Exit the loop. We're done.,
+			} catch (Exception e) {
+				visionCrashed = true;
+			}
+		}
+
+		if (!visionCrashed) SmartDashboard.putString("Found Camera!", camName);	//If no crash, write out which one worked
 
 	}
 	
@@ -69,7 +89,7 @@ public class VisionProcessor {
 			criteria[0] = new NIVision.ParticleFilterCriteria2(NIVision.MeasurementType.MT_AREA_BY_IMAGE_AREA, AREA_MIN,
 					AREA_MAX, 0, 0);
 	
-			session = NIVision.IMAQdxOpenCamera("cam2", NIVision.IMAQdxCameraControlMode.CameraControlModeController);
+			session = NIVision.IMAQdxOpenCamera(camName, NIVision.IMAQdxCameraControlMode.CameraControlModeController);
 	
 			// configure settings
 			NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::WhiteBalance::Mode", "Manual");
