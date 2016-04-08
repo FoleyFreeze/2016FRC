@@ -22,7 +22,7 @@ public class VisionProcessor {
 	Timer onlineTime = new Timer();
 	
 	boolean visionCrashed = false;
-	boolean visionOnline = false;
+	boolean visionSetupWorked = false;
 
 	// constants
 	NIVision.Range COMP_HUE_RANGE = new NIVision.Range(60,140); //for green led
@@ -58,24 +58,35 @@ public class VisionProcessor {
 
 	public void findCamera() {		//Search through all the camera names to find the one plugged into us!
 
-		for (int camNumber = 0; camNumber <=2; camNumber++ ) {		//Try cam0, cam1, cam2, etc.
+		System.out.println("Vision CamFind Start: " + Timer.getFPGATimestamp());
+		
+		for (int camNumber = 0; camNumber <=4; camNumber++ ) {		//Try cam0, cam1, cam2, etc.
 			camName = "cam" + camNumber;
 			try {
 				session = NIVision.IMAQdxOpenCamera(camName, NIVision.IMAQdxCameraControlMode.CameraControlModeController);
 				NIVision.IMAQdxCloseCamera(session);				//If cam open worked then close it and release the resources
+				System.out.println("Vision " + camName + " found!!!: " + Timer.getFPGATimestamp());
 				visionCrashed = false;								//If we got this far, we're good!
 				break;												//Exit the loop. We're done.,
 			} catch (Exception e) {
 				visionCrashed = true;
+				System.out.println("Vision " + camName + " not found: " + Timer.getFPGATimestamp());
+				//NIVision.IMAQdxCloseCamera(session);				//CAN'T CLOSE it if it didn't open successfully!
 			}
 		}
 
-		if (!visionCrashed) SmartDashboard.putString("Found Camera!", camName);	//If no crash, write out which one worked
+		if (!visionCrashed) {
+			SmartDashboard.putString("Found Camera!", camName);	//If no crash, write out which one worked
+			//SmartDashboard.putString("NO Camera FOUND!", "Success!");
+		} else {			
+			//SmartDashboard.putString("NO Camera FOUND!", "0,1,2");	//If no crash, write out which one worked
+			SmartDashboard.putString("Found Camera!", "none");
+		}
 
 	}
 	
 	public void setupCamera() {
-		if (visionCrashed || visionOnline) return;
+		if (visionCrashed || visionSetupWorked) return;		//If we crashed before, OR if we have successfully setup the camera once, then return
 		
 		try{
 			System.out.println("Vision Setup Start: " + Timer.getFPGATimestamp());
@@ -112,7 +123,7 @@ public class VisionProcessor {
 			NIVision.IMAQdxStartAcquisition(session);
 			
 			System.out.println("Vision Setup End: " + Timer.getFPGATimestamp());
-			visionOnline = true;
+			visionSetupWorked = true;
 			onlineTime.start();
 			onlineTime.reset();
 		} catch (Exception e){
@@ -122,11 +133,11 @@ public class VisionProcessor {
 	}
 	
 	public void closeCamera(){
-		if (visionCrashed || !visionOnline) return;
+		if (visionCrashed || !visionSetupWorked) return;
 		try{
 			System.out.println("Closing Camera Session: " + session + " at Time: " + Timer.getFPGATimestamp());
 			NIVision.IMAQdxCloseCamera(session);
-			visionOnline = false;
+			visionSetupWorked = false;
 			onlineTime.stop();
 		} catch (Exception e){
 			System.out.println(e.getMessage() + " at " + Timer.getFPGATimestamp());
@@ -142,8 +153,12 @@ public class VisionProcessor {
 
 	int buffid = 1;
 	boolean switchFrames = false;
-	public void run() {
-		if (visionCrashed || !visionOnline) return;
+	
+	
+	public void run() {												//Vision FIND Target routine. Assumes camera is OPEN and "session" is valid
+		if (visionCrashed || !visionSetupWorked) return;
+		
+		System.out.println("Starting vp.run(): " + session + " at Time: " + Timer.getFPGATimestamp());
 		
 		if(time.get() > 0.2){
 			time.reset();
@@ -158,8 +173,10 @@ public class VisionProcessor {
 			}
 		
 			try{
+			System.out.println("Grabbing frame buffer: " + session + " at Time: " + Timer.getFPGATimestamp());
 			NIVision.IMAQdxGrab(session, frame, buffid);
 			
+			System.out.println("Applying Color Threshold: " + session + " at Time: " + Timer.getFPGATimestamp());
 			if(IO.COMP){
 				NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, COMP_HUE_RANGE, SAT_RANGE, VAL_RANGE);
 			} else {
@@ -167,12 +184,14 @@ public class VisionProcessor {
 			}
 			
 			// total number of particles
+			System.out.println("Counting Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
 			int numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
 			SmartDashboard.putNumber("Masked particles", numParticles);
 	
 			// CameraServer.getInstance().setImage(binaryFrame);
 	
 			// filter out small particles
+			System.out.println("Filtering Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
 			int imaqError = NIVision.imaqParticleFilter4(binaryFrame, binaryFrame, criteria, filterOptions, null);
 			SmartDashboard.putNumber("error", imaqError);
 	
@@ -186,6 +205,7 @@ public class VisionProcessor {
 			int bestWidth = 0;
 			double largestWidth = 0;
 			//if (numParticles < 20 && numParticles > 0) {
+			System.out.println("Scoring Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
 				for (int i = 0; i < numParticles; i++) {
 					double score = scoreParticle(i, frame);
 					if (score < smallestScore) {
@@ -257,12 +277,12 @@ public class VisionProcessor {
 			// CameraServer.getInstance().setImage(binaryFrame);
 			//frame.free();
 			} catch (Exception e){
-				//e.printStackTrace();
+				e.printStackTrace();
 				time.reset();
 				goodTarget = false;
 				SmartDashboard.putBoolean("goodTarget", goodTarget);
 				
-				System.out.println("Vision Crash (session=)" + session + ", " + Timer.getFPGATimestamp());
+				System.out.println("Vision Crash (session=)" + session + ", " + Timer.getFPGATimestamp() + "\n" + e.getMessage());
 				
 				visionCrashed = true;
 			}

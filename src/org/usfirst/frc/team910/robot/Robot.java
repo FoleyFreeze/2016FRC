@@ -100,17 +100,21 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putString("Auto", auton.autoSelected);
 		*/
 		
-		vp.findCamera();
+		vp.findCamera();		//Search through all the possible cameras and remember which one we find. This CLOSES the camera when done!
 	}
 
-	/**
+	public void autonomousInit(){  
+		System.out.println("In autonomousInit() about to call vp.setupCamera() " + Timer.getFPGATimestamp());
+
+		vp.setupCamera();
+
+		System.out.println("In autonomousInit() BACK from call vp.setupCamera() " + Timer.getFPGATimestamp());
+	}
+
+	/*
 	 * This function is called periodically during autonomous
 	 * 
 	 */
-
-	public void autonomousInit(){  
-		vp.setupCamera();
-	}
 
 	public void autonomousPeriodic() {
 		// Drive over defenses
@@ -190,7 +194,7 @@ public class Robot extends IterativeRobot {
 		auton.selectAuto(lJoy);
 		
 		SmartDashboard.putBoolean("CAMERA_CRASHED", vp.visionCrashed);
-		SmartDashboard.putBoolean("CAMERA_RUNNING", vp.visionOnline);
+		SmartDashboard.putBoolean("CAMERA_RUNNING", vp.visionSetupWorked);
 		SmartDashboard.putNumber("Camera Running Time", vp.onlineTime.get());
 	}
 
@@ -344,9 +348,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("pdp 3 g-arm", pdp.getCurrent(3));
 		SmartDashboard.putNumber("pdp 4 g-wheel", pdp.getCurrent(4));
 		SmartDashboard.putNumber("pdp 12 s-arm", pdp.getCurrent(12));
-		SmartDashboard.putNumber("pdp 6", pdp.getCurrent(6));
-		SmartDashboard.putNumber("pdp 7", pdp.getCurrent(7));
-		SmartDashboard.putNumber("pdp 8", pdp.getCurrent(8));
+		//SmartDashboard.putNumber("pdp 6", pdp.getCurrent(6));
+		//SmartDashboard.putNumber("pdp 7", pdp.getCurrent(7));
+		//SmartDashboard.putNumber("pdp 8", pdp.getCurrent(8));
 		
 		SmartDashboard.putNumber("shooter pot",BC.shooter.shooterArm.getPosition());
 		SmartDashboard.putNumber("shooter CLE", BC.shooter.shooterArm.getClosedLoopError());
@@ -359,10 +363,10 @@ public class Robot extends IterativeRobot {
 		
 		SmartDashboard.putBoolean("ballSensor", BC.ballSensor.get());
 		
-		SmartDashboard.putNumber("cycle time", time.get());
+		//SmartDashboard.putNumber("cycle time", time.get());
 		
 		SmartDashboard.putBoolean("CAMERA_CRASHED", vp.visionCrashed);
-		SmartDashboard.putBoolean("CAMERA_RUNNING", vp.visionOnline);
+		SmartDashboard.putBoolean("CAMERA_RUNNING", vp.visionSetupWorked);
 		SmartDashboard.putNumber("Camera Running Time", vp.onlineTime.get());
 		
 		time.reset();

@@ -130,11 +130,12 @@ public class Auton {
 
 	}
 
+	/*
 	public void crossCamShootAuto() {
 		// When auton begins, the robot will use Compass Drive to drive over a
 		// defense
 		switch (autonstate) {
-		case 0:
+		case 0:														//Reset Time, Gyro, Encoders
 			time.start();
 			time.reset();
 			navX.zeroYaw();
@@ -142,7 +143,7 @@ public class Auton {
 			autonstate = 1;
 			break;
 
-		case 1:
+		case 1:														//Compass Drive for 3 seconds or 160 inches!
 			drive.compassDrive(0.6, navX.getYaw(), false, 0.0);
 			// drive for 7ft or 3 seconds
 			if (time.get() >= 3 || drive.getDistance() > 160) {
@@ -150,7 +151,7 @@ public class Auton {
 			}
 			break;
 
-		case 2:
+		case 2:														//STOP, reset time, if vision works goto 3 else goto 7
 			drive.tankDrive(0.0, 0.0);
 			time.reset();
 			if (visionWorking) {
@@ -160,7 +161,7 @@ public class Auton {
 			}
 			break;
 
-		case 3:// look for camera target
+		case 3:// 													//Look for target continuously. When found, reset time & goto 4
 			Robot.vp.run();
 			// keep trying until we get a good image
 			if (Robot.vp.goodTarget) {
@@ -170,7 +171,7 @@ public class Auton {
 			}
 			break;
 
-		case 4:// once target is found, turn to face it
+		case 4:														// Once target is found, turn to face it
 			drive.shooterAlign(cameraAngle, navX.getYaw(), false);
 			SmartDashboard.putNumber("cameraAngle", cameraAngle);
 			SmartDashboard.putBoolean("goodTarget", Robot.vp.goodTarget);
@@ -180,7 +181,7 @@ public class Auton {
 			}
 			break;
 
-		case 5:// prime shooter and stop tank
+		case 5:														// Prime shooter and stop tank
 			drive.tankDrive(0, 0);
 			bc.shooter.manualShooter(0, true, 0);
 			if (time.get() > 1) {
@@ -189,7 +190,7 @@ public class Auton {
 			}
 			break;
 
-		case 6:// fire
+		case 6:														// Fire
 			bc.shooter.manualShooter(0, true, 1);
 			if (time.get() > 0.75) {
 				autonstate = 7;
@@ -197,12 +198,16 @@ public class Auton {
 			}
 			break;
 
-		case 7:// stop
+		case 7:														// Stop shooter
 			bc.shooter.manualShooter(0, false, 0);
 			break;
 		}
 	}
 
+*/
+	
+	
+/*	
 	public void justDriveAuto() {
 		// When auton begins, the robot will use Compass Drive to drive over a
 		// defense
@@ -310,6 +315,7 @@ public class Auton {
 		}	
 	}
 	
+*/	
 	boolean collapse = false;
 	boolean doA180 = false;
 	boolean doStow = false;
@@ -451,7 +457,7 @@ public class Auton {
 			defDrivePower = 0.6;
 			waitForPitch = true;
 			defDriveDistance = 90;// SHOULD BE 190;  // was 140
-			defDriveTime = 4.0;  // was 3, then 3.2, then 3.6
+			defDriveTime = 1.5; // was 4.0;  // was 3, then 3.2, then 3.6
 			turnDrive = true;// was false;	//rather than drive at an angle, drive really far forward and shoot in the side goal
 			turnDrivePower = .6;
 			turnDriveAngle = 0;
@@ -462,7 +468,7 @@ public class Auton {
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -80; //was 30
+			alignAngle = -75; //was 30
 			cameraAlign = true;
 			shooting = true;
 			break;
@@ -575,6 +581,7 @@ public class Auton {
 			time.reset();
 			navX.zeroYaw();
 			drive.resetEncoders();
+			Robot.vp.setupCamera();	//4/7 GMS
 			if(collapse){			//Going all the way down?
 				autonstate = 11;
 			} else {
@@ -669,6 +676,8 @@ public class Auton {
 		case 30:
 			//drive.resetEncoders();
 			time.reset();
+			safetytimer.reset();										//Let's track how long we're trying to do the next case!
+			safetytimer.start();
 			if(driving){
 				if(waitForPitch){
 					autonstate = 32;
@@ -700,10 +709,13 @@ public class Auton {
 					autonstate = 33;							
 					time.reset();
 					safetytimer.reset();										//Let's track how long we're trying to do the next case!
-					safetytimer.start();
 				}
 			} else {
 				time.reset();													//Time not up yet?  Reset timer and try again
+			}
+			if(safetytimer.get() > 6){
+				autonstate = 34;
+				safetytimer.reset();
 			}
 			break;
 			
@@ -906,7 +918,7 @@ public class Auton {
 			bc.gatherer.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
-			if(time.get() > 0.75){
+			if(time.get() > 0.25){
 				autonstate = 72;
 				time.reset();
 			}

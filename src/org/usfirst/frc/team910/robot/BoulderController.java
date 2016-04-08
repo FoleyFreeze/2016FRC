@@ -11,20 +11,25 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class BoulderController {
 
 	// shooter positions (high to low)
-	static double SHOOTER_MAX_HEIGHT = 844 + 18; // Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
-	//static double SHOOTER_MAX_HEIGHT = 727; //COMP BOT 83 degrees is 760... now 743... now 727 
+	
+	//static double SHOOTER_MAX_HEIGHT = 844 + 18; // Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
+	//COMP BOT 83 degrees is 828 was 760... now 743... now 727
+	//COMP BOT max height is 840
+	static double SHOOTER_MAX_HEIGHT = 825; // was 727;  
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; // 3.28
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 17; //was -17 for prac
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 5; //was -17 for prac
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;
-	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 85; // 45;
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 87; //63 // 73 //was 85; // 45; 
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 452; // 3.28 was 431
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 480; // was 468 for prac bot 							was 473 comp 
 
 	// gatherer positions (low to high)
-	static double GATHER_FULLDOWN_POS = 626; //PRACTICE was 617
-	//static double GATHER_FULLDOWN_POS = 475; //COMP BOT
-	//static double GATHER_SETPOINT_POS = 469; //COMP BOT
-	static double GATHER_SETPOINT_POS = 626;
+	
+	//static double GATHER_FULLDOWN_POS = 626; //PRACTICE was 617  LOWER numbers when gatherer is LOWER
+	//static double GATHER_SETPOINT_POS = 626;
+	static double GATHER_FULLDOWN_POS = 475; //COMP BOT
+	static double GATHER_SETPOINT_POS = 469; //COMP BOT
+	
 	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 12;
 	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; // 3.28 was 86 3.30 was 100
 	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; // 3.28 was 333
