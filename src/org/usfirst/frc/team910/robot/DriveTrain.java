@@ -449,7 +449,7 @@ public class DriveTrain {
 		// Moves shooter to the camera's position
 		double P_VAL, MAX_PWR;
 		if(IO.COMP){
-			P_VAL = 0.14;  //was .1     4/7/2016 MrC								 // was .1 4/1/2016
+			P_VAL = 0.15;//was .14  //was .1     4/7/2016 MrC								 // was .1 4/1/2016
 			MAX_PWR = 0.45;
 		} else {
 			P_VAL = 0.1;

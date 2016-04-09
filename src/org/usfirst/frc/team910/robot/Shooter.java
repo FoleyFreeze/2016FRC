@@ -61,7 +61,7 @@ public class Shooter {
 		
 		shooterArm.changeControlMode(TalonControlMode.Position);
 		//shooterArm.setProfile(0);
-		shooterArm.setPID(8, 0, 0);//flipped for comp bot
+		shooterArm.setPID(8, 0, 0);
 		shooterArm.setInverted(true);//flipped for comp bot
 		shooterArm.reverseOutput(true);//flipped for comp bot
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);

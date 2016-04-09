@@ -107,6 +107,7 @@ public class VisionProcessor {
 			NIVision.IMAQdxConfigureGrab(session);
 			NIVision.IMAQdxStartAcquisition(session);
 			
+			Timer.delay(0.25);
 			
 			System.out.println("Vision Setup End: " + Timer.getFPGATimestamp());
 			visionSetupWorked = true;

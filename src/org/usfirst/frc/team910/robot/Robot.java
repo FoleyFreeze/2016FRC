@@ -198,6 +198,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("LoadWheelL", pdp.getCurrent(IO.SHOOTER_WHEEL_L));
 		SmartDashboard.putNumber("LoadWheelR", pdp.getCurrent(IO.SHOOTER_WHEEL_R));
 		
+		SmartDashboard.putNumber("L Encoder", drive.lEncoder.getDistance());
+		SmartDashboard.putNumber("R Encoder", drive.rEncoder.getDistance());
+		
 		double ballDist = BC.ballDistSensor.getAverageVoltage();
 		SmartDashboard.putNumber("BallDist", ballDist);
 		
@@ -215,6 +218,10 @@ public class Robot extends IterativeRobot {
 			vp.closeCamera();
 		} else if(rJoy.getRawButton(9)){
 			vp.run();
+		} else if(rJoy.getRawButton(10)){
+			vp.setupCamera();
+			vp.run();
+			vp.closeCamera();
 		}
 	}
 
@@ -233,7 +240,7 @@ public class Robot extends IterativeRobot {
 	public void teleopPeriodic() {
 
 		blueLights1.set(true);
-		blueLights2.set(true);
+		//blueLights2.set(true);
 		//redLights1.set(true);
 		//redLights2.set(true);
 		//greenLights1.set(true);
@@ -396,6 +403,10 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("Camera Running Time", vp.onlineTime.get());
 		
 		time.reset();
+		
+		if(rJoy.getRawButton(10)){
+			vp.visionCrashed = false;
+		}
 	}
 
 	/**

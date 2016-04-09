@@ -466,14 +466,14 @@ public class Auton {
 			turnDrive = true;// was false;	//rather than drive at an angle, drive really far forward and shoot in the side goal
 			turnDrivePower = .6;
 			turnDriveAngle = 0;
-			turnDriveDistance = 85;//was 60, but too short //was 85 44
+			turnDriveDistance = 93;//was 90//was 85 elim1 //was 60, but too short //was 85 44
 			turnDriveTime = 1.4;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -65;//-75 //was 30
+			alignAngle = -55;//was 57 //65 //-75 //was 30
 			cameraAlign = true;
 			shooting = true;
 			shootanyway = false;
@@ -931,11 +931,12 @@ public class Auton {
 			if(time.get() > 0.15){
 				autonstate = 72;
 				time.reset();
-				Robot.vp.setupCamera();
+				//Robot.vp.setupCamera();
 			}
 			break;
 			
 		case 72:// look for camera target
+			Robot.vp.setupCamera();
 			Robot.vp.run();
 			bc.shooter.goToPositionControl(true);
 			bc.gatherer.goToPositionControl(true);
@@ -971,8 +972,7 @@ public class Auton {
 			} else {
 				bc.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS, dist);
 			}
-			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
-			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
+			bc.farShot();
 			if (time.get() > 0.66) {
 				autonstate = 74;
 				time.reset();
@@ -1001,7 +1001,8 @@ public class Auton {
 			
 		case 81:// prime shooter and stop tank
 			bc.shooter.goToPositionControl(true);
-			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			bc.gatherer.goToPositionControl(true);
+			bc.farShot();
 			bc.prime();
 			if (time.get() > 1) {
 				autonstate = 82;
@@ -1011,7 +1012,8 @@ public class Auton {
 
 		case 82:// fire
 			bc.shooter.goToPositionControl(true);
-			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			bc.gatherer.goToPositionControl(true);
+			bc.farShot();
 			bc.shooter.fire();
 			bc.shooter.prime(0.6, false);
 			if (time.get() > 0.75) {
