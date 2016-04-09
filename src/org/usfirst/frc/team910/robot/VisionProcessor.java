@@ -101,35 +101,43 @@ public class VisionProcessor {
 					AREA_MAX, 0, 0);
 	
 			session = NIVision.IMAQdxOpenCamera(camName, NIVision.IMAQdxCameraControlMode.CameraControlModeController);
-	
-			// configure settings
-			NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::WhiteBalance::Mode", "Manual");
-			NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::WhiteBalance::Value", WHITE_BALANCE);
-			NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::Exposure::Mode", "Manual");
-			long minv = NIVision.IMAQdxGetAttributeMinimumI64(session, "CameraAttributes::Exposure::Value");
-			long maxv = NIVision.IMAQdxGetAttributeMaximumI64(session, "CameraAttributes::Exposure::Value");
-			long val = minv + (long) (((double) (maxv - minv)) * (((double) EXPOSURE) / 100.0));
-			NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Exposure::Value", val);
-			NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::Brightness::Mode", "Manual");
-			minv = NIVision.IMAQdxGetAttributeMinimumI64(session, "CameraAttributes::Brightness::Value");
-			maxv = NIVision.IMAQdxGetAttributeMaximumI64(session, "CameraAttributes::Brightness::Value");
-			val = minv + (long) (((double) (maxv - minv)) * (((double) BRIGHTNESS) / 100.0));
-			NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Brightness::Value", val);
-	
-			//48 should be 640x480 at 30fps
-			NIVision.IMAQdxSetAttributeU32(session, "AcquisitionAttributes::VideoMode", 48);
+			
+			configureSettings(session);
 			
 			NIVision.IMAQdxConfigureGrab(session);
 			NIVision.IMAQdxStartAcquisition(session);
+			
 			
 			System.out.println("Vision Setup End: " + Timer.getFPGATimestamp());
 			visionSetupWorked = true;
 			onlineTime.start();
 			onlineTime.reset();
 		} catch (Exception e){
-			System.out.println(e.getMessage() + " at " + Timer.getFPGATimestamp());
+			System.out.println("Setup error: " + e.getMessage() + " at " + Timer.getFPGATimestamp());
 			visionCrashed = true;
 		}
+	}
+	
+	public void configureSettings(int session){
+		// configure settings
+		NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::WhiteBalance::Mode", "Manual");
+		System.out.println("Setting white balance: " + WHITE_BALANCE + " at " + Timer.getFPGATimestamp());
+		NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::WhiteBalance::Value", WHITE_BALANCE);
+		NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::Exposure::Mode", "Manual");
+		long minv = NIVision.IMAQdxGetAttributeMinimumI64(session, "CameraAttributes::Exposure::Value");
+		long maxv = NIVision.IMAQdxGetAttributeMaximumI64(session, "CameraAttributes::Exposure::Value");
+		long val = minv + (long) (((double) (maxv - minv)) * (((double) EXPOSURE) / 100.0));
+		System.out.println("Setting exposure: " + val + " at " + Timer.getFPGATimestamp());
+		NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Exposure::Value", val);
+		NIVision.IMAQdxSetAttributeString(session, "CameraAttributes::Brightness::Mode", "Manual");
+		minv = NIVision.IMAQdxGetAttributeMinimumI64(session, "CameraAttributes::Brightness::Value");
+		maxv = NIVision.IMAQdxGetAttributeMaximumI64(session, "CameraAttributes::Brightness::Value");
+		val = minv + (long) (((double) (maxv - minv)) * (((double) BRIGHTNESS) / 100.0));
+		System.out.println("Setting brightness: " + val + " at " + Timer.getFPGATimestamp());
+		NIVision.IMAQdxSetAttributeI64(session, "CameraAttributes::Brightness::Value", val);
+	
+		//48 should be 640x480 at 30fps
+		//NIVision.IMAQdxSetAttributeU32(session, "AcquisitionAttributes::VideoMode", 48);
 	}
 	
 	public void closeCamera(){
@@ -140,7 +148,7 @@ public class VisionProcessor {
 			visionSetupWorked = false;
 			onlineTime.stop();
 		} catch (Exception e){
-			System.out.println(e.getMessage() + " at " + Timer.getFPGATimestamp());
+			System.out.println("Close error: " + e.getMessage() + " at " + Timer.getFPGATimestamp());
 			visionCrashed = true;
 		}
 	}
@@ -172,110 +180,115 @@ public class VisionProcessor {
 				switchFrames = true;
 			}
 		
-			try{
-			System.out.println("Grabbing frame buffer: " + session + " at Time: " + Timer.getFPGATimestamp());
-			NIVision.IMAQdxGrab(session, frame, buffid);
-			
-			System.out.println("Applying Color Threshold: " + session + " at Time: " + Timer.getFPGATimestamp());
-			if(IO.COMP){
-				NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, COMP_HUE_RANGE, SAT_RANGE, VAL_RANGE);
-			} else {
-				NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, PRAC_HUE_RANGE, SAT_RANGE, VAL_RANGE);
-			}
-			
-			// total number of particles
-			System.out.println("Counting Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
-			int numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
-			SmartDashboard.putNumber("Masked particles", numParticles);
-	
-			// CameraServer.getInstance().setImage(binaryFrame);
-	
-			// filter out small particles
-			System.out.println("Filtering Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
-			int imaqError = NIVision.imaqParticleFilter4(binaryFrame, binaryFrame, criteria, filterOptions, null);
-			SmartDashboard.putNumber("error", imaqError);
-	
-			// Send particle count after filtering to dash board
-			numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
-			SmartDashboard.putNumber("Filtered particles", numParticles);
-	
-			// search the targets for the best one, then see if it is good enough
-			double smallestScore = 999;
-			int bestParticle = 0;
-			int bestWidth = 0;
-			double largestWidth = 0;
-			//if (numParticles < 20 && numParticles > 0) {
-			System.out.println("Scoring Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
-				for (int i = 0; i < numParticles; i++) {
-					double score = scoreParticle(i, frame);
-					if (score < smallestScore) {
-						bestParticle = i;
-						smallestScore = score;
-					}
-					if (score < TARGET_SCORE){
-						double width = NIVision.imaqMeasureParticle(binaryFrame, i, 0,
-								NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
-						if(width > largestWidth){
-							largestWidth = width;
-							bestWidth = i;
+			try {
+				//NIVision.IMAQdxStartAcquisition(session);
+				//configureSettings(session);
+				
+				System.out.println("Grabbing frame buffer: " + session + " at Time: " + Timer.getFPGATimestamp());
+				NIVision.IMAQdxGrab(session, frame, buffid);
+				
+				System.out.println("Applying Color Threshold: " + session + " at Time: " + Timer.getFPGATimestamp());
+				if(IO.COMP){
+					NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, COMP_HUE_RANGE, SAT_RANGE, VAL_RANGE);
+				} else {
+					NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, PRAC_HUE_RANGE, SAT_RANGE, VAL_RANGE);
+				}
+				
+				// total number of particles
+				System.out.println("Counting Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
+				int numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
+				SmartDashboard.putNumber("Masked particles", numParticles);
+		
+				// CameraServer.getInstance().setImage(binaryFrame);
+		
+				// filter out small particles
+				System.out.println("Filtering Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
+				int imaqError = NIVision.imaqParticleFilter4(binaryFrame, binaryFrame, criteria, filterOptions, null);
+				SmartDashboard.putNumber("error", imaqError);
+		
+				// Send particle count after filtering to dash board
+				numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
+				SmartDashboard.putNumber("Filtered particles", numParticles);
+		
+				// search the targets for the best one, then see if it is good enough
+				double smallestScore = 999;
+				int bestParticle = 0;
+				int bestWidth = 0;
+				double largestWidth = 0;
+				//if (numParticles < 20 && numParticles > 0) {
+				System.out.println("Scoring Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
+					for (int i = 0; i < numParticles; i++) {
+						double score = scoreParticle(i, frame);
+						if (score < smallestScore) {
+							bestParticle = i;
+							smallestScore = score;
+						}
+						if (score < TARGET_SCORE){
+							double width = NIVision.imaqMeasureParticle(binaryFrame, i, 0,
+									NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
+							if(width > largestWidth){
+								largestWidth = width;
+								bestWidth = i;
+							}
 						}
 					}
+				//}
+		
+				// display best particle data
+				if (smallestScore < TARGET_SCORE) {
+					double area = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0, NIVision.MeasurementType.MT_AREA);
+		
+					double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
+					double cvh_area_ratio = area / cvh_area;
+		
+					double perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_PERIMETER);
+					double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
+					double perimeter_ratio = perimeter / cvh_perimeter;
+		
+					double com_x = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
+					double com_y = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
+					double top = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
+					double left = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
+					double width = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
+					double height = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
+							NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
+					double com_x_ratio = (com_x - left) / width;
+					double com_y_ratio = (com_y - top) / height;
+		
+					SmartDashboard.putNumber("comX", com_x_ratio);
+					SmartDashboard.putNumber("comY", com_y_ratio);
+					SmartDashboard.putNumber("cvhAreaRatio", cvh_area_ratio);
+					SmartDashboard.putNumber("periRatio", perimeter_ratio);
+		
+					Rect rect = new Rect((int) top, (int) left, (int) height, (int) width);
+					NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT,
+							(float) 0xFFFFFF);
+					
+					bestRect = rect;
+					bestScore = smallestScore;
+					goodTarget = true;
+				} else {
+					goodTarget = false;
 				}
-			//}
-	
-			// display best particle data
-			if (smallestScore < TARGET_SCORE) {
-				double area = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0, NIVision.MeasurementType.MT_AREA);
-	
-				double cvh_area = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_CONVEX_HULL_AREA);
-				double cvh_area_ratio = area / cvh_area;
-	
-				double perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_PERIMETER);
-				double cvh_perimeter = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_CONVEX_HULL_PERIMETER);
-				double perimeter_ratio = perimeter / cvh_perimeter;
-	
-				double com_x = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_CENTER_OF_MASS_X);
-				double com_y = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_CENTER_OF_MASS_Y);
-				double top = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_BOUNDING_RECT_TOP);
-				double left = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_BOUNDING_RECT_LEFT);
-				double width = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_BOUNDING_RECT_WIDTH);
-				double height = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0,
-						NIVision.MeasurementType.MT_BOUNDING_RECT_HEIGHT);
-				double com_x_ratio = (com_x - left) / width;
-				double com_y_ratio = (com_y - top) / height;
-	
-				SmartDashboard.putNumber("comX", com_x_ratio);
-				SmartDashboard.putNumber("comY", com_y_ratio);
-				SmartDashboard.putNumber("cvhAreaRatio", cvh_area_ratio);
-				SmartDashboard.putNumber("periRatio", perimeter_ratio);
-	
-				Rect rect = new Rect((int) top, (int) left, (int) height, (int) width);
-				NIVision.imaqDrawShapeOnImage(frame, frame, rect, DrawMode.DRAW_VALUE, ShapeMode.SHAPE_RECT,
-						(float) 0xFFFFFF);
 				
-				bestRect = rect;
-				bestScore = smallestScore;
-				goodTarget = true;
-			} else {
-				goodTarget = false;
-			}
-			
-			SmartDashboard.putNumber("bestScore", smallestScore);
-			// SmartDashboard.putNumber("cycleTime", time.get());
-			// time.reset();
-	
-			// draw image to driver station
-			CameraServer.getInstance().setImage(frame);
-			// CameraServer.getInstance().setImage(binaryFrame);
-			//frame.free();
+				SmartDashboard.putNumber("bestScore", smallestScore);
+				// SmartDashboard.putNumber("cycleTime", time.get());
+				// time.reset();
+		
+				// draw image to driver station
+				CameraServer.getInstance().setImage(frame);
+				
+				//NIVision.IMAQdxStopAcquisition(session);
+				// CameraServer.getInstance().setImage(binaryFrame);
+				//frame.free();
 			} catch (Exception e){
 				e.printStackTrace();
 				time.reset();

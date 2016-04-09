@@ -33,7 +33,7 @@ public class Auton {
 	int stationIndex = 0;
 	String[] defenseType = { "0 Drive Over", "1 Rough Terrain", "2 Moat", "3 Rock Wall", "4 Ramparts", "5 Cheval", "6 Portcullis" };
 	int defenseIndex = 0;
-	String[] extraCredit = { "0 No Modification", "1 No Shooting", "2 Spy Box" };
+	String[] extraCredit = { "0 No Modification", "1 No Shooting", "2 Spy Box", "3 Shoot anyway" };
 	int extraIndex = 0;
 	
 	double maxRoll=0;		//Zero these values and record the highest value we get and output to the driver station
@@ -337,6 +337,7 @@ public class Auton {
 	double alignAngle = 0;
 	boolean cameraAlign = false;
 	boolean shooting = false;
+	boolean shootanyway = false;
 	
 	public void runAuto() {
 
@@ -375,6 +376,7 @@ public class Auton {
 			alignAngle = 90;  //was 60
 			cameraAlign = true;
 			shooting = true;
+			shootanyway = false;
 			break;
 			
 		case 2:						//Defense 2
@@ -399,6 +401,7 @@ public class Auton {
 			alignAngle = 0;  // was 25
 			cameraAlign = true;
 			shooting = true;
+			shootanyway = false;
 			break;
 			
 		case 3:						//Defense 3
@@ -413,7 +416,7 @@ public class Auton {
 			turnDrive = true;
 			turnDrivePower = 0.6;
 			turnDriveAngle = 25;
-			turnDriveDistance = 80;
+			turnDriveDistance = 60; //80
 			turnDriveTime = 1.5;		//was 2.5
 			doCheval = false;
 			crossDrive = false;
@@ -423,6 +426,7 @@ public class Auton {
 			alignAngle = 0; //was 15
 			cameraAlign = true;
 			shooting = true;
+			shootanyway = false;
 			break;
 			
 		case 4:						//Defense 4
@@ -447,6 +451,7 @@ public class Auton {
 			alignAngle = 0; //-10
 			cameraAlign = true;
 			shooting = true;
+			shootanyway = false;
 			break;
 			
 		case 5:						//Defense 5
@@ -461,16 +466,17 @@ public class Auton {
 			turnDrive = true;// was false;	//rather than drive at an angle, drive really far forward and shoot in the side goal
 			turnDrivePower = .6;
 			turnDriveAngle = 0;
-			turnDriveDistance = 84; //was 44
+			turnDriveDistance = 85;//was 60, but too short //was 85 44
 			turnDriveTime = 1.4;
 			doCheval = false;
 			crossDrive = false;
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = -75; //was 30
+			alignAngle = -65;//-75 //was 30
 			cameraAlign = true;
 			shooting = true;
+			shootanyway = false;
 			break;
 		}
 		
@@ -532,6 +538,9 @@ public class Auton {
 			driving = false;
 			crossDrive = false;
 			break;
+			
+		case 3:
+			shootanyway = true;
 		}
 		
 		runFancyAuto();
@@ -539,6 +548,7 @@ public class Auton {
 	}
 	
 	int repeatAlign = 3;
+	boolean visionNotFound = false;
 	
 	double time_waiting_for_level = 0;
 	
@@ -581,7 +591,6 @@ public class Auton {
 			time.reset();
 			navX.zeroYaw();
 			drive.resetEncoders();
-			Robot.vp.setupCamera();	//4/7 GMS
 			if(collapse){			//Going all the way down?
 				autonstate = 11;
 			} else {
@@ -593,7 +602,7 @@ public class Auton {
 		case 11: // bring the gatherer down
 			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gatherArm.set(bc.GATHER_LOWBAR_POS);
-			if (time.get() > 1.5) {
+			if (time.get() > 2) {
 				autonstate = 12;
 				time.reset();
 			}
@@ -916,11 +925,13 @@ public class Auton {
 		case 71:
 			bc.shooter.goToPositionControl(true);
 			bc.gatherer.goToPositionControl(true);
-			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
-			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
-			if(time.get() > 0.25){
+			bc.farShot();
+			//bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			//bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
+			if(time.get() > 0.15){
 				autonstate = 72;
 				time.reset();
+				Robot.vp.setupCamera();
 			}
 			break;
 			
@@ -928,13 +939,25 @@ public class Auton {
 			Robot.vp.run();
 			bc.shooter.goToPositionControl(true);
 			bc.gatherer.goToPositionControl(true);
-			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
-			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
+			bc.farShot();
+			//bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+			//bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS)
 			// keep trying until we get a good image
 			if (Robot.vp.goodTarget) {
 				cameraAngle = Robot.vp.getAngle() + navX.getYaw();
+				double dist = Robot.vp.getDistance();
+				if(dist == 0){
+					bc.visionAngleOffset = 0;
+				} else {
+					bc.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS,Robot.vp.getDistance());
+				}
 				autonstate = 73;
 				time.reset();
+				visionNotFound = false;
+			}
+			if(time.get() > 0.7){
+				autonstate = 74;
+				visionNotFound = true;
 			}
 			break;
 
@@ -969,7 +992,7 @@ public class Auton {
 			
 		//shoot things section
 		case 80:
-			if(shooting){
+			if((shooting && !visionNotFound) || shootanyway){
 				autonstate = 81;
 			} else {
 				autonstate = 90;
@@ -1011,6 +1034,7 @@ public class Auton {
 			bc.shooter.goToPositionControl(false);
 			bc.gatherer.goToPositionControl(false);
 			Robot.vp.closeCamera();
+			Robot.vp.visionCrashed = false; //start teleop with a hopefully working camera
 			break;
 		}
 		

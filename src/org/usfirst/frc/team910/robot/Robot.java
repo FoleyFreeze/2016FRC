@@ -37,7 +37,13 @@ public class Robot extends IterativeRobot {
 
 	Solenoid ringOfFire;
 	Solenoid irSensor;
-	Solenoid blueLights;
+	
+	Solenoid blueLights1;
+	Solenoid blueLights2;
+	Solenoid redLights1;
+	Solenoid redLights2;
+	Solenoid greenLights1;
+	Solenoid greenLights2;
 	
 	Joystick rJoy;
 	Joystick lJoy;
@@ -46,7 +52,7 @@ public class Robot extends IterativeRobot {
 
 	AHRS navX;
 
-	AnalogInput dSensor;
+	//AnalogInput dSensor;
 
 	Auton auton;
 	
@@ -61,7 +67,13 @@ public class Robot extends IterativeRobot {
 		
 		ringOfFire = new Solenoid(3);
 		irSensor = new Solenoid(4);
-		blueLights = new Solenoid(0);
+		blueLights1 = new Solenoid(2);
+		blueLights2 = new Solenoid(7);
+		redLights1 = new Solenoid(0);
+		redLights2 = new Solenoid(5);
+		greenLights1 = new Solenoid(1);
+		greenLights2 = new Solenoid(6);
+		
 		
 		navX = new AHRS(SPI.Port.kMXP); // SPI.Port.kMXP
 		pdp = new PowerDistributionPanel();
@@ -76,7 +88,7 @@ public class Robot extends IterativeRobot {
 
 		driveBoard = new Joystick(IO.DRIVE_BOARD);
 
-		dSensor = new AnalogInput(3);
+		//dSensor = new AnalogInput(3);
 
 		// setup things for camera switching
 		//BetterCameraServer.init("cam0", "cam1");
@@ -104,11 +116,7 @@ public class Robot extends IterativeRobot {
 	}
 
 	public void autonomousInit(){  
-		System.out.println("In autonomousInit() about to call vp.setupCamera() " + Timer.getFPGATimestamp());
-
-		vp.setupCamera();
-
-		System.out.println("In autonomousInit() BACK from call vp.setupCamera() " + Timer.getFPGATimestamp());
+		
 	}
 
 	/*
@@ -159,7 +167,8 @@ public class Robot extends IterativeRobot {
 		auton.runAuto();
 		ringOfFire.set(true);
 		irSensor.set(true);
-		blueLights.set(true);
+		//blueLights1.set(true);
+		//blueLights2.set(true);
 
 	}
 
@@ -171,7 +180,7 @@ public class Robot extends IterativeRobot {
 		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		//SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
-		SmartDashboard.putNumber("DistanceSensor", dSensor.getVoltage());
+		//SmartDashboard.putNumber("DistanceSensor", dSensor.getVoltage());
 		//SmartDashboard.putNumber("accel X", navX.getRawAccelX());
 		//SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		//SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());
@@ -189,6 +198,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putNumber("LoadWheelL", pdp.getCurrent(IO.SHOOTER_WHEEL_L));
 		SmartDashboard.putNumber("LoadWheelR", pdp.getCurrent(IO.SHOOTER_WHEEL_R));
 		
+		double ballDist = BC.ballDistSensor.getAverageVoltage();
+		SmartDashboard.putNumber("BallDist", ballDist);
+		
 		//vp.disabled();
 		
 		auton.selectAuto(lJoy);
@@ -196,6 +208,14 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putBoolean("CAMERA_CRASHED", vp.visionCrashed);
 		SmartDashboard.putBoolean("CAMERA_RUNNING", vp.visionSetupWorked);
 		SmartDashboard.putNumber("Camera Running Time", vp.onlineTime.get());
+		
+		if(rJoy.getRawButton(7)){
+			vp.setupCamera();
+		} else if(rJoy.getRawButton(8)){
+			vp.closeCamera();
+		} else if(rJoy.getRawButton(9)){
+			vp.run();
+		}
 	}
 
 	/**
@@ -212,7 +232,13 @@ public class Robot extends IterativeRobot {
 	
 	public void teleopPeriodic() {
 
-		blueLights.set(true);
+		blueLights1.set(true);
+		blueLights2.set(true);
+		//redLights1.set(true);
+		//redLights2.set(true);
+		//greenLights1.set(true);
+		//greenLights2.set(true);
+		
 		ringOfFire.set(true);
 		irSensor.set(true);
 		/* Controls all teleop operations, including the automatic gatherer and shooter positions,
@@ -339,7 +365,7 @@ public class Robot extends IterativeRobot {
 		//SmartDashboard.putNumber("navX X", navX.getRawGyroX());
 		//SmartDashboard.putNumber("navX Y", navX.getRawGyroY());
 		//SmartDashboard.putNumber("navX Z", navX.getRawGyroZ());
-		SmartDashboard.putNumber("DistanceSensor", dSensor.getVoltage());
+		//SmartDashboard.putNumber("DistanceSensor", dSensor.getVoltage());
 		//SmartDashboard.putNumber("accel X", navX.getRawAccelX());
 		//SmartDashboard.putNumber("accel Y", navX.getRawAccelY());
 		//SmartDashboard.putNumber("accel Z", navX.getRawAccelZ());

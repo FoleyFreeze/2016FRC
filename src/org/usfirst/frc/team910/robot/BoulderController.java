@@ -1,5 +1,6 @@
 package org.usfirst.frc.team910.robot;
 
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -15,11 +16,11 @@ public class BoulderController {
 	//static double SHOOTER_MAX_HEIGHT = 844 + 18; // Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
 	//COMP BOT 83 degrees is 828 was 760... now 743... now 727
 	//COMP BOT max height is 840
-	static double SHOOTER_MAX_HEIGHT = 825; // was 727;  
+	static double SHOOTER_MAX_HEIGHT = 895;///was 813//831  //was 825 // was 727;  
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; // 3.28
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 5; //was -17 for prac
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 40;// was 5 //was -17 for prac
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;
-	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 87; //63 // 73 //was 85; // 45; 
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 73;//83//was 80, but reduced speed //71 //63 // 73 //was 85; // 45; 
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 452; // 3.28 was 431
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 480; // was 468 for prac bot 							was 473 comp 
 
@@ -62,6 +63,7 @@ public class BoulderController {
 	double visionAngleOffset = 0;
 
 	DigitalInput ballSensor;
+	AnalogInput ballDistSensor;
 
 	DriveTrain drive;
 	Shooter shooter;
@@ -77,6 +79,8 @@ public class BoulderController {
 		time = new Timer();
 		time.start();
 		ballSensor = new DigitalInput(IO.SHOOTER_BALL_SENSOR);
+		ballDistSensor = new AnalogInput(IO.BALL_SENSOR_ANALOG);
+		ballDistSensor.setAverageBits(2);
 		this.drive = drive;
 	}
 
@@ -226,10 +230,13 @@ public class BoulderController {
 	}
 
 	int gatherState = 1;
+	boolean stoppedbydist = false;
 
 	public void gather() {
 		// gatherState = 1;
-		// lowers gatherer and shooter and gets ready to gather//
+		// lowers gatherer and shooter and gets ready to gather/
+		double ballDist = ballDistSensor.getAverageVoltage();
+		SmartDashboard.putNumber("BallDist", ballDist);
 		switch (gatherState) {
 		case 1:
 			gatherer.gatherwheel(-1);
@@ -237,6 +244,7 @@ public class BoulderController {
 			shooter.gotoPosition(SHOOTER_LAYUP_POS);
 			time.reset();
 			gatherState = 11;
+			stoppedbydist = false;
 			break;
 
 		case 11:
@@ -279,10 +287,11 @@ public class BoulderController {
 				gatherState = 4;
 				time.reset();
 				shooter.gotoPosition(SHOOTER_LOAD_POS);
-			} else if(!ballSensor.get()){
+			} else if(ballDist > 0.61 && ballDist < 0.7){
 				gatherState = 6;
 				time.reset();
 				gatherer.gatherwheel(0);
+				stoppedbydist = true;
 			}
 			break;
 			
@@ -302,10 +311,11 @@ public class BoulderController {
 					time.reset();
 				}
 			}
-			if(!ballSensor.get()){
+			if(ballDist > 0.61 && ballDist < 0.7){
 				gatherState = 6;
 				time.reset();
 				gatherer.gatherwheel(0);
+				stoppedbydist = true;
 			}
 			break;
 			
@@ -325,40 +335,6 @@ public class BoulderController {
 			}
 			break;
 			
-			/*
-		case 5: // back the ball up slightly
-			gatherer.gatherwheel(0);
-			if (IO.COMP) {
-				shooter.setLoadWheels(0.6);
-				if (ballSensor.get() || time.get() > 0.35) {
-					gatherState = 6;
-					time.reset();
-				}
-			} else {
-				shooter.setLoadWheels(1.0);	
-				if (/*ballSensor.get() ||  /time.get() > 0.2) {   //was .15  3.30 MrC
-					gatherState = 55;
-					time.reset();
-				}
-			}
-			break;
-			
-		case 55:
-			if (IO.COMP) {
-				shooter.setLoadWheels(-0.4);
-				if (time.get() > 0.05) {
-					gatherState = 6;
-					time.reset();
-				}
-			} else {
-				shooter.setLoadWheels(0.6);
-				if (time.get() > 0.05) {
-					gatherState = 6;
-					time.reset();
-				}
-			}
-			break;
-			*/
 		case 6: // go to shooting position
 			shooter.setLoadWheels(0);
 			shooter.gotoPosition(SHOOTER_STOW_POS + 50);
@@ -390,6 +366,7 @@ public class BoulderController {
 		}
 
 		SmartDashboard.putNumber("gather state", gatherState);
+		SmartDashboard.putBoolean("distdetect", stoppedbydist);
 	}
 	
 	int regrippingState = 0;	
@@ -666,7 +643,7 @@ public class BoulderController {
 	public void prime() {
 
 		if (buttonState == 0) { // layup
-			shooter.prime(0.6, true);
+			shooter.prime(0.55, true); //was 0.6
 		} else if (buttonState == 2) { // farshot
 			shooter.prime(0.68, false);
 		} else {

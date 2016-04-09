@@ -12,7 +12,9 @@ public class IO {
 	public static final int LEFT_DRIVE_B_ENCODER = 3;
 	public static final int RIGHT_DRIVE_A_ENCODER = 0;
 	public static final int RIGHT_DRIVE_B_ENCODER = 1;
-	public static final int SHOOTER_BALL_SENSOR = 4;	
+	
+	public static final int SHOOTER_BALL_SENSOR = 4;
+	public static final int BALL_SENSOR_ANALOG = 3;
 
 	public static final int GATHERER = 4;
 	public static final int GATHER_ARM = 3;
