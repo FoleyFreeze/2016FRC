@@ -669,7 +669,7 @@ public class BoulderController {
 		prevJogUp = jogUp;
 		prevJogDown = jogDown;
 	}
-	public void aimThenFire(double getAngle, boolean rTrigger){		//Concept for align and fire with right trigger Steven C 4/16
+	/*public void aimThenFire(double getAngle, boolean rTrigger){		//Concept for align and fire with right trigger Steven C 4/16
 		getAngle = Robot.vp.getAngle();
 		
 		if (rTrigger){
@@ -679,6 +679,6 @@ public class BoulderController {
 				shooter.fire();
 			}
 		}
-	}
-}
+	} */
+} 
 	
