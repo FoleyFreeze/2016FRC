@@ -669,5 +669,16 @@ public class BoulderController {
 		prevJogUp = jogUp;
 		prevJogDown = jogDown;
 	}
+	public void aimThenFire(double getAngle, boolean rTrigger){		//Concept for align and fire with right trigger Steven C 4/16
+		getAngle = Robot.vp.getAngle();
+		
+		if (rTrigger){
+			if(getAngle <= 0.5){
+				drive.shooterAlign(uDriveTargetAngle, navX.getYaw(), true);
+				shooter.prime(shooterSpeed, layup);
+				shooter.fire();
+			}
+		}
+	}
 }
 	

@@ -36,6 +36,7 @@ public class Shooter {
 	
 	double MAX_RAMP_RATE = 0.02; // 1.5 second 0 to 1 ramp
 	
+	
 	PowerDistributionPanel pdp;
 	Timer time = new Timer();
 
@@ -254,5 +255,4 @@ public class Shooter {
 			}
 		}
 	}
-	
 }

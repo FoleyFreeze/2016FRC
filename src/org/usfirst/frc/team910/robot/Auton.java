@@ -338,6 +338,7 @@ public class Auton {
 	boolean cameraAlign = false;
 	boolean shooting = false;
 	boolean shootanyway = false;
+	boolean driveBack = false; //WIP added for Case 84 4/16 Steven C
 	
 	public void runAuto() {
 
@@ -541,6 +542,9 @@ public class Auton {
 			
 		case 3:
 			shootanyway = true;
+			
+		case 4: //drive back to neutral zone
+			driveBack = true;
 		}
 		
 		runFancyAuto();
@@ -1030,6 +1034,14 @@ public class Auton {
 			autonstate = 90;
 			break;
 			
+		case 84://WIP drive back to Neutral Zone 4/16 Steven C 
+			time.reset();
+			drive.compassDrive(0.6, navX.getYaw(), false, 180);
+			
+			if(time.get() >= defDriveTime){
+				autonstate = 90;
+				time.reset();
+			}
 		//stop things section
 		case 90:
 			drive.tankDrive(0, 0);
