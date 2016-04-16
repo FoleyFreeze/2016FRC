@@ -25,8 +25,8 @@ public class VisionProcessor {
 	boolean visionSetupWorked = false;
 
 	// constants
-	NIVision.Range COMP_HUE_RANGE = new NIVision.Range(60,140); //for green led
-	NIVision.Range PRAC_HUE_RANGE = new NIVision.Range(0,255); //for white led
+	NIVision.Range COMP_HUE_RANGE = new NIVision.Range(60,140); //for green led with comp bot 
+	NIVision.Range PRAC_HUE_RANGE = new NIVision.Range(0,255); //for white led with practice bot 
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
 	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150);
 	double VIEW_ANGLE = 60; // msft hd 3000
@@ -235,7 +235,7 @@ public class VisionProcessor {
 					}
 				//}
 		
-				// display best particle data
+				// display best particle data pick best picture 
 				if (smallestScore < TARGET_SCORE) {
 					double area = NIVision.imaqMeasureParticle(binaryFrame, bestWidth, 0, NIVision.MeasurementType.MT_AREA);
 		
@@ -303,7 +303,7 @@ public class VisionProcessor {
 		}
 	}
 	
-	public void doReset(){
+	public void doReset(){ //when the camera crashes 
 		if (visionCrashed) return;
 		
 		System.out.println("Resseting Camera Session: " + session + " at Time: " + Timer.getFPGATimestamp());
@@ -323,7 +323,7 @@ public class VisionProcessor {
 	// for debugging
 	boolean DRAW_RECT = true;
 
-	public double scoreParticle(int particleIndex, NIVision.Image frame) {
+	public double scoreParticle(int particleIndex, NIVision.Image frame) { //debugging the image  
 		if(visionCrashed) return 999;
 		
 		double area = NIVision.imaqMeasureParticle(binaryFrame, particleIndex, 0, NIVision.MeasurementType.MT_AREA);
@@ -367,7 +367,7 @@ public class VisionProcessor {
 
 	}
 
-	public double getAngle(){
+	public double getAngle(){ //get angle of robot compared to goal 
 		if(visionCrashed) return 0;
 		if(goodTarget){
 			double center = bestRect.left + (bestRect.width/2);
@@ -383,7 +383,7 @@ public class VisionProcessor {
 		}
 	}
 	
-	public double getDistance(){
+	public double getDistance(){ //get distance of goal 
 		if(visionCrashed) return 0;
 		if(goodTarget){
 			double angle = bestRect.height * DEG_PER_PIX;
