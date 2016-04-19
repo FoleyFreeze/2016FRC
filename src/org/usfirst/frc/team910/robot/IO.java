@@ -2,7 +2,7 @@ package org.usfirst.frc.team910.robot;
 
 public class IO {
 	//running the competition bot
-	public static final boolean COMP = true;
+	public static final boolean COMP = false;
 	
 	// inputs
 	public static final int LEFT_DRIVE_MOTOR = 1;
@@ -26,8 +26,9 @@ public class IO {
 	public static final int LOAD_WHEEL_L = 11;
 	public static final int LOAD_WHEEL_R = 5;
 
-	public static final int CLIMBER_ARM_MOTOR = 7;
-
+	public static final int LEFT_CLIMBER_ARM_MOTOR = 9;
+	public static final int RIGHT_CLIMBER_ARM_MOTOR = 7;
+	
 	// outputs
 	public static final int LEFT_JOYSTICK = 0;
 	public static final int RIGHT_JOYSTICK = 1;

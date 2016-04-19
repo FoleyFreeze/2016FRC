@@ -12,34 +12,66 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class BoulderController {
 
 	
+	
+	
 	// shooter positions (high to low)
 	
-	//static double SHOOTER_MAX_HEIGHT = 844 + 18; // Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
+	
+	//  *******************   P R A C T I C E     B O T      V A L U E S      S T A R T   ********************
+	
+	
+	static double SHOOTER_MAX_HEIGHT = 844 + 18; //PRACTICE BOT 4/16// Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
+
+	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; //4/16// 3.28 //currently same as comp
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 17;//4/16// was 5 
+	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;// 4/16 //currently same as comp  sane as comp
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 83;//4/16//was 80, but reduced speed //71 //63 // 73 //was 85; // 45; // currently same as comp
+	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 452; //4/16// 3.28 was 431
+	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT -468; //4/16//  							was 473 comp 
+
+	
+	static double GATHER_FULLDOWN_POS = 626; //4/16//was 617  LOWER numbers when gatherer is LOWER
+	static double GATHER_SETPOINT_POS = 626; // 4/16
+	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 40;//4/16//was 12  //currently same as comp
+	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; //4/16// 3.28 was 86 3.30 was 100// currently same as comp
+	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; //4/16// 3.28 was 333// currently same as comp
+	double GATHER_LAYUP_POS = GATHER_SETPOINT_POS + 333;//4/16// 3.28
+	double GATHER_FARSHOT_POS = GATHER_SETPOINT_POS + 333;//4/16//3.28
+	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; //4/16// was 470
+
+	//  *******************        P R A C T I C E     B O T      V A L U E S      E N D        ********************
+	
+	
+	
+	//  *******************   C O M P E T I T I O N     B O T      V A L U E S      S T A R T   ********************
+	
+/*	
+	
 	//COMP BOT 83 degrees is 828 was 760... now 743... now 727
-	//COMP BOT max height is 840
-	static double SHOOTER_MAX_HEIGHT = 717;///was 813//831  //was 825 // was 727;  
-	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; // 3.28
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 30;// was 5 //was -17 for prac
-	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;
-	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 83;//83//was 80, but reduced speed //71 //63 // 73 //was 85; // 45; 
-	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 452; // 3.28 was 431
-	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 480; // was 468 for prac bot 							was 473 comp 
+		//COMP BOT max height is 840
+		//static double SHOOTER_MAX_HEIGHT = 717;///was 813//831  //was 825 // was 727; 
 
-	// gatherer positions (low to high)
+	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; //is COMPBOT 4/16// 3.28
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 30;//4/16//was comp 30;// was 5 //was -17 for prac
+	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;//is COMPBOT 4/16
+	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 83;//4/16//83//was 80, but reduced speed //71 //63 // 73 //was 85; // 45; 
+	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 452; //4/16// 3.28 was 431
+	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT - 480; //4/16//  							was 473 comp 
 	
-	//static double GATHER_FULLDOWN_POS = 626; //PRACTICE was 617  LOWER numbers when gatherer is LOWER
-	//static double GATHER_SETPOINT_POS = 626;
-	static double GATHER_FULLDOWN_POS = 475; //COMP BOT
-	static double GATHER_SETPOINT_POS = 469; //COMP BOT
 	
-	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 40;//was 12
-	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; // 3.28 was 86 3.30 was 100
-	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; // 3.28 was 333
-	double GATHER_LAYUP_POS = GATHER_SETPOINT_POS + 333;// 3.28
-	double GATHER_FARSHOT_POS = GATHER_SETPOINT_POS + 333;// 3.28
-
+	//static double GATHER_FULLDOWN_POS = 475; //4/16
+	//static double GATHER_SETPOINT_POS = 469; //4/16
+	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 40;//4/16//was 12
+	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; //4/16// 3.28 was 86 3.30 was 100
+	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; //4/16// 3.28 was 333
+	double GATHER_LAYUP_POS = GATHER_SETPOINT_POS + 333;//4/16// 3.28
+	double GATHER_FARSHOT_POS = GATHER_SETPOINT_POS + 333;//4/16//3.28
+	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; //4/16// was 470
+*/
+	//  *******************   C O M P E T I T I O N     B O T      V A L U E S      E N D   ********************
+	
 	// defense positions
-	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; // was 470
+
 	double GATHER_LOWBAR_POS = GATHER_FULLDOWN_POS;
 	double SHOOTER_PORT_POS = SHOOTER_LAYUP_POS;
 	double GATHER_PORT_POS = GATHER_FULLDOWN_POS;
@@ -669,16 +701,5 @@ public class BoulderController {
 		prevJogUp = jogUp;
 		prevJogDown = jogDown;
 	}
-	/*public void aimThenFire(double getAngle, boolean rTrigger){		//Concept for align and fire with right trigger Steven C 4/16
-		getAngle = Robot.vp.getAngle();
-		
-		if (rTrigger){
-			if(getAngle <= 0.5){
-				drive.shooterAlign(uDriveTargetAngle, navX.getYaw(), true);
-				shooter.prime(shooterSpeed, layup);
-				shooter.fire();
-			}
-		}
-	} */
-} 
+}
 	

@@ -445,7 +445,7 @@ public class DriveTrain {
 		return c;
 	}
 
-	public void shooterAlign(double cameraAngle, double botAngle, boolean farTurn) {
+	public void shooterAlign(double cameraAngle, double botAngle, boolean farTurn){ //double YAxisLeft, double YAxisRight, boolean firstTime 
 		// Moves shooter to the camera's position
 		double P_VAL, MAX_PWR;
 		if(IO.COMP){
@@ -497,8 +497,11 @@ public class DriveTrain {
 		}
 
 		tankDrive(slowPower, -slowPower);
-
+		//if(YAxisLeft == slowPower || YAxisRight == slowPower){
+			//this.dynamicBraking(firstTime);			//James 4/16 added dyamicBreaking after drivetrain is alligned with target
 	}
+
+	
 
 	public void resetEncoders() {
 		// Resets Encoders
