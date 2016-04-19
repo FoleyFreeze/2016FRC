@@ -33,7 +33,7 @@ public class Auton {
 	int stationIndex = 0;
 	String[] defenseType = { "0 Drive Over", "1 Rough Terrain", "2 Moat", "3 Rock Wall", "4 Ramparts", "5 Cheval", "6 Portcullis" };
 	int defenseIndex = 0;
-	String[] extraCredit = { "0 No Modification", "1 No Shooting", "2 Spy Box", "3 Shoot anyway" };
+	String[] extraCredit = { "0 No Modification", "1 No Shooting", "2 Spy Box", "3 Shoot anyway", "4 Drive Back" };
 	int extraIndex = 0;
 	
 	double maxRoll=0;		//Zero these values and record the highest value we get and output to the driver station
@@ -338,7 +338,7 @@ public class Auton {
 	boolean cameraAlign = false;
 	boolean shooting = false;
 	boolean shootanyway = false;
-	//boolean driveBack = false; //WIP added for Case 84 4/16 Steven C
+	boolean reverseDrive = false; //WIP added for Case 84 4/16 Steven C
 	
 	public void runAuto() {
 
@@ -378,6 +378,7 @@ public class Auton {
 			cameraAlign = true;
 			shooting = true;
 			shootanyway = false;
+			reverseDrive = false;
 			break;
 			
 		case 2:						//Defense 2
@@ -403,6 +404,7 @@ public class Auton {
 			cameraAlign = true;
 			shooting = true;
 			shootanyway = false;
+			reverseDrive = false;
 			break;
 			
 		case 3:						//Defense 3
@@ -428,6 +430,7 @@ public class Auton {
 			cameraAlign = true;
 			shooting = true;
 			shootanyway = false;
+			reverseDrive = false;
 			break;
 			
 		case 4:						//Defense 4
@@ -453,6 +456,7 @@ public class Auton {
 			cameraAlign = true;
 			shooting = true;
 			shootanyway = false;
+			reverseDrive = false;
 			break;
 			
 		case 5:						//Defense 5
@@ -478,6 +482,7 @@ public class Auton {
 			cameraAlign = true;
 			shooting = true;
 			shootanyway = false;
+			reverseDrive = false;
 			break;
 		}
 		
@@ -544,7 +549,7 @@ public class Auton {
 			shootanyway = true;
 			
 		case 4: //drive back to neutral zone
-			//driveBack = true;
+			reverseDrive = true;
 		}
 		
 		runFancyAuto();
@@ -779,6 +784,7 @@ public class Auton {
 			}
 			if (time.get() >= turnDriveTime) {
 				SmartDashboard.putNumber("Yikes! safetytimer went off at 36", time.get());
+				autonstate = 37;
 			}
 			
 			break;
@@ -1096,7 +1102,80 @@ public class Auton {
 			time.reset();
 			autonstate = 91;
 			break;
-		
+		case 91:
+			//drive.resetEncoders();
+			time.reset();
+			safetytimer.reset();										//Let's track how long we're trying to do the next case!
+			safetytimer.start();
+			if(driving && reverseDrive){
+				if(waitForPitch){
+					autonstate = 93;
+				} else {
+					autonstate = 92;
+				}
+			} else {
+				autonstate = 110;
+			}
+			break;
+			
+		case 92: //drive (without defense detection)	
+			bc.gatherer.goToPositionControl(false);
+			bc.gatherer.manualGather(0.15, false, false);
+			drive.compassDrive(defDrivePower, navX.getYaw(), false, 180.0);
+			// drive for some distance or for some time
+			if (time.get() >= defDriveTime || drive.getDistance() > defDriveDistance) {
+				autonstate = 95;
+			}
+			break;
+			
+		case 93: //wait for Pitch and Roll to go NON zero
+			bc.gatherer.goToPositionControl(false);
+			bc.gatherer.manualGather(0.15, false, false);
+	
+			drive.compassDrive(defDrivePower, navX.getYaw(), false, 180.0);		//Drive STRAIGHT over defense
+			if(averagePitch > IO.MAX_FLAT_PITCH){	//Did we hit enough angle that we're doing the defense?
+				if(time.get() > 0.1) {											//Were we at that angle LONG enough? Then Go To Next State
+					autonstate = 94;							
+					time.reset();
+					safetytimer.reset();										//Let's track how long we're trying to do the next case!
+				}
+			} else {
+				time.reset();													//Time not up yet?  Reset timer and try again
+			}
+			if(safetytimer.get() > 6){
+				autonstate = 95;
+				safetytimer.reset();
+			}
+			break;
+			
+		case 94: //pitch goes back to zero
+			bc.gatherer.goToPositionControl(false);
+			bc.gatherer.manualGather(0.15, false, false);
+			drive.compassDrive(defDrivePower, navX.getYaw(), false, 180.0);
+			
+			if(averagePitch <  10){
+				if(time.get() > 0.4) autonstate = 95;		//was 0.3
+				time.reset();
+			} else {
+				time.reset();
+			}
+			
+			if (safetytimer.get() > 1.5) {
+				SmartDashboard.putNumber("Yikes! safetytimer went off at 33", safetytimer.get());
+				safetytimer.reset();
+				autonstate = 95;								//Safety timer went off - abort and goto next step!
+			}
+			
+			break;
+			
+		case 95: //stop block
+			bc.gatherer.goToPositionControl(false);
+			bc.gatherer.manualGather(0, false, false);
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			autonstate = 110;
+			break;
+
 		
 		//stop things section
 		case 110:
