@@ -445,7 +445,7 @@ public class DriveTrain {
 		return c;
 	}
 
-	public void shooterAlign(double cameraAngle, double botAngle, boolean farTurn) {
+	public void shooterAlign(double cameraAngle, double botAngle, boolean farTurn, double YAxisLeft, double YAxisRight) {
 		// Moves shooter to the camera's position
 		double P_VAL, MAX_PWR;
 		if(IO.COMP){
@@ -497,7 +497,12 @@ public class DriveTrain {
 		}
 
 		tankDrive(slowPower, -slowPower);
-
+		if(YAxisLeft == slowPower || YAxisLeft == slowPower){
+			dynamicBraking(true);
+			
+			
+		}
+	
 	}
 
 	public void resetEncoders() {
