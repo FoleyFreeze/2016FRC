@@ -1034,16 +1034,72 @@ public class Auton {
 			autonstate = 90;
 			break;
 			
-		/*case 84://WIP drive back to Neutral Zone 4/16 Steven C 
+		case 84://WIP drive back to Neutral Zone 4/16 Steven C 
 			time.reset();
 			drive.compassDrive(0.6, navX.getYaw(), false, 180);
 			
 			if(time.get() >= defDriveTime){
 				autonstate = 90;
 				time.reset();
-			}*/
-		//stop things section
+			}
+		
+		//cross drive section BACKWARDS 
+		case 85:
+			drive.resetEncoders();
+			time.reset();
+			if(crossDrive && reverseDrive){
+				autonstate = 86;
+			} else {
+				autonstate = 90;
+			}
+			break;
+			
+		case 86:
+			drive.compassDrive(0.6, navX.getYaw(), false, 180.0);
+			// drive for some distance or for some time
+			if (time.get() >= crossTime || drive.getDistance() > crossDistance) {
+				autonstate = 87;
+			}
+			break;
+
+		case 87:
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			autonstate = 88;
+			break;
+			
+		//turn drive section BACKWARDS
+		case 88:
+			drive.resetEncoders();
+			time.reset();
+			if(turnDrive && reverseDrive){
+				autonstate = 89;
+			} else {
+				autonstate = 91;
+			}
+			break;
+			
+		case 89: 
+			drive.compassDrive(turnDrivePower, navX.getYaw(), false, turnDriveAngle + 180);
+			// drive for some distance or for some time
+			if (drive.getDistance() > turnDriveDistance) {
+				autonstate = 90;
+			}
+			if (time.get() >= turnDriveTime) {
+				SmartDashboard.putNumber("Yikes! safetytimer went off at 36", time.get());
+			}
+			
+			break;
+
 		case 90:
+			drive.tankDrive(0.0, 0.0);
+			time.reset();
+			autonstate = 91;
+			break;
+		
+		
+		//stop things section
+		case 110:
 			drive.tankDrive(0, 0);
 			bc.shooter.goToPositionControl(false);
 			bc.gatherer.goToPositionControl(false);
