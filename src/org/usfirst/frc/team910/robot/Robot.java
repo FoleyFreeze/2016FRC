@@ -113,6 +113,7 @@ public class Robot extends IterativeRobot {
 		*/
 		
 		vp.findCamera();		//Search through all the possible cameras and remember which one we find. This CLOSES the camera when done!
+		camTime.start();
 	}
 
 	public void autonomousInit(){  
@@ -236,9 +237,10 @@ public class Robot extends IterativeRobot {
 	
 	int cameraState = 0;
 	double cameraAngle = 0;
+	Timer camTime = new Timer();
 	
 	public void teleopPeriodic() {
-
+		
 		blueLights1.set(true);
 		//blueLights2.set(true);
 		//redLights1.set(true);
@@ -257,19 +259,12 @@ public class Robot extends IterativeRobot {
 		boolean automaticMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 		if (automaticMode) {
 
-			//if (driveBoard.getRawButton(IO.MAN_AUTO_SW) != previousMode) {
-				// Call Mode Switch Function
+			if(cameraState != 3){ //when camera state is 3, the camera runs the shooter
 				BC.gatherer.goToPositionControl(automaticMode);
 				BC.shooter.goToPositionControl(automaticMode);
-			//}
-			
-			BC.runBC(driveBoard);
-			/*BC.runBC(driveBoard.getRawButton(IO.LAYUP), driveBoard.getRawButton(IO.STOW),
-					driveBoard.getRawButton(IO.FAR_SHOT), driveBoard.getRawButton(IO.GATHER),
-					driveBoard.getRawButton(IO.PRIME), driveBoard.getRawButton(IO.FIRE),
-					driveBoard.getRawButton(IO.LOWBAR), driveBoard.getRawButton(IO.PORT),
-					driveBoard.getRawButton(IO.SALLYPORT), driveBoard.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES),
-					driveBoard.getRawButton(IO.DRAWBRIDGE));*/
+				
+				BC.runBC(driveBoard);
+			}
 			
 			SmartDashboard.putNumber("shooterArm setpoint", BC.shooter.shooterArm.getSetpoint());
 
@@ -323,6 +318,7 @@ public class Robot extends IterativeRobot {
 		int angle = WASDToAngle(driveBoard.getRawButton(IO.WASD_W), driveBoard.getRawButton(IO.WASD_A),
 				driveBoard.getRawButton(IO.WASD_S), driveBoard.getRawButton(IO.WASD_D));
 
+		double diff;
 		//auto camera aim
 		if(lJoy.getRawButton(IO.AIM_CAMERA) && navX.isConnected()){
 			switch(cameraState){
@@ -331,7 +327,7 @@ public class Robot extends IterativeRobot {
 				cameraState = 1;
 				break;
 			
-			case 1:
+			case 1://take and analyze picture
 				vp.run();
 				//keep trying until we get a good image
 				if(vp.goodTarget){
@@ -340,8 +336,9 @@ public class Robot extends IterativeRobot {
 					vp.getDistance();
 				}
 				break;
-			case 2:
-				drive.shooterAlign(cameraAngle + lr_jog_deg, navX.getYaw(), false);
+				
+			case 2://align shooter
+				drive.cameraAlign(cameraAngle + lr_jog_deg, navX.getYaw());
 				SmartDashboard.putNumber("cameraAngle", cameraAngle - navX.getYaw());
 				SmartDashboard.putBoolean("goodTarget", vp.goodTarget);
 				double dist = vp.getDistance();
@@ -351,7 +348,39 @@ public class Robot extends IterativeRobot {
 					BC.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS, vp.getDistance());
 				}
 				
+				diff = cameraAngle + lr_jog_deg - navX.getYaw();
+				if (diff > 180) {
+					diff = -360 + diff;
+				} else if (diff < -180) {
+					diff = 360 + diff;
+				}
+				BC.prime();	
+				if(Math.abs(diff) <= 0.15){ //acceptable target angle error
+					cameraState = 3;
+					camTime.reset();
+				}
 				break;
+				
+			case 3: //shoot if ready
+				diff = cameraAngle + lr_jog_deg - navX.getYaw();
+				if (diff > 180) {
+					diff = -360 + diff;
+				} else if (diff < -180) {
+					diff = 360 + diff;
+				}
+				if(Math.abs(diff) > 0.15){//acceptable target angle error
+					cameraState = 2;
+				}
+				
+				if(automaticMode && BC.buttonState == 2){
+					BC.farShot();
+					BC.prime();
+					if(camTime.get() >= 0.5){//time to prime for
+						BC.shooter.fire();
+						//Robot.vp.closeCamera(); //try keeping the camera open forever
+						BC.prevFire = true;
+					}
+				}
 			}
 			vp.getDistance();
 			

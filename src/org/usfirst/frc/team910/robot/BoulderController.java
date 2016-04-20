@@ -30,8 +30,8 @@ public class BoulderController {
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT -468; //4/16//  							was 473 comp 
 
 	
-	static double GATHER_FULLDOWN_POS = 626; //4/16//was 617  LOWER numbers when gatherer is LOWER
-	static double GATHER_SETPOINT_POS = 626; // 4/16
+	static double GATHER_FULLDOWN_POS = 621; //626 //4/16//was 617  LOWER numbers when gatherer is LOWER
+	static double GATHER_SETPOINT_POS = 621; //626 // 4/16
 	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 40;//4/16//was 12  //currently same as comp
 	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; //4/16// 3.28 was 86 3.30 was 100// currently same as comp
 	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; //4/16// 3.28 was 333// currently same as comp
@@ -39,7 +39,7 @@ public class BoulderController {
 	double GATHER_FARSHOT_POS = GATHER_SETPOINT_POS + 333;//4/16//3.28
 	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; //4/16// was 470
 
-	//  *******************        P R A C T I C E     B O T      V A L U E S      E N D        ********************
+	//  *******************        P R A C T I C E    B O T      V A L U E S      E N D        ********************
 	
 	
 	
@@ -223,7 +223,7 @@ public class BoulderController {
 		if (driverstation.getRawButton(IO.FIRE) && !driverstation.getRawButton(IO.CLIMB_2)) {
 			prevFire = true;
 			shooter.fire();
-			Robot.vp.closeCamera();
+			//Robot.vp.closeCamera(); //try keeping the camera open forever
 			primeState = 0;
 		} else if (driverstation.getRawButton(IO.FIRE) && driverstation.getRawButton(IO.CLIMB_2)) {
 			prevFire = true;
@@ -271,19 +271,19 @@ public class BoulderController {
 		double ballDist = ballDistSensor.getAverageVoltage();
 		SmartDashboard.putNumber("BallDist", ballDist);
 		switch (gatherState) {
-		case 1:
+		case 1: //go to gather position and spin gatherer
 			gatherer.gatherwheel(-1);
 			gatherer.gotoPosition(GATHER_INTAKE_POS);
-			shooter.gotoPosition(SHOOTER_LAYUP_POS);
+			shooter.gotoPosition(SHOOTER_STOW_POS);
 			time.reset();
 			gatherState = 11;
 			stoppedbydist = false;
 			break;
 
-		case 11:
+		case 11://wait for gather motor current spike
 			gatherer.gatherwheel(-1);
 			gatherer.gotoPosition(GATHER_INTAKE_POS);
-			shooter.gotoPosition(SHOOTER_LAYUP_POS);
+			shooter.gotoPosition(SHOOTER_STOW_POS);
 
 			if (checkForGatherCurrent() && time.get() >= 0.5) {
 				gatherState = 12;
@@ -338,7 +338,7 @@ public class BoulderController {
 					time.reset();
 				}
 			} else {
-				if (time.get() >= 2.0 /* || checkForLoadCurrent() */) { // was
+				if (time.get() >= 1.0 /* || checkForLoadCurrent() */) { // was
 																		// 2.0
 					gatherState = 45;
 					time.reset();
@@ -352,7 +352,7 @@ public class BoulderController {
 			}
 			break;
 			
-		case 45:
+		case 45: //back the ball up if needed
 			if (IO.COMP) {
 				shooter.setLoadWheels(-0.24); 											//was -0.25
 				gatherer.gatherwheel(0);
@@ -362,13 +362,13 @@ public class BoulderController {
 			} else {
 				shooter.setLoadWheels(-0.6);
 				gatherer.gatherwheel(0);
-				if (time.get() > 0.2) {    
+				if (time.get() > 0.25) {    
 					gatherState = 6;
 				}
 			}
 			break;
 			
-		case 6: // go to shooting position
+		case 6: // go to stow position
 			shooter.setLoadWheels(0);
 			shooter.gotoPosition(SHOOTER_STOW_POS + 50);
 			if (time.get() > 1.0) { // 3.28 was 1

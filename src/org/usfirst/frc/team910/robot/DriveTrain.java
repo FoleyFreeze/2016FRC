@@ -5,6 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.Talon;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class DriveTrain {
@@ -487,6 +488,71 @@ public class DriveTrain {
 		double slowPower;
 
 		slowPower = diff * P_VAL; // align to goal (vision) P value; could be
+									// increased by .05 or so
+
+		if (slowPower > MAX_PWR) { // max power levels, consider increasing if no
+								// movement at large angles
+			slowPower = MAX_PWR;
+		} else if (slowPower < -MAX_PWR) {
+			slowPower = -MAX_PWR;
+		}
+
+		tankDrive(slowPower, -slowPower);
+	}
+	
+	Timer time = new Timer();
+	double integral = 0;
+	double prevAngle = 0;
+	
+	public void cameraAlign(double cameraAngle, double botAngle){ //double YAxisLeft, double YAxisRight, boolean firstTime 
+		// Moves shooter to the camera's position
+		double P_VAL, I_VAL, MAX_PWR, MAX_I;
+		if(IO.COMP){
+			P_VAL = 0.15;//was .14  //was .1     4/7/2016 MrC								 // was .1 4/1/2016
+			I_VAL = 0.005;
+			MAX_PWR = 0.45;
+			MAX_I = 0.12;
+		} else {
+			P_VAL = 0.1;
+			I_VAL = 0.005;
+			MAX_PWR = 0.25;
+			MAX_I = 0.12;
+		}
+		
+		double diff;
+
+		diff = cameraAngle - botAngle;
+
+		if (Math.abs(diff) > 360) {
+			if (diff > 0)
+				diff = diff - 360;
+			else
+				diff = diff + 360;
+		}
+
+		if (diff > 180) {
+			diff = -360 + diff;
+		} else if (diff < -180) {
+			diff = 360 + diff;
+		}
+
+		//calculate I term
+		double angleChange = botAngle - prevAngle;
+		prevAngle = botAngle; //set prev angle to current angle to use next iteration
+		if (angleChange > 180) {
+			angleChange = -360 + angleChange;
+		} else if (angleChange < -180) {
+			angleChange = 360 + angleChange;
+		}
+		if(time.get() > 0.25 || angleChange > 0.1 || Math.abs(integral) > MAX_I){ //reset I term after we moved a bit or we havent called this function in a while
+			integral = 0;
+		} else { // if we are not resetting the I term, continue adding to it
+			integral += Math.signum(diff) * I_VAL;
+		}
+		
+		double slowPower;
+
+		slowPower = diff * P_VAL + integral; // align to goal (vision) P value; could be
 									// increased by .05 or so
 
 		if (slowPower > MAX_PWR) { // max power levels, consider increasing if no

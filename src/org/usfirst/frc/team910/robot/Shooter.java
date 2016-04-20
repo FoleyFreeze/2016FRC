@@ -66,7 +66,13 @@ public class Shooter {
 		shooterArm.setInverted(true);//flipped for comp bot
 		shooterArm.reverseOutput(true);//flipped for comp bot
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
-		shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
+		
+		if(IO.COMP){
+			shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
+		} else {
+			shooterArm.configPeakOutputVoltage(11, -11);
+		}
+		
 		shooterArm.setAllowableClosedLoopErr(2); //3.28 was 5
 		shooterArm.configNominalOutputVoltage(1.0, -1.0);//3.28 was 1,-1
 		goToPositionControl(false);

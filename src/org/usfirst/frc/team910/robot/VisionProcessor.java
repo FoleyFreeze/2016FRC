@@ -20,6 +20,8 @@ public class VisionProcessor {
 	Image binaryFrame;
 	Timer time = new Timer();
 	Timer onlineTime = new Timer();
+	double timeOfImage = 0;
+	double GOOD_IMAGE_AGE = 0.25;
 	
 	boolean visionCrashed = false;
 	boolean visionSetupWorked = false;
@@ -29,7 +31,7 @@ public class VisionProcessor {
 	NIVision.Range PRAC_HUE_RANGE = new NIVision.Range(0,255); //for white led with practice bot 
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
 	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150);
-	double VIEW_ANGLE = 60; // msft hd 3000
+	double VIEW_ANGLE = 55.5; //was 60; // msft hd 3000
 	double DEG_PER_PIX = 0.0854; //for cropped 0.06975, if scaled, use 0.0854
 	double REAL_TARGET_HEIGHT = 14; //target height is 1' 2''
 	double RES_Y = 480;
@@ -276,6 +278,7 @@ public class VisionProcessor {
 					bestRect = rect;
 					bestScore = smallestScore;
 					goodTarget = true;
+					timeOfImage = Timer.getFPGATimestamp();
 				} else {
 					goodTarget = false;
 				}
