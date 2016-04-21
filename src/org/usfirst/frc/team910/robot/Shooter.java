@@ -70,7 +70,7 @@ public class Shooter {
 		if(IO.COMP){
 			shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
 		} else {
-			shooterArm.configPeakOutputVoltage(11, -11);
+			shooterArm.configPeakOutputVoltage(9.0, -7.5);
 		}
 		
 		shooterArm.setAllowableClosedLoopErr(2); //3.28 was 5

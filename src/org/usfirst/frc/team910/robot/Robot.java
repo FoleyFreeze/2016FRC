@@ -238,6 +238,7 @@ public class Robot extends IterativeRobot {
 	int cameraState = 0;
 	double cameraAngle = 0;
 	Timer camTime = new Timer();
+	int numPicsToTake = 2;
 	
 	public void teleopPeriodic() {
 		
@@ -325,12 +326,14 @@ public class Robot extends IterativeRobot {
 			case 0: //start the camera
 				vp.setupCamera();
 				cameraState = 1;
+				numPicsToTake = 2;
 				break;
 			
 			case 1://take and analyze picture
 				vp.run();
 				//keep trying until we get a good image
 				if(vp.goodTarget){
+					numPicsToTake--;
 					cameraAngle = vp.getAngle() + navX.getYaw();
 					cameraState = 2;
 					vp.getDistance();
@@ -356,7 +359,8 @@ public class Robot extends IterativeRobot {
 				}
 				BC.prime();	
 				if(Math.abs(diff) <= 0.15){ //acceptable target angle error
-					cameraState = 3;
+					if(numPicsToTake <= 0)	cameraState = 3;
+					else cameraState = 1;
 					camTime.reset();
 				}
 				break;

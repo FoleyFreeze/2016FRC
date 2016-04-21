@@ -26,9 +26,8 @@ public class IO {
 	public static final int LOAD_WHEEL_L = 11;
 	public static final int LOAD_WHEEL_R = 5;
 
-	public static final int LEFT_CLIMBER_ARM_MOTOR = 9;
-	public static final int RIGHT_CLIMBER_ARM_MOTOR = 7;
-	
+	public static final int CLIMBER_ARM_MOTOR = 7;
+
 	// outputs
 	public static final int LEFT_JOYSTICK = 0;
 	public static final int RIGHT_JOYSTICK = 1;
@@ -82,8 +81,19 @@ public class IO {
 	public static final double[] COMPASS_ANGLE = { 15, 15, 30, 40, 40 };
 	public static final double[] POWER_AXIS = { 0.0, 0.2, 0.6, 0.9, 1.0 };
 	
+	/*						//COMP BOT VALUES
 	// camera distance cals
 	public static final double POWER_ADJ = 0.85; // was .9
+	public static final double[] DISTANCE_AXIS = {  70,   80,   94,    100,    110,    120,    150,    160 }; //in inches
+	public static final double[] MOTOR_POWERS = {  0.63 * POWER_ADJ,  0.63 * POWER_ADJ,  0.63 * POWER_ADJ,  0.635 * POWER_ADJ,  0.645 * POWER_ADJ,  0.655 * POWER_ADJ,  0.685 * POWER_ADJ,  0.685 * POWER_ADJ };	//was .6,.6,.6,.635
+	public static final double[] SHOOTER_ANGLE = { -35,  -35,  -24,    -20,      0,      0,      0,      0 };	//was -27,-26,-22,-20  3.30 MrC
+	//public static final double[] SHOOTER_ANGLE = { -32,  -30,  -24,    -20,      0,      0,      0,      0 };	//was -27,-26,-22,-20  3.30 MrC
+	*/
+	
+	
+							//PRAC BOT VALUES
+	// camera distance cals
+	public static final double POWER_ADJ = 1.0; // was .9
 	public static final double[] DISTANCE_AXIS = {  70,   80,   94,    100,    110,    120,    150,    160 }; //in inches
 	public static final double[] MOTOR_POWERS = {  0.63 * POWER_ADJ,  0.63 * POWER_ADJ,  0.63 * POWER_ADJ,  0.635 * POWER_ADJ,  0.645 * POWER_ADJ,  0.655 * POWER_ADJ,  0.685 * POWER_ADJ,  0.685 * POWER_ADJ };	//was .6,.6,.6,.635
 	public static final double[] SHOOTER_ANGLE = { -35,  -35,  -24,    -20,      0,      0,      0,      0 };	//was -27,-26,-22,-20  3.30 MrC

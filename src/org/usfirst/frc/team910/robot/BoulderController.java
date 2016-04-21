@@ -26,7 +26,7 @@ public class BoulderController {
 	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 17;//4/16// was 5 
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;// 4/16 //currently same as comp  sane as comp
 	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 83;//4/16//was 80, but reduced speed //71 //63 // 73 //was 85; // 45; // currently same as comp
-	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 452; //4/16// 3.28 was 431
+	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 440; //4/16// 4.20 was 452
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT -468; //4/16//  							was 473 comp 
 
 	
@@ -233,6 +233,16 @@ public class BoulderController {
 			shooter.loadWheelL.set(0);
 			shooter.loadWheelR.set(0);
 		}
+		
+		if(IO.COMP){
+			GOOD_BALL_DIST = BALL_DISTANCE_COMP;
+		} else {
+			GOOD_BALL_DIST = BALL_DISTANCE_PRAC;
+		}
+		// gatherState = 1;
+		// lowers gatherer and shooter and gets ready to gather/
+		ballDist = ballDistSensor.getAverageVoltage();
+		SmartDashboard.putNumber("BallDist", ballDist);
 
 	}
 
@@ -264,20 +274,31 @@ public class BoulderController {
 
 	int gatherState = 1;
 	boolean stoppedbydist = false;
-
+	
+	double BALL_DISTANCE_PRAC = 1.025;//light based ball sensor, larger numbers are closer
+	double BALL_DISTANCE_COMP = 1.000;
+	double GOOD_BALL_DIST;
+	double ballDist;
+	
 	public void gather() {
-		// gatherState = 1;
-		// lowers gatherer and shooter and gets ready to gather/
-		double ballDist = ballDistSensor.getAverageVoltage();
-		SmartDashboard.putNumber("BallDist", ballDist);
+		
 		switch (gatherState) {
 		case 1: //go to gather position and spin gatherer
 			gatherer.gatherwheel(-1);
 			gatherer.gotoPosition(GATHER_INTAKE_POS);
-			shooter.gotoPosition(SHOOTER_STOW_POS);
+			shooter.gotoPosition(SHOOTER_STOW_POS + 60);
 			time.reset();
-			gatherState = 11;
+			gatherState = 10;
 			stoppedbydist = false;
+			break;
+			
+		case 10: //go up first to avoid hitting the gatherer from the stow position
+			gatherer.gatherwheel(-1);
+			gatherer.gotoPosition(GATHER_INTAKE_POS);
+			shooter.gotoPosition(SHOOTER_STOW_POS + 60);
+			if(time.get() > 0.5){
+				gatherState = 11;
+			}
 			break;
 
 		case 11://wait for gather motor current spike
@@ -302,7 +323,7 @@ public class BoulderController {
 		case 2: // ball is under gatherer, move gatherer down to pick up ball
 			gatherer.gatherArm.configPeakOutputVoltage(7.0, -4.0);
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
-			gatherer.gatherwheel(-1);
+			gatherer.gatherwheel(-0.75);
 			if (Math.abs(gatherer.gatherArm.getClosedLoopError()) < 4 || time.get() > 0.5) {
 				gatherer.gatherArm.configPeakOutputVoltage(7.0, -3.5);
 				gatherer.gatherArm.ClearIaccum();
@@ -320,7 +341,7 @@ public class BoulderController {
 				gatherState = 4;
 				time.reset();
 				shooter.gotoPosition(SHOOTER_LOAD_POS);
-			} else if(ballDist > 0.61 && ballDist < 0.7){
+			} else if(ballDist > GOOD_BALL_DIST && ballDist < 1.7){//light based ball sensor, larger numbers are closer
 				gatherState = 6;
 				time.reset();
 				gatherer.gatherwheel(0);
@@ -338,13 +359,13 @@ public class BoulderController {
 					time.reset();
 				}
 			} else {
-				if (time.get() >= 1.0 /* || checkForLoadCurrent() */) { // was
-																		// 2.0
+				if (time.get() >= 3.0 /* || checkForLoadCurrent() */) { // was
+																		// 1.0
 					gatherState = 45;
 					time.reset();
 				}
 			}
-			if(ballDist > 0.61 && ballDist < 0.7){
+			if(ballDist > GOOD_BALL_DIST && ballDist < 1.7){ //light based ball sensor, larger numbers are closer
 				gatherState = 6;
 				time.reset();
 				gatherer.gatherwheel(0);
@@ -371,7 +392,7 @@ public class BoulderController {
 		case 6: // go to stow position
 			shooter.setLoadWheels(0);
 			shooter.gotoPosition(SHOOTER_STOW_POS + 50);
-			if (time.get() > 1.0) { // 3.28 was 1
+			if (time.get() > 0.2) { // 4.20 was 1
 				gatherState = 7;
 				time.reset();
 			}
@@ -403,18 +424,42 @@ public class BoulderController {
 	}
 	
 	int regrippingState = 0;	
+	int regripGatherState = 3;
 
 	public void regrip () {
 		//regrippingState = 1;		
 		//regrips after portcullis and lowbar
 			
 		switch (regrippingState) {
-		case 0:
+		case -1:
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
+			shooter.gotoPosition(SHOOTER_STOW_POS + 50);
+			if(time.get() > 0.5){
+				regrippingState = -2;
+				time.reset();
+			}
+			break;
+		
+		case -2:
 			shooter.gotoPosition(SHOOTER_PRELOAD_POS);
-			shooter.setLoadWheels(-0.65);
-			time.reset();
-			regrippingState = 1;
+			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
+			if(time.get() > 0.5){
+				time.reset();
+				regrippingState = 1;
+			}
+			break;
+			
+		case 0:
+			if(shooter.shooterArm.getPosition() > (SHOOTER_STOW_POS + SHOOTER_PRELOAD_POS) / 2){ //is the shooter in a position where it might hit the gatherer?
+				regrippingState = -1; //if so, move it out of the way first
+				time.reset();
+			} else {//otherwise just start
+				gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
+				shooter.gotoPosition(SHOOTER_PRELOAD_POS);
+				shooter.setLoadWheels(-0.65);
+				time.reset();
+				regrippingState = 1;
+			}
 			break;
 			
 		case 1:
@@ -425,128 +470,21 @@ public class BoulderController {
 			if(time.get() > .5){
 				regrippingState = 2;
 				time.reset();
+				regripGatherState = 3;
 			}
 			break;
 	
-	
-		case 2: // center the ball
-			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
-			shooter.gotoPosition(SHOOTER_PRELOAD_POS);
-			shooter.setLoadWheels(0.65);
-	
-	
-			if (/*Math.abs(shooter.shooterArm.getClosedLoopError()) < 7 && */time.get() > 0.7) {
+		case 2: //now run the gather function for its second half
+			gatherState = regripGatherState;
+			gather();
+			regripGatherState = gatherState;
+			if(gatherState == 9){
 				regrippingState = 3;
-				time.reset();
-				shooter.gotoPosition(SHOOTER_LOAD_POS);
-			} else if(!ballSensor.get()){
-				regrippingState = 5;
-				time.reset();
-				gatherer.gatherwheel(0);
 			}
 			break;
 			
-		case 3: // load the ball into the shooter
-			shooter.gotoPosition(SHOOTER_LOAD_POS);
-			shooter.setLoadWheels(0.65);
-			if (IO.COMP) {
-				if (time.get() >= 1.0 /* || checkForLoadCurrent() */) { // was
-																		// 2.0
-					regrippingState= 35;
-					time.reset();
-				}
-			} else {
-				if (time.get() >= 2.0 /* || checkForLoadCurrent() */) { // was
-																		// 2.0
-					regrippingState = 35;
-					time.reset();
-				}
-			}
-			if(!ballSensor.get()){
-				regrippingState = 5;
-				time.reset();
-				gatherer.gatherwheel(0);
-			}
-			break;
-			
-		case 35:
-			if (IO.COMP) {
-				shooter.setLoadWheels(-0.25);
-				gatherer.gatherwheel(0);
-				if (time.get() > 0.4) {
-					regrippingState = 5;
-				}
-			} else {
-				shooter.setLoadWheels(-0.6);
-				gatherer.gatherwheel(0);
-				if (time.get() > 0.2) {
-					regrippingState = 4;
-				}
-			}
-			break;
-			
-			/*
-		case 4: // back the ball up slightly
-			gatherer.gatherwheel(0);
-			if (IO.COMP) {
-				shooter.setLoadWheels(0.6);
-				if (ballSensor.get() || time.get() > 0.35) {
-					regrippingState = 5;
-					time.reset();
-				}
-			} else {
-				shooter.setLoadWheels(1.0);	
-				if (/*ballSensor.get() ||  /time.get() > 0.2) {   //was .15  3.30 MrC
-					regrippingState = 45;
-					time.reset();
-				}
-			}
-			break;
-			
-		case 45:
-			if (IO.COMP) {
-				shooter.setLoadWheels(-0.4);
-				if (time.get() > 0.05) {
-					regrippingState = 5;
-					time.reset();
-				}
-			} else {
-				shooter.setLoadWheels(0.6);
-				if (time.get() > 0.05) {
-					regrippingState = 5;
-					time.reset();
-				}
-			}
-			break;
-			*/
-		case 5: // go to shooting position
-			shooter.setLoadWheels(0);
-			shooter.gotoPosition(SHOOTER_STOW_POS + 50);
-			if (time.get() > 1.0) { // 3.28 was 1
-				regrippingState = 6;
-				time.reset();
-			}
-			break;
-	
-		case 6:
-			gatherer.gotoPosition(GATHER_STOW_POS + 15);
-			if (time.get() > 0.7) { // 3.28 was 1
-				regrippingState = 7;
-				time.reset();
-			}
-			break;
-	
-		case 7:
-			shooter.gotoPosition(SHOOTER_STOW_POS);
-			if (time.get() > 0.5) {
-				regrippingState = 8;
-				time.reset();
-			}
-			break;
-	
-		case 8:
-			gatherer.gotoPosition(GATHER_STOW_POS);
-			break;
+		case 3: //done!
+			break; 
 		}
 	}
 
