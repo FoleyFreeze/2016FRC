@@ -224,6 +224,12 @@ public class Robot extends IterativeRobot {
 			vp.run();
 			vp.closeCamera();
 		}
+		
+		//reset all state machines
+		BC.gatherState = 1;
+		BC.buttonState = -1;
+		BC.regrippingState = 0;
+		BoulderController.chevalState = 0;
 	}
 
 	/**
@@ -306,6 +312,14 @@ public class Robot extends IterativeRobot {
 			YAxisRight = -rJoy.getY();
 		}
 		prevFlipControls = flipControls;
+		
+		//deadzone
+		if(Math.abs(YAxisLeft) < 0.06){
+			YAxisLeft = 0;
+		}
+		if(Math.abs(YAxisRight) < 0.06){
+			YAxisRight = 0;
+		}
 
 		//allow jog up and down
 		if(driveBoard.getRawButton(IO.LR_JOG_BTN)){
@@ -321,7 +335,7 @@ public class Robot extends IterativeRobot {
 
 		double diff;
 		//auto camera aim
-		if(lJoy.getRawButton(IO.AIM_CAMERA) && navX.isConnected()){
+		if(rJoy.getRawButton(2) && navX.isConnected()){
 			switch(cameraState){
 			case 0: //start the camera
 				vp.setupCamera();
@@ -385,8 +399,9 @@ public class Robot extends IterativeRobot {
 						BC.prevFire = true;
 					}
 				}
+				break;
 			}
-			vp.getDistance();
+			//vp.getDistance();
 			
 		} else { //if camera is not auto aiming then allow driving 
 			drive.run(YAxisLeft, YAxisRight, (double) angle, rJoy.getTrigger(), lJoy.getTrigger(),

@@ -62,15 +62,17 @@ public class Shooter {
 		
 		shooterArm.changeControlMode(TalonControlMode.Position);
 		//shooterArm.setProfile(0);
-		shooterArm.setPID(8, 0, 0);
+		//shooterArm.setPID(12, 0, 0);//was 8
 		shooterArm.setInverted(true);//flipped for comp bot
 		shooterArm.reverseOutput(true);//flipped for comp bot
 		shooterArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		
 		if(IO.COMP){
 			shooterArm.configPeakOutputVoltage(9.0, -7.5); //up , down
+			shooterArm.setPID(8, 0, 0);//was 8
 		} else {
-			shooterArm.configPeakOutputVoltage(9.0, -7.5);
+			shooterArm.configPeakOutputVoltage(9.5, -9.5);//was 9.0 -7.5
+			shooterArm.setPID(12, 0, 0);//was 8
 		}
 		
 		shooterArm.setAllowableClosedLoopErr(2); //3.28 was 5

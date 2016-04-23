@@ -516,7 +516,7 @@ public class DriveTrain {
 			P_VAL = 0.1;
 			I_VAL = 0.005;
 			MAX_PWR = 0.25;
-			MAX_I = 0.12;
+			MAX_I = 0.15;
 		}
 		
 		double diff;

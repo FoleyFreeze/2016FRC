@@ -550,14 +550,21 @@ public class Auton {
 			
 		case 4: //drive back to neutral zone
 			reverseDrive = true;
+			if(turnDrive){
+				turnDrive = false;
+				alignAngle = turnDriveAngle * 0.7;
+			}
 		}
 		
 		runFancyAuto();
 		
 	}
 	
-	int repeatAlign = 3;
+	//int repeatAlign = 3;
+	int numPicsToTake = 2;
+	double diff = 0;
 	boolean visionNotFound = false;
+	Timer camTime = new Timer();
 	
 	double time_waiting_for_level = 0;
 	
@@ -657,7 +664,7 @@ public class Auton {
 			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gotoPosition(bc.GATHER_STOW_POS + 15);
 			drive.compassDrive(0.25, navX.getYaw(), false, 0.0);
-			if(time.get() > 0.5){
+			if(time.get() > 0.35){ //was .5
 				autonstate = 27;
 				time.reset();
 			}
@@ -666,7 +673,7 @@ public class Auton {
 		case 27:
 			bc.shooter.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_STOW_POS);
-			if(time.get() > 0.4){
+			if(time.get() > 0.35){ //was .4
 				autonstate = 28;
 				time.reset();
 			}
@@ -675,7 +682,8 @@ public class Auton {
 		case 28:
 			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gotoPosition(bc.GATHER_STOW_POS);
-			if(time.get() > 0.3){
+			Robot.vp.setupCamera(); //setup the camera for later
+			if(time.get() > 0.1){ //was .3
 				autonstate = 29;
 				time.reset();
 			}
@@ -926,7 +934,6 @@ public class Auton {
 			time.reset();
 			if(cameraAlign){
 				autonstate = 71;
-				repeatAlign = 3;
 			} else {
 				autonstate = 80;
 			}
@@ -938,70 +945,83 @@ public class Auton {
 			bc.farShot();
 			//bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
 			//bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
-			if(time.get() > 0.15){
+			if(time.get() > 0.1){ //was .15
 				autonstate = 72;
 				time.reset();
 				//Robot.vp.setupCamera();
 			}
 			break;
 			
-		case 72:// look for camera target
+		case 72: //start the camera
 			Robot.vp.setupCamera();
+			autonstate = 73;
+			numPicsToTake = 2;
+			break;
+		
+		case 73://take and analyze picture
 			Robot.vp.run();
-			bc.shooter.goToPositionControl(true);
-			bc.gatherer.goToPositionControl(true);
-			bc.farShot();
-			//bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
-			//bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS)
-			// keep trying until we get a good image
-			if (Robot.vp.goodTarget) {
+			//keep trying until we get a good image
+			if(Robot.vp.goodTarget){
+				numPicsToTake--;
 				cameraAngle = Robot.vp.getAngle() + navX.getYaw();
-				double dist = Robot.vp.getDistance();
-				if(dist == 0){
-					bc.visionAngleOffset = 0;
-				} else {
-					bc.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS,Robot.vp.getDistance());
-				}
-				autonstate = 73;
-				time.reset();
-				visionNotFound = false;
-			}
-			if(time.get() > 0.7){
 				autonstate = 74;
-				visionNotFound = true;
+				visionNotFound = false;
+				//Robot.vp.getDistance();
 			}
 			break;
-
-		case 73:// once target is found, turn to face it
-			drive.shooterAlign(cameraAngle, navX.getYaw(), false);
-			SmartDashboard.putNumber("cameraAngle", cameraAngle);
+			
+		case 74://align shooter
+			drive.cameraAlign(cameraAngle, navX.getYaw());
+			SmartDashboard.putNumber("cameraAngle", cameraAngle - navX.getYaw());
 			SmartDashboard.putBoolean("goodTarget", Robot.vp.goodTarget);
 			double dist = Robot.vp.getDistance();
 			if(dist == 0){
 				bc.visionAngleOffset = 0;
 			} else {
-				bc.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS, dist);
+				bc.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS, Robot.vp.getDistance());
 			}
-			bc.farShot();
-			if (time.get() > 0.66) {
-				autonstate = 74;
-				time.reset();
+			
+			diff = cameraAngle - navX.getYaw();
+			if (diff > 180) {
+				diff = -360 + diff;
+			} else if (diff < -180) {
+				diff = 360 + diff;
+			}
+			//BC.prime();	
+			if(Math.abs(diff) <= 0.15){ //acceptable target angle error
+				if(numPicsToTake <= 0)	autonstate = 73;
+				else autonstate = 75;
+				camTime.start();
+				camTime.reset();
 			}
 			break;
 			
-		//do it again for good measure
-		case 74:
-			drive.tankDrive(0, 0);
-			repeatAlign--;
-			if(repeatAlign <= 0){
-				autonstate = 80;
-			} else {
-				autonstate = 72;
+		case 75: //shoot if ready
+			diff = cameraAngle - navX.getYaw();
+			if (diff > 180) {
+				diff = -360 + diff;
+			} else if (diff < -180) {
+				diff = 360 + diff;
 			}
+			if(Math.abs(diff) > 0.15){//acceptable target angle error
+				autonstate = 74;
+			}
+			
+			//if(automaticMode && BC.buttonState == 2){
+			bc.farShot();
+			bc.prime();
+			if(camTime.get() >= 0.5){//time to prime for
+				//BC.shooter.fire();
+				//Robot.vp.closeCamera(); //try keeping the camera open forever
+				//BC.prevFire = true;
+				autonstate = 80;
+			}
+			//}
 			break;
 			
 		//shoot things section
 		case 80:
+			time.reset();
 			if((shooting && !visionNotFound) || shootanyway){
 				autonstate = 81;
 			} else {
@@ -1014,7 +1034,7 @@ public class Auton {
 			bc.gatherer.goToPositionControl(true);
 			bc.farShot();
 			bc.prime();
-			if (time.get() > 1) {
+			if (time.get() > 0.1) { // was 1
 				autonstate = 82;
 				time.reset();
 			}
@@ -1025,8 +1045,9 @@ public class Auton {
 			bc.gatherer.goToPositionControl(true);
 			bc.farShot();
 			bc.shooter.fire();
-			bc.shooter.prime(0.6, false);
-			if (time.get() > 0.75) {
+			bc.prime();
+			//bc.shooter.prime(0.6, false);
+			if (time.get() > 0.5) { //was 0.75
 				autonstate = 83;
 				time.reset();
 			}
@@ -1191,3 +1212,63 @@ public class Auton {
 	}
 
 }
+
+	
+	
+	// OLD AUTON CAMERA ALIGN CODE
+	/*
+	case 72:// look for camera target
+	Robot.vp.setupCamera();
+	Robot.vp.run();
+	bc.shooter.goToPositionControl(true);
+	bc.gatherer.goToPositionControl(true);
+	bc.farShot();
+	//bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
+	//bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS)
+	// keep trying until we get a good image
+	if (Robot.vp.goodTarget) {
+		cameraAngle = Robot.vp.getAngle() + navX.getYaw();
+		double dist = Robot.vp.getDistance();
+		if(dist == 0){
+			bc.visionAngleOffset = 0;
+		} else {
+			bc.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS,Robot.vp.getDistance());
+		}
+		autonstate = 73;
+		time.reset();
+		visionNotFound = false;
+	}
+	if(time.get() > 0.7){
+		autonstate = 74;
+		visionNotFound = true;
+	}
+	break;
+
+case 73:// once target is found, turn to face it
+	drive.shooterAlign(cameraAngle, navX.getYaw(), false);
+	SmartDashboard.putNumber("cameraAngle", cameraAngle);
+	SmartDashboard.putBoolean("goodTarget", Robot.vp.goodTarget);
+	double dist = Robot.vp.getDistance();
+	if(dist == 0){
+		bc.visionAngleOffset = 0;
+	} else {
+		bc.visionAngleOffset = IO.lookup(IO.SHOOTER_ANGLE, IO.DISTANCE_AXIS, dist);
+	}
+	bc.farShot();
+	if (time.get() > 0.66) {
+		autonstate = 74;
+		time.reset();
+	}
+	break;
+	
+//do it again for good measure
+case 74:
+	drive.tankDrive(0, 0);
+	repeatAlign--;
+	if(repeatAlign <= 0){
+		autonstate = 80;
+	} else {
+		autonstate = 72;
+	}
+	break;
+	*/

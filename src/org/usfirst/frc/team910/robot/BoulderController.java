@@ -23,21 +23,21 @@ public class BoulderController {
 	static double SHOOTER_MAX_HEIGHT = 844 + 18; //PRACTICE BOT 4/16// Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
 
 	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; //4/16// 3.28 //currently same as comp
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 17;//4/16// was 5 
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 27;// was 17; 4/21 Mr C    //4/16// was 5 
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;// 4/16 //currently same as comp  sane as comp
 	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 83;//4/16//was 80, but reduced speed //71 //63 // 73 //was 85; // 45; // currently same as comp
-	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 440; //4/16// 4.20 was 452
-	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT -468; //4/16//  							was 473 comp 
+	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 450;//440 //4/16// 4.20 was 452
+	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT -472;//468 //4/16//  							was 473 comp 
 
 	
 	static double GATHER_FULLDOWN_POS = 621; //626 //4/16//was 617  LOWER numbers when gatherer is LOWER
 	static double GATHER_SETPOINT_POS = 621; //626 // 4/16
-	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 40;//4/16//was 12  //currently same as comp
+	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 10;//was 40//4/16//was 12  //currently same as comp
 	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; //4/16// 3.28 was 86 3.30 was 100// currently same as comp
 	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; //4/16// 3.28 was 333// currently same as comp
 	double GATHER_LAYUP_POS = GATHER_SETPOINT_POS + 333;//4/16// 3.28
 	double GATHER_FARSHOT_POS = GATHER_SETPOINT_POS + 333;//4/16//3.28
-	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 512; //4/16// was 470
+	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 500; //4/20// was 512
 
 	//  *******************        P R A C T I C E    B O T      V A L U E S      E N D        ********************
 	
@@ -126,13 +126,16 @@ public class BoulderController {
 		gatherer.aquireShooterPosition(shoottogather(shooter.getPosition()));
 		shooter.aquireGatherPosition(gathertoshoot(gatherer.getPosition()));
 
-		if (driverstation.getRawButton(IO.LAYUP))
+		if (driverstation.getRawButton(IO.LAYUP)){
 			buttonState = 0;
-		else if (driverstation.getRawButton(IO.STOW))
+			shooter.setLoadWheels(0);
+		} else if (driverstation.getRawButton(IO.STOW)){
 			buttonState = 1;
-		else if (driverstation.getRawButton(IO.FAR_SHOT))
+			shooter.setLoadWheels(0);
+		} else if (driverstation.getRawButton(IO.FAR_SHOT)){
 			buttonState = 2;
-		else if (driverstation.getRawButton(IO.GATHER) && !driverstation.getRawButton(IO.CLIMB_2)) {
+			shooter.setLoadWheels(0);
+		} else if (driverstation.getRawButton(IO.GATHER) && !driverstation.getRawButton(IO.CLIMB_2)) {
 			gatherState = 1;
 			buttonState = 3;
 			primeState = 0;
@@ -140,13 +143,16 @@ public class BoulderController {
 			buttonState = 9;
 		} else if (driverstation.getRawButton(IO.LOWBAR)) {
 			buttonState = 7;
+			shooter.setLoadWheels(0);
 			// } else if (driverstation.getRawButton(IO.PORT)) {
 			// button = 8;
-		} else if (driverstation.getRawButton(IO.SALLYPORT))
+		} else if (driverstation.getRawButton(IO.SALLYPORT)) {
 			buttonState = 4;
-		else if (driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES)) {
+			shooter.setLoadWheels(0);
+		} else if (driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES)) {
 			flippyFloppies();
 			buttonState = 5;
+			shooter.setLoadWheels(0);
 			// } else if (driverstation.getRawButton(IO.DRAWBRIDGE)) {
 			// button = 6;
 		} else {
@@ -275,7 +281,7 @@ public class BoulderController {
 	int gatherState = 1;
 	boolean stoppedbydist = false;
 	
-	double BALL_DISTANCE_PRAC = 1.025;//light based ball sensor, larger numbers are closer
+	double BALL_DISTANCE_PRAC = 1.05;//was 1.025//light based ball sensor, larger numbers are closer
 	double BALL_DISTANCE_COMP = 1.000;
 	double GOOD_BALL_DIST;
 	double ballDist;
@@ -324,7 +330,7 @@ public class BoulderController {
 			gatherer.gatherArm.configPeakOutputVoltage(7.0, -4.0);
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
 			gatherer.gatherwheel(-0.75);
-			if (Math.abs(gatherer.gatherArm.getClosedLoopError()) < 4 || time.get() > 0.5) {
+			if (Math.abs(gatherer.gatherArm.getClosedLoopError()) < 4 || time.get() > 1.0) { //was 0.5
 				gatherer.gatherArm.configPeakOutputVoltage(7.0, -3.5);
 				gatherer.gatherArm.ClearIaccum();
 				gatherState = 3;
