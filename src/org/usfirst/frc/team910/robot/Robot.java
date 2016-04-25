@@ -170,7 +170,8 @@ public class Robot extends IterativeRobot {
 		irSensor.set(true);
 		//blueLights1.set(true);
 		//blueLights2.set(true);
-
+		double ballDist = BC.ballDistSensor.getAverageVoltage();
+		SmartDashboard.putNumber("BallDist", ballDist);
 	}
 
 	// called when disabled
@@ -371,8 +372,10 @@ public class Robot extends IterativeRobot {
 				} else if (diff < -180) {
 					diff = 360 + diff;
 				}
-				BC.prime();	
-				if(Math.abs(diff) <= 0.15){ //acceptable target angle error
+				if(automaticMode && BC.buttonState == 2){ //in auto mode and in farshot
+					BC.prime();	
+				}
+				if(Math.abs(diff) <= 0.15){ //acceptable target angle error //.2
 					if(numPicsToTake <= 0)	cameraState = 3;
 					else cameraState = 1;
 					camTime.reset();
@@ -386,19 +389,26 @@ public class Robot extends IterativeRobot {
 				} else if (diff < -180) {
 					diff = 360 + diff;
 				}
-				if(Math.abs(diff) > 0.15){//acceptable target angle error
+				if(Math.abs(diff) > 0.15){//acceptable target angle error //.2
 					cameraState = 2;
 				}
 				
-				if(automaticMode && BC.buttonState == 2){
+				if(automaticMode && BC.buttonState == 2){ //in auto mode and in farshot
 					BC.farShot();
 					BC.prime();
 					if(camTime.get() >= 0.5){//time to prime for
-						BC.shooter.fire();
+						cameraState = 4;
+						//BC.shooter.fire();
 						//Robot.vp.closeCamera(); //try keeping the camera open forever
-						BC.prevFire = true;
+						//BC.prevFire = true;
 					}
 				}
+				break;
+				
+			case 4://fire -- stay here until button released
+				BC.prime();
+				BC.shooter.fire();
+				BC.prevFire = true;
 				break;
 			}
 			//vp.getDistance();
@@ -449,6 +459,9 @@ public class Robot extends IterativeRobot {
 		SmartDashboard.putBoolean("CAMERA_CRASHED", vp.visionCrashed);
 		SmartDashboard.putBoolean("CAMERA_RUNNING", vp.visionSetupWorked);
 		SmartDashboard.putNumber("Camera Running Time", vp.onlineTime.get());
+		
+		double ballDist = BC.ballDistSensor.getAverageVoltage();
+		SmartDashboard.putNumber("BallDist", ballDist);
 		
 		time.reset();
 		

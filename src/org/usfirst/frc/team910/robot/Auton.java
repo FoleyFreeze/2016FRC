@@ -339,6 +339,7 @@ public class Auton {
 	boolean shooting = false;
 	boolean shootanyway = false;
 	boolean reverseDrive = false; //WIP added for Case 84 4/16 Steven C
+	boolean poweredStop = false;
 	
 	public void runAuto() {
 
@@ -374,11 +375,12 @@ public class Auton {
 			crossDistance = 0;
 			crossTime = 0;
 			alignDrive = true;
-			alignAngle = 90;  //was 60
+			alignAngle = 60;  //was 60
 			cameraAlign = true;
 			shooting = true;
 			shootanyway = false;
-			reverseDrive = false;
+			reverseDrive = true;
+			poweredStop = false;
 			break;
 			
 		case 2:						//Defense 2
@@ -405,6 +407,7 @@ public class Auton {
 			shooting = true;
 			shootanyway = false;
 			reverseDrive = false;
+			poweredStop = false;
 			break;
 			
 		case 3:						//Defense 3
@@ -431,6 +434,7 @@ public class Auton {
 			shooting = true;
 			shootanyway = false;
 			reverseDrive = false;
+			poweredStop = false;
 			break;
 			
 		case 4:						//Defense 4
@@ -457,6 +461,7 @@ public class Auton {
 			shooting = true;
 			shootanyway = false;
 			reverseDrive = false;
+			poweredStop = false;
 			break;
 			
 		case 5:						//Defense 5
@@ -483,6 +488,7 @@ public class Auton {
 			shooting = true;
 			shootanyway = false;
 			reverseDrive = false;
+			poweredStop = false;
 			break;
 		}
 		
@@ -493,6 +499,7 @@ public class Auton {
 		case 1: //rough terrain
 			//driveDistance = 120; //reduced from 140
 			//driveTime = 2.5;
+			defDrivePower = 0.45;
 			waitForPitch = true;
 			break;
 			
@@ -500,11 +507,14 @@ public class Auton {
 			//driveDistance = 140;
 			//driveTime = 3.0;
 			waitForPitch = true;
+			defDrivePower = 0.5;
+			//poweredStop = true;
 			break;
 			
 		case 3: //rock wall
 			//driveDistance = 140;
 			//driveTime = 3.0;
+			defDrivePower = 0.6;
 			waitForPitch = true;
 			break;
 			
@@ -616,24 +626,27 @@ public class Auton {
 
 		//collapse section
 		case 11: // bring the gatherer down
+			drive.compassDrive(0.2, navX.getYaw(), false, 0);
 			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gatherArm.set(bc.GATHER_LOWBAR_POS);
-			if (time.get() > 2) {
+			if (time.get() > 0.5) {
 				autonstate = 12;
 				time.reset();
 			}
 			break;
 
 		case 12: // bring the shooter down
+			drive.compassDrive(0.2, navX.getYaw(), false, 0);
 			bc.shooter.goToPositionControl(true);
 			bc.shooter.shooterArm.set(bc.SHOOTER_LOWBAR_POS);
-			if (time.get() > 1.5) {
+			if (time.get() > 1.0) {
 				autonstate = 13;
 				time.reset();
 			}
 			break;
 
 		case 13:
+			drive.tankDrive(0, 0);
 			bc.shooter.goToPositionControl(false);
 			bc.gatherer.goToPositionControl(false);
 			autonstate = 20;
@@ -868,7 +881,7 @@ public class Auton {
 		case 61:
 			drive.shooterAlign(alignAngle, navX.getYaw(), true);
 			double angleDiff = alignAngle - navX.getYaw();
-			if((Math.abs(angleDiff) < 10 && time.get() > 1.5) || time.get() > 4.0){
+			if((Math.abs(angleDiff) < 5 && time.get() > 0.5) || time.get() > 4.0){
 				autonstate = 62;
 			}
 			break;
@@ -899,7 +912,7 @@ public class Auton {
 			
 		case 101:
 			bc.regrip();
-			if(bc.regrippingState == 8){
+			if(bc.regrippingState == 3){
 				autonstate = 66;
 			}
 			break;
@@ -907,7 +920,7 @@ public class Auton {
 		case 66: //lift shooter first
 			bc.shooter.goToPositionControl(true);
 			bc.shooter.gotoPosition(bc.SHOOTER_FARSHOT_POS);
-			if(time.get() > 0.6){
+			if(time.get() > 0.1){ //was 0.6
 				autonstate = 67;
 				time.reset();
 			}
@@ -916,7 +929,7 @@ public class Auton {
 		case 67://then gatherer
 			bc.gatherer.goToPositionControl(true);
 			bc.gatherer.gotoPosition(bc.GATHER_FARSHOT_POS);
-			if(time.get() > 1){
+			if(time.get() > 0.4){//was 1
 				autonstate = 68;
 				time.reset();
 			}
@@ -1196,10 +1209,25 @@ public class Auton {
 			time.reset();
 			autonstate = 110;
 			break;
-
+			
+		case 110:
+			time.reset();
+			if(poweredStop && reverseDrive){
+				autonstate = 111;
+			} else {
+				autonstate = 120;
+			}
+			break;
+			
+		case 111:
+			drive.compassDrive(0.5, navX.getYaw(), false, 0);
+			if(time.get() > 0.7){
+				autonstate = 120;
+			}
+			break;
 		
 		//stop things section
-		case 110:
+		case 120:
 			drive.tankDrive(0, 0);
 			bc.shooter.goToPositionControl(false);
 			bc.gatherer.goToPositionControl(false);

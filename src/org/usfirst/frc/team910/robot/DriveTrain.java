@@ -516,7 +516,7 @@ public class DriveTrain {
 			P_VAL = 0.1;
 			I_VAL = 0.005;
 			MAX_PWR = 0.25;
-			MAX_I = 0.15;
+			MAX_I = 0.2;//.15
 		}
 		
 		double diff;
@@ -545,10 +545,13 @@ public class DriveTrain {
 			angleChange = 360 + angleChange;
 		}
 		if(time.get() > 0.25 || angleChange > 0.1 || Math.abs(integral) > MAX_I){ //reset I term after we moved a bit or we havent called this function in a while
+			integral /= 2;
+		} else if(Math.signum(diff) != Math.signum(integral) && Math.signum(integral) != 0){ //the difference and the wound up integral are not the same sign(+ or -)
 			integral = 0;
 		} else { // if we are not resetting the I term, continue adding to it
 			integral += Math.signum(diff) * I_VAL;
 		}
+		SmartDashboard.putNumber("Integral", integral);
 		
 		double slowPower;
 

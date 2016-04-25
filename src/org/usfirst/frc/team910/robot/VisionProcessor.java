@@ -30,7 +30,7 @@ public class VisionProcessor {
 	NIVision.Range COMP_HUE_RANGE = new NIVision.Range(60,140); //for green led with comp bot 
 	NIVision.Range PRAC_HUE_RANGE = new NIVision.Range(0,255); //for white led with practice bot 
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
-	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150);
+	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150); //was 40 150
 	double VIEW_ANGLE = 55.5; //was 60; // msft hd 3000
 	double DEG_PER_PIX = 0.0854; //for cropped 0.06975, if scaled, use 0.0854
 	double REAL_TARGET_HEIGHT = 14; //target height is 1' 2''
@@ -202,7 +202,7 @@ public class VisionProcessor {
 				int numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
 				SmartDashboard.putNumber("Masked particles", numParticles);
 		
-				// CameraServer.getInstance().setImage(binaryFrame);
+				//CameraServer.getInstance().setImage(binaryFrame);
 		
 				// filter out small particles
 				System.out.println("Filtering Particles: " + session + " at Time: " + Timer.getFPGATimestamp());

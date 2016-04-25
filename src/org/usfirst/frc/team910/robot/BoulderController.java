@@ -22,22 +22,22 @@ public class BoulderController {
 	
 	static double SHOOTER_MAX_HEIGHT = 844 + 18; //PRACTICE BOT 4/16// Arm at 83 degrees gives this value (862p). 80 deg (prac bot stop) = 844p.
 
-	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 345; //4/16// 3.28 //currently same as comp
-	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 27;// was 17; 4/21 Mr C    //4/16// was 5 
+	double SHOOTER_STOW_POS = SHOOTER_MAX_HEIGHT - 340;//was 345 //4/16// 3.28 //currently same as comp
+	double SHOOTER_FARSHOT_POS = SHOOTER_MAX_HEIGHT - 17;// was 27; 4/23 Mr C    //4/16// was 5 
 	static double SHOOTER_MIN_VOLT_SWITCH = SHOOTER_MAX_HEIGHT - 50;// 4/16 //currently same as comp  sane as comp
 	double SHOOTER_LAYUP_POS = SHOOTER_MAX_HEIGHT - 83;//4/16//was 80, but reduced speed //71 //63 // 73 //was 85; // 45; // currently same as comp
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 450;//440 //4/16// 4.20 was 452
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT -472;//468 //4/16//  							was 473 comp 
 
 	
-	static double GATHER_FULLDOWN_POS = 621; //626 //4/16//was 617  LOWER numbers when gatherer is LOWER
-	static double GATHER_SETPOINT_POS = 621; //626 // 4/16
+	static double GATHER_FULLDOWN_POS = 616; //626 //4/16//was 617  LOWER numbers when gatherer is LOWER
+	static double GATHER_SETPOINT_POS = 616; //626 // 4/16
 	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 10;//was 40//4/16//was 12  //currently same as comp
 	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; //4/16// 3.28 was 86 3.30 was 100// currently same as comp
 	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; //4/16// 3.28 was 333// currently same as comp
 	double GATHER_LAYUP_POS = GATHER_SETPOINT_POS + 333;//4/16// 3.28
 	double GATHER_FARSHOT_POS = GATHER_SETPOINT_POS + 333;//4/16//3.28
-	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 500; //4/20// was 512
+	double SHOOTER_LOWBAR_POS = SHOOTER_MAX_HEIGHT - 490; //was 500 //4/20// was 512
 
 	//  *******************        P R A C T I C E    B O T      V A L U E S      E N D        ********************
 	
@@ -240,16 +240,8 @@ public class BoulderController {
 			shooter.loadWheelR.set(0);
 		}
 		
-		if(IO.COMP){
-			GOOD_BALL_DIST = BALL_DISTANCE_COMP;
-		} else {
-			GOOD_BALL_DIST = BALL_DISTANCE_PRAC;
-		}
 		// gatherState = 1;
-		// lowers gatherer and shooter and gets ready to gather/
-		ballDist = ballDistSensor.getAverageVoltage();
-		SmartDashboard.putNumber("BallDist", ballDist);
-
+		// lowers gatherer and shooter and gets ready to gather
 	}
 
 	public void layup() {
@@ -281,37 +273,42 @@ public class BoulderController {
 	int gatherState = 1;
 	boolean stoppedbydist = false;
 	
-	double BALL_DISTANCE_PRAC = 1.05;//was 1.025//light based ball sensor, larger numbers are closer
+	double BALL_DISTANCE_PRAC = 1.1;//was 1.025//light based ball sensor, larger numbers are closer
 	double BALL_DISTANCE_COMP = 1.000;
 	double GOOD_BALL_DIST;
 	double ballDist;
 	
 	public void gather() {
+		if(IO.COMP){
+			GOOD_BALL_DIST = BALL_DISTANCE_COMP;
+		} else {
+			GOOD_BALL_DIST = BALL_DISTANCE_PRAC;
+		}
+		
+		ballDist = ballDistSensor.getAverageVoltage();
+		SmartDashboard.putNumber("BallDist", ballDist);
 		
 		switch (gatherState) {
 		case 1: //go to gather position and spin gatherer
 			gatherer.gatherwheel(-1);
 			gatherer.gotoPosition(GATHER_INTAKE_POS);
-			shooter.gotoPosition(SHOOTER_STOW_POS + 60);
+			shooter.gotoPosition(SHOOTER_STOW_POS + 90);
 			time.reset();
-			gatherState = 10;
+			gatherState = 11;
 			stoppedbydist = false;
-			break;
-			
-		case 10: //go up first to avoid hitting the gatherer from the stow position
-			gatherer.gatherwheel(-1);
-			gatherer.gotoPosition(GATHER_INTAKE_POS);
-			shooter.gotoPosition(SHOOTER_STOW_POS + 60);
-			if(time.get() > 0.5){
-				gatherState = 11;
-			}
 			break;
 
 		case 11://wait for gather motor current spike
 			gatherer.gatherwheel(-1);
 			gatherer.gotoPosition(GATHER_INTAKE_POS);
-			shooter.gotoPosition(SHOOTER_STOW_POS);
-
+			
+			//start the shooter higher so the gatherer doesnt hit it on the way down
+			if(time.get() < 0.75){
+				shooter.gotoPosition(SHOOTER_STOW_POS + 90);
+			} else {
+				shooter.gotoPosition(SHOOTER_STOW_POS);
+			}
+			
 			if (checkForGatherCurrent() && time.get() >= 0.5) {
 				gatherState = 12;
 				time.reset();
@@ -331,7 +328,8 @@ public class BoulderController {
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
 			gatherer.gatherwheel(-0.75);
 			if (Math.abs(gatherer.gatherArm.getClosedLoopError()) < 4 || time.get() > 1.0) { //was 0.5
-				gatherer.gatherArm.configPeakOutputVoltage(7.0, -3.5);
+				//gatherer.gatherArm.configPeakOutputVoltage(7.0, -3.5);
+				gatherer.gatherVoltage();
 				gatherer.gatherArm.ClearIaccum();
 				gatherState = 3;
 				time.reset();
@@ -347,10 +345,11 @@ public class BoulderController {
 				gatherState = 4;
 				time.reset();
 				shooter.gotoPosition(SHOOTER_LOAD_POS);
-			} else if(ballDist > GOOD_BALL_DIST && ballDist < 1.7){//light based ball sensor, larger numbers are closer
+			} else if(ballDist > GOOD_BALL_DIST && ballDist < 2.7){//light based ball sensor, larger numbers are closer
 				gatherState = 6;
 				time.reset();
 				gatherer.gatherwheel(0);
+				shooter.setLoadWheels(0);
 				stoppedbydist = true;
 			}
 			break;
@@ -365,16 +364,17 @@ public class BoulderController {
 					time.reset();
 				}
 			} else {
-				if (time.get() >= 3.0 /* || checkForLoadCurrent() */) { // was
+				if (time.get() >= 5.0){ //should be 1.2 to 2?  /* || checkForLoadCurrent() */) { // was
 																		// 1.0
 					gatherState = 45;
 					time.reset();
 				}
 			}
-			if(ballDist > GOOD_BALL_DIST && ballDist < 1.7){ //light based ball sensor, larger numbers are closer
+			if(ballDist > GOOD_BALL_DIST && ballDist < 2.7){ //light based ball sensor, larger numbers are closer
 				gatherState = 6;
 				time.reset();
 				gatherer.gatherwheel(0);
+				shooter.setLoadWheels(0);
 				stoppedbydist = true;
 			}
 			break;
@@ -385,12 +385,14 @@ public class BoulderController {
 				gatherer.gatherwheel(0);
 				if (time.get() > 0.35) {
 					gatherState = 6;
+					shooter.setLoadWheels(0);
 				}
 			} else {
 				shooter.setLoadWheels(-0.6);
 				gatherer.gatherwheel(0);
 				if (time.get() > 0.25) {    
 					gatherState = 6;
+					shooter.setLoadWheels(0);
 				}
 			}
 			break;
@@ -447,7 +449,7 @@ public class BoulderController {
 			break;
 		
 		case -2:
-			shooter.gotoPosition(SHOOTER_PRELOAD_POS);
+			shooter.gotoPosition(SHOOTER_PRELOAD_POS + 20);
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
 			if(time.get() > 0.5){
 				time.reset();
@@ -461,7 +463,7 @@ public class BoulderController {
 				time.reset();
 			} else {//otherwise just start
 				gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
-				shooter.gotoPosition(SHOOTER_PRELOAD_POS);
+				shooter.gotoPosition(SHOOTER_PRELOAD_POS+20);
 				shooter.setLoadWheels(-0.65);
 				time.reset();
 				regrippingState = 1;
@@ -471,9 +473,9 @@ public class BoulderController {
 		case 1:
 				// unload ball for pickup
 			gatherer.gotoPosition(GATHER_LOAD_SHOOTER_POS);
-			shooter.gotoPosition(SHOOTER_PRELOAD_POS);
+			shooter.gotoPosition(SHOOTER_PRELOAD_POS + 20);
 			shooter.setLoadWheels(-0.65);
-			if(time.get() > .5){
+			if(time.get() > 1.0){
 				regrippingState = 2;
 				time.reset();
 				regripGatherState = 3;
@@ -484,13 +486,22 @@ public class BoulderController {
 			gatherState = regripGatherState;
 			gather();
 			regripGatherState = gatherState;
-			if(gatherState == 9){
+			if(gatherState == 6){
 				regrippingState = 3;
 			}
 			break;
 			
-		case 3: //done!
+		case 3: //the go to stow part
+			gatherState = regripGatherState;
+			gather();
+			regripGatherState = gatherState;
+			if(gatherState == 9){
+				regrippingState = 3;
+			}
 			break; 
+			
+		case 4://done
+			break;
 		}
 	}
 

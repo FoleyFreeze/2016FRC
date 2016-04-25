@@ -20,10 +20,18 @@ public class Gatherer {
 
 		goToPositionControl(false);
 		gatherArm.enableBrakeMode(true);
-		gatherArm.configPeakOutputVoltage(7.0, -3.5);
+		gatherVoltage();
 		gatherArm.setPID(8, 0.04, 0.0); //used to be 30 , 0.05 //P used to be 20 I .05
 		gatherArm.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
 		goToPositionControl(false);
+	}
+	
+	public void gatherVoltage(){
+		if(IO.COMP){
+			gatherArm.configPeakOutputVoltage(7.0, -3.5);
+		} else {
+			gatherArm.configPeakOutputVoltage(7.0, -6.5); //was 7, -3.5
+		}
 	}
 
 	public void goToPositionControl(boolean autoControl) {  
@@ -70,7 +78,7 @@ public class Gatherer {
 			//prevVoltSwitch = true;
 		} else {
 			//if(prevVoltSwitch){
-				gatherArm.configPeakOutputVoltage(7.0, -3.5);
+			gatherVoltage();
 			//}
 			//prevVoltSwitch = false;
 		}

@@ -43,6 +43,7 @@ public class Shooter {
 	public Shooter(PowerDistributionPanel pdp) {
 		this.pdp = pdp;
 		time.start();
+		armTime.start();
 		shooterWheelL = new CANTalon(IO.SHOOTER_WHEEL_L);
 		shooterWheelR = new CANTalon(IO.SHOOTER_WHEEL_R);
 		shooterArm = new CANTalon(IO.SHOOTER_ARM);
@@ -72,7 +73,7 @@ public class Shooter {
 			shooterArm.setPID(8, 0, 0);//was 8
 		} else {
 			shooterArm.configPeakOutputVoltage(9.5, -9.5);//was 9.0 -7.5
-			shooterArm.setPID(12, 0, 0);//was 8
+			shooterArm.setPID(10, 0, 0);//was 8
 		}
 		
 		shooterArm.setAllowableClosedLoopErr(2); //3.28 was 5
@@ -102,11 +103,14 @@ public class Shooter {
 		final double CEIL = BoulderController.SHOOTER_MAX_HEIGHT;
 		final double FLOOR = 0;
 		if (position < FLOOR) {
-			shooterArm.set(FLOOR);
+			//shooterArm.set(FLOOR);
+			driveArm(FLOOR);
 		} else if (position > CEIL) {
-			shooterArm.set(CEIL);
+			//shooterArm.set(CEIL);
+			driveArm(CEIL);
 		} else {
-			shooterArm.set(position);
+			//shooterArm.set(position);
+			driveArm(position);
 		}
 		
 		//switch the minimum voltage at the top end of the 4bar to allow smoother movement
@@ -117,7 +121,7 @@ public class Shooter {
 			prevVoltSwitch = true;
 		} else {
 			if(prevVoltSwitch){
-				shooterArm.configNominalOutputVoltage(1.0, -1.0);
+				shooterArm.configNominalOutputVoltage(0.0, -0.0); //was 1 -1
 			}
 			prevVoltSwitch = false;
 		}
@@ -211,7 +215,8 @@ public class Shooter {
 		//dont allow full power in manual mode
 		YAxisGamepadRight /= 1.5;
 		
-		shooterArm.set(YAxisGamepadRight); //flipped for comp bot
+//		//shooterArm.set(YAxisGamepadRight); //flipped for comp bot
+		driveArm(YAxisGamepadRight);
 		loadWheelR.set(-LoadWheelAxis);//flipped for comp
 		loadWheelL.set(LoadWheelAxis);//flipped for comp
 		
@@ -234,31 +239,34 @@ public class Shooter {
 		loadWheelL.set(speed);//flipped for comp
 	}
 	
-	double AMP_THRESHOLD = 20;
-	double STOP_TIME = 5;
-	double START_TIME = 5;
+	double AMP_THRESHOLD = 30;
+	double STOP_TIME = 0.5; // TODO : make larger for competition
+	double START_TIME = 10;	// TODO : make smaller for competition
 	boolean SAFE_STOP = false;
+	Timer armTime = new Timer();
 	
 	public void driveArm(double drive){
 		double amps = pdp.getCurrent(IO.SHOOTER_ARM);
 		
 		if(SAFE_STOP){
-			if(time.get() > START_TIME){
-				time.reset();
+			if(armTime.get() > START_TIME){
+				armTime.reset();
 				shooterArm.enable();
 				SAFE_STOP = false;
+			} else {
+				shooterArm.disable();
 			}
 		} else {
 	 		
 			if (amps > AMP_THRESHOLD){
-				if(time.get() > STOP_TIME){
+				if(armTime.get() > STOP_TIME){
 					shooterArm.disable();
 					SAFE_STOP = true;
 				} else {
 					shooterArm.set(drive);
 				}
 			} else {
-				time.reset();
+				armTime.reset();
 				shooterArm.set(drive);
 			}
 		}
