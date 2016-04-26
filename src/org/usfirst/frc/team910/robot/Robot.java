@@ -34,6 +34,7 @@ public class Robot extends IterativeRobot {
 	
 	DriveTrain drive;
 	BoulderController BC;
+	Climber climber;
 
 	Solenoid ringOfFire;
 	Solenoid irSensor;
@@ -80,6 +81,7 @@ public class Robot extends IterativeRobot {
 		
 		drive = new DriveTrain(navX);
 		BC = new BoulderController(pdp, drive);
+		climber = new Climber(pdp);
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 
@@ -323,12 +325,16 @@ public class Robot extends IterativeRobot {
 		}
 
 		//allow jog up and down
-		if(driveBoard.getRawButton(IO.LR_JOG_BTN)){
-			jog(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
-					driveBoard.getRawButton(IO.JOG_SHOOTER_DOWN));
-		} else {
-			BC.jog(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
+		if(IO.JOG_ALL_THE_THINGS){ //allow jogging of many different constants
+			jog(driveBoard,rJoy);
+		} else { //revert to jogging just the shooter arm up down left right, but its the way the drivers have practiced
+			if(driveBoard.getRawButton(IO.LR_JOG_BTN)){
+				jog_lr(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
 						driveBoard.getRawButton(IO.JOG_SHOOTER_DOWN));
+			} else {
+				BC.jog(driveBoard.getRawButton(IO.JOG_SHOOTER_UP),
+							driveBoard.getRawButton(IO.JOG_SHOOTER_DOWN));
+			}
 		}
 
 		int angle = WASDToAngle(driveBoard.getRawButton(IO.WASD_W), driveBoard.getRawButton(IO.WASD_A),
@@ -422,6 +428,9 @@ public class Robot extends IterativeRobot {
 		if (rJoy.getRawButton(IO.ZERO_YAW)) {
 			navX.zeroYaw();
 		}
+		
+		//run the climber thing
+		climber.run(driveBoard);
 
 		SmartDashboard.putNumber("wasd angle", angle);
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
@@ -521,10 +530,7 @@ public class Robot extends IterativeRobot {
 		return accel / accelArray.length;
 	}
 	
-	boolean prevJogUp = false;
-	boolean prevJogDown = false;
-	
-	public void jog(boolean jogUp, boolean jogDown) {
+	public void jog_lr(boolean jogUp, boolean jogDown) {
 		// Adds a static amount to the shooter's position, up or down
 		if (jogUp && !prevJogUp) {
 
@@ -536,5 +542,167 @@ public class Robot extends IterativeRobot {
 
 		prevJogUp = jogUp;
 		prevJogDown = jogDown;
+	}
+	
+	boolean prevJogUp = false;
+	boolean prevJogDown = false;
+	boolean prevJogIdxUp = false;
+	boolean prevJogIdxDwn = false;
+	
+	//jog function that jogs many different systems
+	String[] jogFunctions = {"ShooterUpDwn", "RobotLR", "ShooterPwr", "GatherUpDwn", "BallDist", "CamValLow", 
+			"CamValHigh", "CamHueLow", "CamHueHigh", "CamDispBin", "AlignPVal","AlignIVal","AlignMaxPwr","AlignMaxI","ClimbPower"};	
+	int jogFunctionIndex = 0;
+	public void jog(Joystick joy, Joystick joy2){
+		//handle jog button logic
+		boolean jogUpBtn = joy.getRawButton(IO.JOG_SHOOTER_UP);
+		boolean jogDwnBtn = joy.getRawButton(IO.JOG_SHOOTER_DOWN); 
+		
+		//if jogging is up or down, record 1 or -1 to then apply the jog constant for the selected constant that will be jogged
+		int jog = 0;
+		if(jogUpBtn && !prevJogUp) jog = 1;
+		if(jogDwnBtn && !prevJogDown) jog = -1;
+		
+		//remember state for next time
+		prevJogUp = jogUpBtn;
+		prevJogDown = jogDwnBtn;
+		
+		//same thing as above, but for the jog function index that keeps track of what constant is being jogged
+		boolean jogIdxUp = joy2.getRawButton(IO.JOG_IDX_UP);
+		boolean jogIdxDwn = joy2.getRawButton(IO.JOG_IDX_DWN);
+		
+		if(jogIdxUp && !prevJogIdxUp && jogFunctionIndex < jogFunctions.length-1) jogFunctionIndex++;
+		if(jogIdxDwn && !prevJogIdxDwn && jogFunctionIndex > 0) jogFunctionIndex--;
+		
+		prevJogIdxUp = jogIdxUp;
+		prevJogIdxDwn = jogIdxDwn;
+		
+		//now, select the constant being jogged, and jog it if the jog has been set to 1 or -1, otherwise do nothing
+		double joggedValue = 0; //record the value of the thing we are jogging
+		switch(jogFunctionIndex){
+		case 0:
+			BC.jogoffset += BC.JOGNUMBER * jog;
+			joggedValue = BC.jogoffset;
+			break;
+			
+		case 1://RobotLR
+			lr_jog_deg += JOGNUMBER_DEG * jog;
+			joggedValue = lr_jog_deg;
+			break;
+			
+		case 2://ShooterPwr
+			IO.POWER_ADJ += 0.025 * jog;
+			joggedValue = IO.POWER_ADJ;
+			break;
+			
+		case 3://GatherUpDwn
+			BoulderController.GATHER_SETPOINT_POS += BC.JOGNUMBER * jog; 
+			joggedValue = BoulderController.GATHER_SETPOINT_POS;
+			break;
+			
+		case 4://BallDist
+			if(IO.COMP){
+				BC.BALL_DISTANCE_COMP += 0.05 * jog;
+				joggedValue = BC.BALL_DISTANCE_COMP;
+			} else {
+				BC.BALL_DISTANCE_PRAC += 0.05 * jog;
+				joggedValue = BC.BALL_DISTANCE_PRAC;
+			}
+			break;
+			
+		case 5://CamValLow
+			if(IO.COMP){
+				vp.COMP_VAL_RANGE_LOW += 5 * jog;
+				joggedValue = vp.COMP_VAL_RANGE_LOW;
+			} else {
+				vp.PRAC_VAL_RANGE_LOW += 5 * jog;
+				joggedValue = vp.PRAC_VAL_RANGE_LOW;
+			}
+			break;
+			
+		case 6://CamValHigh
+			if(IO.COMP){
+				vp.COMP_VAL_RANGE_HIGH += 5 * jog;
+				joggedValue = vp.COMP_VAL_RANGE_HIGH;
+			} else {
+				vp.PRAC_VAL_RANGE_HIGH += 5 * jog;
+				joggedValue = vp.PRAC_VAL_RANGE_HIGH;
+			}
+			break;
+			
+		case 7://CamHueLow
+			if(IO.COMP){
+				vp.COMP_HUE_RANGE_LOW += 5 * jog;
+				joggedValue = vp.COMP_HUE_RANGE_LOW;
+			} else {
+				vp.PRAC_HUE_RANGE_LOW += 5 * jog;
+				joggedValue = vp.PRAC_HUE_RANGE_LOW;
+			}
+			break;
+		
+		case 8://CamHueHigh
+			if(IO.COMP){
+				vp.COMP_HUE_RANGE_HIGH += 5 * jog;
+				joggedValue = vp.COMP_HUE_RANGE_HIGH;
+			} else {
+				vp.PRAC_HUE_RANGE_HIGH += 5 * jog;
+				joggedValue = vp.PRAC_HUE_RANGE_HIGH;
+			}
+			break;
+			
+		case 9://CamDispBin
+			vp.DISP_BINARY_FRAME += jog;
+			joggedValue = vp.DISP_BINARY_FRAME;
+			break;
+			
+		case 10://AlignPVal
+			if(IO.COMP){
+				drive.COMP_P_VAL += 0.01 * jog;
+				joggedValue = drive.COMP_P_VAL;
+			} else {
+				drive.PRAC_P_VAL += 0.01 * jog;
+				joggedValue = drive.PRAC_P_VAL;
+			}
+			break;
+		
+		case 11://AlignIVal
+			if(IO.COMP){
+				drive.COMP_I_VAL += 0.001 * jog;
+				joggedValue = drive.COMP_I_VAL;
+			} else {
+				drive.PRAC_I_VAL += 0.001 * jog;
+				joggedValue = drive.PRAC_I_VAL;
+			}
+			break;
+			
+		case 12://AlignMaxPwr
+			if(IO.COMP){
+				drive.COMP_MAX_PWR += 0.01 * jog;
+				joggedValue = drive.COMP_MAX_PWR;
+			} else {
+				drive.PRAC_MAX_PWR += 0.01 * jog;
+				joggedValue = drive.PRAC_MAX_PWR;
+			}
+			break;
+			
+		case 13://AlignMaxI
+			if(IO.COMP){
+				drive.COMP_MAX_I += 0.01 * jog;
+				joggedValue = drive.COMP_MAX_I;
+			} else {
+				drive.PRAC_MAX_I += 0.01 * jog;
+				joggedValue = drive.PRAC_MAX_I;
+			}
+			break;
+			
+		case 14://ClimbPower
+			climber.CLIMB_POWER += 0.05 * jog;
+			joggedValue = climber.CLIMB_POWER;
+			break;
+		}
+		
+		//display jog data on driver station
+		SmartDashboard.putString("Current Jog", jogFunctions[jogFunctionIndex]);
+		SmartDashboard.putNumber("Jog Value", joggedValue);
 	}
 }

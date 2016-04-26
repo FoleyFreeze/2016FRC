@@ -159,8 +159,8 @@ public class Shooter {
 
 	public void prime(double shooterSpeed, boolean layup) {
 		
-		if(!layup){
-			double shooterPower = IO.lookup(IO.MOTOR_POWERS, IO.DISTANCE_AXIS, Robot.vp.getDistance());
+		if(!layup){ //moved IO.POWER_ADJ to here instead of in every array, also allows POWER_ADJ to be jogged
+			double shooterPower = IO.POWER_ADJ * IO.lookup(IO.MOTOR_POWERS, IO.DISTANCE_AXIS, Robot.vp.getDistance());
 			SmartDashboard.putNumber("lookupPower", shooterPower);
 			if(Robot.vp.getDistance() == 0){
 				shooterPower = shooterSpeed;

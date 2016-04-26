@@ -504,19 +504,28 @@ public class DriveTrain {
 	double integral = 0;
 	double prevAngle = 0;
 	
+	double COMP_P_VAL = 0.15;
+	double COMP_I_VAL = 0.005;
+	double COMP_MAX_PWR = 0.45;
+	double COMP_MAX_I = 0.12;
+	double PRAC_P_VAL = 0.10;
+	double PRAC_I_VAL = 0.005;
+	double PRAC_MAX_PWR = 0.25;
+	double PRAC_MAX_I = 0.2;
+	
 	public void cameraAlign(double cameraAngle, double botAngle){ //double YAxisLeft, double YAxisRight, boolean firstTime 
 		// Moves shooter to the camera's position
 		double P_VAL, I_VAL, MAX_PWR, MAX_I;
 		if(IO.COMP){
-			P_VAL = 0.15;//was .14  //was .1     4/7/2016 MrC								 // was .1 4/1/2016
-			I_VAL = 0.005;
-			MAX_PWR = 0.45;
-			MAX_I = 0.12;
+			P_VAL = COMP_P_VAL;
+			I_VAL = COMP_I_VAL;
+			MAX_PWR = COMP_MAX_PWR;
+			MAX_I = COMP_MAX_I;
 		} else {
-			P_VAL = 0.1;
-			I_VAL = 0.005;
-			MAX_PWR = 0.25;
-			MAX_I = 0.2;//.15
+			P_VAL = PRAC_P_VAL;
+			I_VAL = PRAC_I_VAL;
+			MAX_PWR = PRAC_MAX_PWR;
+			MAX_I = PRAC_MAX_I;
 		}
 		
 		double diff;

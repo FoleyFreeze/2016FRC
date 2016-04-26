@@ -29,9 +29,8 @@ public class BoulderController {
 	double SHOOTER_PRELOAD_POS = SHOOTER_MAX_HEIGHT - 450;//440 //4/16// 4.20 was 452
 	double SHOOTER_LOAD_POS = SHOOTER_MAX_HEIGHT -472;//468 //4/16//  							was 473 comp 
 
-	
-	static double GATHER_FULLDOWN_POS = 616; //626 //4/16//was 617  LOWER numbers when gatherer is LOWER
 	static double GATHER_SETPOINT_POS = 616; //626 // 4/16
+	static double GATHER_FULLDOWN_POS = GATHER_SETPOINT_POS; //626 //4/16//was 617  LOWER numbers when gatherer is LOWER
 	double GATHER_LOAD_SHOOTER_POS = GATHER_SETPOINT_POS + 10;//was 40//4/16//was 12  //currently same as comp
 	double GATHER_INTAKE_POS = GATHER_SETPOINT_POS + 90; //4/16// 3.28 was 86 3.30 was 100// currently same as comp
 	static double GATHER_STOW_POS = GATHER_SETPOINT_POS + 225; //4/16// 3.28 was 333// currently same as comp

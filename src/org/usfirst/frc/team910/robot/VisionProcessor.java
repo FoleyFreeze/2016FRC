@@ -5,6 +5,7 @@ import com.ni.vision.NIVision.DrawMode;
 import com.ni.vision.NIVision.Image;
 import com.ni.vision.NIVision.ImageType;
 import com.ni.vision.NIVision.MeasurementType;
+import com.ni.vision.NIVision.Range;
 import com.ni.vision.NIVision.Rect;
 import com.ni.vision.NIVision.ShapeMode;
 import com.ni.vision.VisionException;
@@ -26,11 +27,26 @@ public class VisionProcessor {
 	boolean visionCrashed = false;
 	boolean visionSetupWorked = false;
 
-	// constants
-	NIVision.Range COMP_HUE_RANGE = new NIVision.Range(60,140); //for green led with comp bot 
-	NIVision.Range PRAC_HUE_RANGE = new NIVision.Range(0,255); //for white led with practice bot 
+	
+	//range constants
+	boolean recalcHueRange = false;
+	boolean recalcValRange = false;
+	int COMP_HUE_RANGE_LOW = 60;
+	int COMP_HUE_RANGE_HIGH = 140;
+	int COMP_VAL_RANGE_LOW = 40;
+	int COMP_VAL_RANGE_HIGH = 150;
+	int PRAC_HUE_RANGE_LOW = 0;
+	int PRAC_HUE_RANGE_HIGH = 255;
+	int PRAC_VAL_RANGE_LOW = 40;
+	int PRAC_VAL_RANGE_HIGH = 150;
+	
+	NIVision.Range COMP_HUE_RANGE = new NIVision.Range(COMP_HUE_RANGE_LOW, COMP_HUE_RANGE_HIGH); //for green led with comp bot 
+	NIVision.Range PRAC_HUE_RANGE = new NIVision.Range(PRAC_HUE_RANGE_LOW, PRAC_HUE_RANGE_HIGH); //for white led with practice bot 
 	NIVision.Range SAT_RANGE = new NIVision.Range(0, 255);
-	NIVision.Range VAL_RANGE = new NIVision.Range(40, 150); //was 40 150
+	NIVision.Range COMP_VAL_RANGE = new NIVision.Range(COMP_VAL_RANGE_LOW, COMP_VAL_RANGE_HIGH); //was 40 150
+	NIVision.Range PRAC_VAL_RANGE = new NIVision.Range(PRAC_VAL_RANGE_LOW, PRAC_VAL_RANGE_HIGH); //was 40 150
+	
+	// constants	
 	double VIEW_ANGLE = 55.5; //was 60; // msft hd 3000
 	double DEG_PER_PIX = 0.0854; //for cropped 0.06975, if scaled, use 0.0854
 	double REAL_TARGET_HEIGHT = 14; //target height is 1' 2''
@@ -43,6 +59,8 @@ public class VisionProcessor {
 	double AREA_MAX = 100.0;
 	double TARGET_SCORE = 0.18;
 
+	int DISP_BINARY_FRAME = 0;
+	
 	// filter criteria
 	NIVision.ParticleFilterCriteria2 criteria[] = new NIVision.ParticleFilterCriteria2[1];
 	NIVision.ParticleFilterOptions2 filterOptions = new NIVision.ParticleFilterOptions2(0, 0, 1, 1);
@@ -186,15 +204,22 @@ public class VisionProcessor {
 			try {
 				//NIVision.IMAQdxStartAcquisition(session);
 				//configureSettings(session);
+				if(IO.COMP){
+					if(recalcHueRange) COMP_HUE_RANGE = new NIVision.Range(COMP_HUE_RANGE_LOW,COMP_HUE_RANGE_HIGH);
+					if(recalcValRange) COMP_VAL_RANGE = new NIVision.Range(COMP_VAL_RANGE_LOW,COMP_VAL_RANGE_HIGH);
+				} else {
+					if(recalcHueRange) PRAC_HUE_RANGE = new NIVision.Range(PRAC_HUE_RANGE_LOW,PRAC_HUE_RANGE_HIGH);
+					if(recalcValRange) PRAC_VAL_RANGE = new NIVision.Range(PRAC_VAL_RANGE_LOW,PRAC_VAL_RANGE_HIGH);
+				}
 				
 				System.out.println("Grabbing frame buffer: " + session + " at Time: " + Timer.getFPGATimestamp());
 				NIVision.IMAQdxGrab(session, frame, buffid);
 				
 				System.out.println("Applying Color Threshold: " + session + " at Time: " + Timer.getFPGATimestamp());
 				if(IO.COMP){
-					NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, COMP_HUE_RANGE, SAT_RANGE, VAL_RANGE);
+					NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, COMP_HUE_RANGE, SAT_RANGE, COMP_VAL_RANGE);
 				} else {
-					NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, PRAC_HUE_RANGE, SAT_RANGE, VAL_RANGE);
+					NIVision.imaqColorThreshold(binaryFrame, frame, 255, NIVision.ColorMode.HSV, PRAC_HUE_RANGE, SAT_RANGE, PRAC_VAL_RANGE);
 				}
 				
 				// total number of particles
@@ -202,8 +227,10 @@ public class VisionProcessor {
 				int numParticles = NIVision.imaqCountParticles(binaryFrame, 1);
 				SmartDashboard.putNumber("Masked particles", numParticles);
 		
-				//CameraServer.getInstance().setImage(binaryFrame);
-		
+				if(DISP_BINARY_FRAME != 0){
+					CameraServer.getInstance().setImage(binaryFrame);
+				}
+				
 				// filter out small particles
 				System.out.println("Filtering Particles: " + session + " at Time: " + Timer.getFPGATimestamp());
 				int imaqError = NIVision.imaqParticleFilter4(binaryFrame, binaryFrame, criteria, filterOptions, null);
@@ -288,7 +315,9 @@ public class VisionProcessor {
 				// time.reset();
 		
 				// draw image to driver station
-				CameraServer.getInstance().setImage(frame);
+				if(DISP_BINARY_FRAME == 0){
+					CameraServer.getInstance().setImage(frame);
+				}
 				
 				//NIVision.IMAQdxStopAcquisition(session);
 				// CameraServer.getInstance().setImage(binaryFrame);

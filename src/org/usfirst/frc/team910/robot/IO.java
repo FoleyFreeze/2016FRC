@@ -3,6 +3,7 @@ package org.usfirst.frc.team910.robot;
 public class IO {
 	//running the competition bot
 	public static final boolean COMP = false;
+	public static final boolean JOG_ALL_THE_THINGS = true;
 	
 	// inputs
 	public static final int LEFT_DRIVE_MOTOR = 1;
@@ -56,6 +57,7 @@ public class IO {
 	public static final int WASD_S = 19;
 	public static final int WASD_D = 18;
 	public static final int FLIP_CONTROLS = 17;
+	public static final int CLIMB_1 = 10;
 	public static final int CLIMB_2 = 22;
 	
 	// l-joy
@@ -73,6 +75,8 @@ public class IO {
 	// r-joy
 	public static final int COMPASS_POWER_THROTTLE = 2;
 	public static final int ZERO_YAW = 3;
+	public static final int JOG_IDX_UP = 8;
+	public static final int JOG_IDX_DWN = 7;
 	
 	//auton cals
 	public static final double MAX_FLAT_PITCH = 15;// was 20;
@@ -83,9 +87,9 @@ public class IO {
 	
 	/*						//COMP BOT VALUES
 	// camera distance cals
-	public static final double POWER_ADJ = 0.85; // was .9
+	public static double POWER_ADJ = 0.85; // was .9
 	public static final double[] DISTANCE_AXIS = {  70,   80,   94,    100,    110,    120,    150,    160 }; //in inches
-	public static final double[] MOTOR_POWERS = {  0.63 * POWER_ADJ,  0.63 * POWER_ADJ,  0.63 * POWER_ADJ,  0.635 * POWER_ADJ,  0.645 * POWER_ADJ,  0.655 * POWER_ADJ,  0.685 * POWER_ADJ,  0.685 * POWER_ADJ };	//was .6,.6,.6,.635
+	public static final double[] MOTOR_POWERS = {  0.63,  0.63,  0.63,  0.635,  0.645,  0.655,  0.685,  0.685 };	//was .6,.6,.6,.635
 	public static final double[] SHOOTER_ANGLE = { -35,  -35,  -24,    -20,      0,      0,      0,      0 };	//was -27,-26,-22,-20  3.30 MrC
 	//public static final double[] SHOOTER_ANGLE = { -32,  -30,  -24,    -20,      0,      0,      0,      0 };	//was -27,-26,-22,-20  3.30 MrC
 	*/
@@ -93,9 +97,9 @@ public class IO {
 	
 							//PRAC BOT VALUES
 	// camera distance cals
-	public static final double POWER_ADJ = 1; // was .95// was .9
+	public static double POWER_ADJ = 1; // was .95// was .9
 	public static final double[] DISTANCE_AXIS = {  70,   80,   94,    100,    110,    120,    150,    160 }; //in inches
-	public static final double[] MOTOR_POWERS = {  0.63 * POWER_ADJ,  0.63 * POWER_ADJ,  0.63 * POWER_ADJ,  0.635 * POWER_ADJ,  0.645 * POWER_ADJ,  0.655 * POWER_ADJ,  0.685 * POWER_ADJ,  0.685 * POWER_ADJ };	//was .6,.6,.6,.635
+	public static final double[] MOTOR_POWERS = {  0.63,  0.63,  0.63,  0.635,  0.645,  0.655,  0.685,  0.685 };	//was .6,.6,.6,.635
 	public static final double[] SHOOTER_ANGLE = { -35,  -35,  -24,    -20,      0,      0,      0,      0 };	//was -27,-26,-22,-20  3.30 MrC
 	//public static final double[] SHOOTER_ANGLE = { -32,  -30,  -24,    -20,      0,      0,      0,      0 };	//was -27,-26,-22,-20  3.30 MrC
 	
