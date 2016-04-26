@@ -21,17 +21,7 @@ public class Climber {
 	
 	public void run(Joystick driveBoard){
 		
-		if(climberReleased){
-			if(driveBoard.getRawButton(IO.CLIMB_1)){
-				if(driveBoard.getRawButton(IO.CLIMB_2)){
-					climbMotor.set(CLIMB_POWER);
-				} else {
-					climbMotor.set(-CLIMB_POWER);
-				}
-			}
-			
-		} else { //if climber not yet released then check if it should be
-		
+		if(!climberReleased || driveBoard.getRawButton(IO.JOG_SHOOTER_UP)){//if climber not yet released then check if it should be
 			boolean releaseClimber = driveBoard.getRawButton(IO.CLIMB_2) &&
 					driveBoard.getRawButton(IO.CLIMB_1) && 
 					driveBoard.getRawButton(IO.JOG_SHOOTER_UP);
@@ -39,9 +29,22 @@ public class Climber {
 			if(releaseClimber){
 				//do something crazy
 				climberReleased = true;
+			} else {
+				climbMotor.set(0);
+			}
+			
+		} else { //climber released, press buttons to climb
+		
+			if(driveBoard.getRawButton(IO.CLIMB_1)){
+				if(driveBoard.getRawButton(IO.CLIMB_2)){
+					climbMotor.set(CLIMB_POWER);
+				} else {
+					climbMotor.set(-CLIMB_POWER);
+				}
+			} else {
+				climbMotor.set(0);
 			}
 		}
-		
 		
 	}
 	
