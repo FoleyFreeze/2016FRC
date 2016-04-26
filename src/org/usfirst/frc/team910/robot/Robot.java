@@ -81,7 +81,7 @@ public class Robot extends IterativeRobot {
 		
 		drive = new DriveTrain(navX);
 		BC = new BoulderController(pdp, drive);
-		climber = new Climber(pdp);
+		climber = new Climber(pdp, navX);
 
 		lJoy = new Joystick(IO.LEFT_JOYSTICK);
 
@@ -270,10 +270,12 @@ public class Robot extends IterativeRobot {
 		if (automaticMode) {
 
 			if(cameraState != 3){ //when camera state is 3, the camera runs the shooter
-				BC.gatherer.goToPositionControl(automaticMode);
-				BC.shooter.goToPositionControl(automaticMode);
+				if(climber.climberClimbing){//dont mess around when climbing
+					BC.gatherer.goToPositionControl(automaticMode);
+					BC.shooter.goToPositionControl(automaticMode);
+				}
 				
-				BC.runBC(driveBoard);
+				BC.runBC(driveBoard, climber.climberClimbing, climber.climberRequestedShootArmPower);
 			}
 			
 			SmartDashboard.putNumber("shooterArm setpoint", BC.shooter.shooterArm.getSetpoint());

@@ -28,6 +28,7 @@ public class IO {
 	public static final int LOAD_WHEEL_R = 5;
 
 	public static final int CLIMBER_ARM_MOTOR = 7;
+	public static final int CLIMB_SERVO = 7; 
 
 	// outputs
 	public static final int LEFT_JOYSTICK = 0;

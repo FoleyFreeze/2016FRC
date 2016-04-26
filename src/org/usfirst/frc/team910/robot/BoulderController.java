@@ -120,104 +120,110 @@ public class BoulderController {
 
 	boolean prevFire = false;
 
-	public void runBC(Joystick driverstation) {
+	public void runBC(Joystick driverstation, boolean climberClimbing, double climberRequestedShootArmPower) {
 		// Sets all buttons to premade positions for gatherer and shooter arm
 		gatherer.aquireShooterPosition(shoottogather(shooter.getPosition()));
 		shooter.aquireGatherPosition(gathertoshoot(gatherer.getPosition()));
+		
+		if(climberClimbing){
+			stabilizeClimb(climberRequestedShootArmPower);
+		
+		} else { //not climbing
+			if (driverstation.getRawButton(IO.LAYUP)){
+				buttonState = 0;
+				shooter.setLoadWheels(0);
+			} else if (driverstation.getRawButton(IO.STOW)){
+				buttonState = 1;
+				shooter.setLoadWheels(0);
+			} else if (driverstation.getRawButton(IO.FAR_SHOT)){
+				buttonState = 2;
+				shooter.setLoadWheels(0);
+			} else if (driverstation.getRawButton(IO.GATHER) && !driverstation.getRawButton(IO.CLIMB_2)) {
+				gatherState = 1;
+				buttonState = 3;
+				primeState = 0;
+			} else if (driverstation.getRawButton(IO.GATHER) && driverstation.getRawButton(IO.CLIMB_2)) {
+				buttonState = 9;
+			} else if (driverstation.getRawButton(IO.LOWBAR)) {
+				buttonState = 7;
+				shooter.setLoadWheels(0);
+				// } else if (driverstation.getRawButton(IO.PORT)) {
+				// button = 8;
+			} else if (driverstation.getRawButton(IO.SALLYPORT)) {
+				buttonState = 4;
+				shooter.setLoadWheels(0);
+			} else if (driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES)) {
+				flippyFloppies();
+				buttonState = 5;
+				shooter.setLoadWheels(0);
+				// } else if (driverstation.getRawButton(IO.DRAWBRIDGE)) {
+				// button = 6;
+			} else {
+				chevalState = 0;
+			}
+	
+			if (buttonState == 0) {
+				// set positions to lay up on gatherer and shooter arms//
+				layup();
+				gatherState = 1;
+				chevalState = 0;
+				regrippingState = 0;
+			}
+	
+			else if (buttonState == 1) {
+				// set positions to stow on gatherer and shooter arms//
+				stow();
+				gatherState = 1;
+				chevalState = 0;
+				regrippingState = 0;
+			}
+	
+			else if (buttonState == 2) {
+				// set positions to far shot on gatherer and shooter arms//
+				farShot();
+				gatherState = 1;
+				chevalState = 0;
+				regrippingState = 0;
+			}
+	
+			else if (buttonState == 3) {
+				// set positions to gather on gatherer and shooter arms//
+				gather();
+				chevalState = 0;
+				regrippingState = 0;
+			}
+	
+			else if (buttonState == 4) {
+				sallyPort(driverstation.getRawButton(IO.SALLYPORT));
+				gatherState = 1;
+				chevalState = 0;
+				regrippingState = 0;
+			} else if (buttonState == 5) {
+				gatherState = 1;
+				regrippingState = 0;
+			} else if (buttonState == 6) {
+				// drawbridge(driverstation.getRawButton(IO.DRAWBRIDGE));
+				gatherState = 1;
+				chevalState = 0;
+				regrippingState = 0;
+			} else if (buttonState == 7) {
+				lowBar(driverstation.getRawButton(IO.LOWBAR), driverstation.getRawButton(IO.PORT));
+				gatherState = 1;
+				chevalState = 0;
+				regrippingState = 0;
+			} else if (buttonState == 8) {
+				portcullis(driverstation.getRawButton(IO.PORT));
+				gatherState = 1;
+				chevalState = 0;
+				regrippingState = 0;
+			} else if (buttonState == 9){
+				gatherState = 1;
+				chevalState = 0;
+				regrip();
+			}
+		} //end not in climb mode
 
-		if (driverstation.getRawButton(IO.LAYUP)){
-			buttonState = 0;
-			shooter.setLoadWheels(0);
-		} else if (driverstation.getRawButton(IO.STOW)){
-			buttonState = 1;
-			shooter.setLoadWheels(0);
-		} else if (driverstation.getRawButton(IO.FAR_SHOT)){
-			buttonState = 2;
-			shooter.setLoadWheels(0);
-		} else if (driverstation.getRawButton(IO.GATHER) && !driverstation.getRawButton(IO.CLIMB_2)) {
-			gatherState = 1;
-			buttonState = 3;
-			primeState = 0;
-		} else if (driverstation.getRawButton(IO.GATHER) && driverstation.getRawButton(IO.CLIMB_2)) {
-			buttonState = 9;
-		} else if (driverstation.getRawButton(IO.LOWBAR)) {
-			buttonState = 7;
-			shooter.setLoadWheels(0);
-			// } else if (driverstation.getRawButton(IO.PORT)) {
-			// button = 8;
-		} else if (driverstation.getRawButton(IO.SALLYPORT)) {
-			buttonState = 4;
-			shooter.setLoadWheels(0);
-		} else if (driverstation.getRawButton(IO.FLIPPY_DE_LOS_FLOPPIES)) {
-			flippyFloppies();
-			buttonState = 5;
-			shooter.setLoadWheels(0);
-			// } else if (driverstation.getRawButton(IO.DRAWBRIDGE)) {
-			// button = 6;
-		} else {
-			chevalState = 0;
-		}
-
-		if (buttonState == 0) {
-			// set positions to lay up on gatherer and shooter arms//
-			layup();
-			gatherState = 1;
-			chevalState = 0;
-			regrippingState = 0;
-		}
-
-		else if (buttonState == 1) {
-			// set positions to stow on gatherer and shooter arms//
-			stow();
-			gatherState = 1;
-			chevalState = 0;
-			regrippingState = 0;
-		}
-
-		else if (buttonState == 2) {
-			// set positions to far shot on gatherer and shooter arms//
-			farShot();
-			gatherState = 1;
-			chevalState = 0;
-			regrippingState = 0;
-		}
-
-		else if (buttonState == 3) {
-			// set positions to gather on gatherer and shooter arms//
-			gather();
-			chevalState = 0;
-			regrippingState = 0;
-		}
-
-		else if (buttonState == 4) {
-			sallyPort(driverstation.getRawButton(IO.SALLYPORT));
-			gatherState = 1;
-			chevalState = 0;
-			regrippingState = 0;
-		} else if (buttonState == 5) {
-			gatherState = 1;
-			regrippingState = 0;
-		} else if (buttonState == 6) {
-			// drawbridge(driverstation.getRawButton(IO.DRAWBRIDGE));
-			gatherState = 1;
-			chevalState = 0;
-			regrippingState = 0;
-		} else if (buttonState == 7) {
-			lowBar(driverstation.getRawButton(IO.LOWBAR), driverstation.getRawButton(IO.PORT));
-			gatherState = 1;
-			chevalState = 0;
-			regrippingState = 0;
-		} else if (buttonState == 8) {
-			portcullis(driverstation.getRawButton(IO.PORT));
-			gatherState = 1;
-			chevalState = 0;
-			regrippingState = 0;
-		} else if (buttonState == 9){
-			gatherState = 1;
-			chevalState = 0;
-			regrip();
-		}
-
+		//leave shooting enabled even when climbing
 		if (driverstation.getRawButton(IO.PRIME)) {
 			prime();
 		} else {
@@ -654,6 +660,57 @@ public class BoulderController {
 
 		prevJogUp = jogUp;
 		prevJogDown = jogDown;
+	}
+	
+	
+	double MIN_CLIMB_POWER = 0.7;
+	double DEADBAND_CLIMB_POWER = 0.1;
+	double LOW_POWER_APPLY_TIME = 0.4;
+	Timer climbTimer = new Timer();
+	boolean firstClimbTime = true;
+	boolean inPoweredState = false;
+	// WARNING: UNTESTED CODE. Not responsible for breaking robots
+	public void stabilizeClimb(double power){
+		shooter.goToPositionControl(false);
+		
+		if(firstClimbTime){
+			firstClimbTime = false;
+			climbTimer.start();
+			climbTimer.reset();
+		}
+		
+		//make sure arm is in operating range
+		double shooterPosition = shooter.getPosition();
+		if(shooterPosition >= SHOOTER_MAX_HEIGHT - 5) power = Math.max(0, power); //force power to be negative
+		if(shooterPosition <= SHOOTER_STOW_POS) power = Math.min(0, power); //force power to be positive
+		
+		if(Math.abs(power) > DEADBAND_CLIMB_POWER) {
+		
+		//make sure requested power will not burn out motor
+		if(Math.abs(power) > MIN_CLIMB_POWER){
+			shooter.driveArm(power); //power high enough, just move
+		} else {
+			//power too low, revert to long period PWM control
+			if(inPoweredState){ //power until time is up
+				shooter.driveArm(MIN_CLIMB_POWER * Math.signum(power)); //apply power (in the correct direction!)
+				
+				if(climbTimer.get() > LOW_POWER_APPLY_TIME) { //see if power phase complete
+					inPoweredState = false;
+					climbTimer.reset();
+				}
+			} else { //no power until time is up
+				shooter.driveArm(0);
+				
+				if(climbTimer.get() > 1.0 - Math.abs(power)){ //stay unpowered for the duration of 1sec minus the power we want to apply
+					inPoweredState = true;				 	//this means the more power we are requesting, the less time we stay unpowered
+					climbTimer.reset();
+				}
+			}
+		}
+		
+		} else { //not enough power, do nothing
+			shooter.driveArm(0);
+		}
 	}
 }
 	
