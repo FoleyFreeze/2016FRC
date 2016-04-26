@@ -379,7 +379,7 @@ public class Auton {
 			cameraAlign = true;
 			shooting = true;
 			shootanyway = false;
-			reverseDrive = true;
+			reverseDrive = false; //we havent written a recollapse thing yet, so false so we dont break the lowbar
 			poweredStop = false;
 			break;
 			
