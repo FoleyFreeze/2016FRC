@@ -12,7 +12,8 @@ public class Climber {
 
 	CANTalon climbMotor;
 	PowerDistributionPanel pdp;
-	Servo releaseServo;
+	Servo releaseServo1;
+	Servo releaseServo2;
 	AHRS navX;
 	
 	double CLIMB_POWER = 1.0;
@@ -23,7 +24,8 @@ public class Climber {
 		this.pdp = pdp;
 		this.navX = navX;
 		climbMotor = new CANTalon(IO.CLIMBER_ARM_MOTOR);
-		releaseServo = new Servo(IO.CLIMB_SERVO);
+		releaseServo1 = new Servo(IO.CLIMB_SERVO_1);
+		releaseServo2 = new Servo(IO.CLIMB_SERVO_2);
 	}
 	
 	boolean climberReleased = false;
@@ -38,6 +40,9 @@ public class Climber {
 			
 			if(driveBoard.getRawButton(IO.CLIMB_1)){
 				if(driveBoard.getRawButton(IO.CLIMB_2)){
+					climbMotor.set(-CLIMB_POWER);
+					
+				} else {
 					climberClimbing = true;
 					
 					climbMotor.set(CLIMB_POWER);
@@ -47,13 +52,11 @@ public class Climber {
 					
 					if(poweredClimbTime > 1.0){
 						//ONLY ENABLE THIS IF YOU KNOW WHAT YOU ARE DOING
+						//If it breaks, #BlameElectrical
 						//keepLevel();
 					} else {
 						climberRequestedShootArmPower = 0;
 					}
-					
-				} else {
-					climbMotor.set(-CLIMB_POWER);
 				}
 			} else {
 				//add the climbing time to the timer
@@ -62,6 +65,8 @@ public class Climber {
 				climberRequestedShootArmPower = 0;
 				climbMotor.set(0);
 			}
+			
+			
 			
 		} else { //if climber not yet released then check if it should be
 		
@@ -72,10 +77,11 @@ public class Climber {
 			if(releaseClimber){
 				//do something crazy
 				climberReleased = true;
-				releaseServo.set(SERVO_RELEASE_VAL);
-				climbMotor.set(0);
+				releaseServo1.set(SERVO_RELEASE_VAL);
+				releaseServo2.set(SERVO_RELEASE_VAL);
 			} else {
-				releaseServo.set(SERVO_START_VAL);
+				releaseServo1.set(SERVO_START_VAL);
+				releaseServo2.set(SERVO_START_VAL);
 				climbMotor.set(0);
 			}
 			

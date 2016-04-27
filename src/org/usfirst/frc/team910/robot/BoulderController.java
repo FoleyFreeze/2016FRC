@@ -663,7 +663,7 @@ public class BoulderController {
 	}
 	
 	
-	double MIN_CLIMB_POWER = 0.7;
+	double MIN_CLIMB_POWER = 0.6;
 	double DEADBAND_CLIMB_POWER = 0.1;
 	double LOW_POWER_APPLY_TIME = 0.4;
 	Timer climbTimer = new Timer();

@@ -264,7 +264,10 @@ public class Robot extends IterativeRobot {
 		 * manual gathering and shooting, and manual movement 
 		 */
 		//BetterCameraServer.start();
-
+		
+		//run the climber thing
+		climber.run(driveBoard);
+		
 		// this means on = auto, off = manual. Add ! before driveBoard to flip
 		boolean automaticMode = driveBoard.getRawButton(IO.MAN_AUTO_SW);
 		if (automaticMode) {
@@ -430,9 +433,6 @@ public class Robot extends IterativeRobot {
 		if (rJoy.getRawButton(IO.ZERO_YAW)) {
 			navX.zeroYaw();
 		}
-		
-		//run the climber thing
-		climber.run(driveBoard);
 
 		SmartDashboard.putNumber("wasd angle", angle);
 		SmartDashboard.putNumber("navX Pitch", navX.getPitch());
