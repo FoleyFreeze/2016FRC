@@ -205,11 +205,23 @@ public class VisionProcessor {
 				//NIVision.IMAQdxStartAcquisition(session);
 				//configureSettings(session);
 				if(IO.COMP){
-					if(recalcHueRange) COMP_HUE_RANGE = new NIVision.Range(COMP_HUE_RANGE_LOW,COMP_HUE_RANGE_HIGH);
-					if(recalcValRange) COMP_VAL_RANGE = new NIVision.Range(COMP_VAL_RANGE_LOW,COMP_VAL_RANGE_HIGH);
+					if(recalcHueRange){
+						COMP_HUE_RANGE = new NIVision.Range(COMP_HUE_RANGE_LOW,COMP_HUE_RANGE_HIGH);
+						recalcHueRange = false;
+					}
+					if(recalcValRange){
+						COMP_VAL_RANGE = new NIVision.Range(COMP_VAL_RANGE_LOW,COMP_VAL_RANGE_HIGH);
+						recalcValRange = false;
+					}
 				} else {
-					if(recalcHueRange) PRAC_HUE_RANGE = new NIVision.Range(PRAC_HUE_RANGE_LOW,PRAC_HUE_RANGE_HIGH);
-					if(recalcValRange) PRAC_VAL_RANGE = new NIVision.Range(PRAC_VAL_RANGE_LOW,PRAC_VAL_RANGE_HIGH);
+					if(recalcHueRange){
+						PRAC_HUE_RANGE = new NIVision.Range(PRAC_HUE_RANGE_LOW,PRAC_HUE_RANGE_HIGH);
+						recalcHueRange = false;
+					}
+					if(recalcValRange){
+						PRAC_VAL_RANGE = new NIVision.Range(PRAC_VAL_RANGE_LOW,PRAC_VAL_RANGE_HIGH);
+						recalcValRange = false;
+					}
 				}
 				
 				System.out.println("Grabbing frame buffer: " + session + " at Time: " + Timer.getFPGATimestamp());

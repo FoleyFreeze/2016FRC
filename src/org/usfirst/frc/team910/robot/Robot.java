@@ -561,7 +561,7 @@ public class Robot extends IterativeRobot {
 		boolean jogDwnBtn = joy.getRawButton(IO.JOG_SHOOTER_DOWN); 
 		
 		//if jogging is up or down, record 1 or -1 to then apply the jog constant for the selected constant that will be jogged
-		int jog = 0;
+		double jog = 0;
 		if(jogUpBtn && !prevJogUp) jog = 1;
 		if(jogDwnBtn && !prevJogDown) jog = -1;
 		
@@ -582,7 +582,7 @@ public class Robot extends IterativeRobot {
 		//now, select the constant being jogged, and jog it if the jog has been set to 1 or -1, otherwise do nothing
 		double joggedValue = 0; //record the value of the thing we are jogging
 		switch(jogFunctionIndex){
-		case 0:
+		case 0://ShooterUpDwn
 			BC.jogoffset += BC.JOGNUMBER * jog;
 			joggedValue = BC.jogoffset;
 			break;
@@ -613,6 +613,9 @@ public class Robot extends IterativeRobot {
 			break;
 			
 		case 5://CamValLow
+			if(jog != 0){
+				vp.recalcValRange = true;
+			}
 			if(IO.COMP){
 				vp.COMP_VAL_RANGE_LOW += 5 * jog;
 				joggedValue = vp.COMP_VAL_RANGE_LOW;
@@ -623,6 +626,9 @@ public class Robot extends IterativeRobot {
 			break;
 			
 		case 6://CamValHigh
+			if(jog != 0){
+				vp.recalcValRange = true;
+			}
 			if(IO.COMP){
 				vp.COMP_VAL_RANGE_HIGH += 5 * jog;
 				joggedValue = vp.COMP_VAL_RANGE_HIGH;
@@ -633,6 +639,9 @@ public class Robot extends IterativeRobot {
 			break;
 			
 		case 7://CamHueLow
+			if(jog != 0){
+				vp.recalcHueRange = true;
+			}
 			if(IO.COMP){
 				vp.COMP_HUE_RANGE_LOW += 5 * jog;
 				joggedValue = vp.COMP_HUE_RANGE_LOW;
@@ -643,6 +652,9 @@ public class Robot extends IterativeRobot {
 			break;
 		
 		case 8://CamHueHigh
+			if(jog != 0){
+				vp.recalcHueRange = true;
+			}
 			if(IO.COMP){
 				vp.COMP_HUE_RANGE_HIGH += 5 * jog;
 				joggedValue = vp.COMP_HUE_RANGE_HIGH;
